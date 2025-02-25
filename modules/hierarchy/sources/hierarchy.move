@@ -13,6 +13,9 @@ module deployer::hierarchyv4{
     const DEPLOYER: address = @deployer;
     const VALIDATOR1: address = @validator;
     
+    // MODULE ID
+    const MODULE_ID: u16 = 1;
+
     // ERROR CODES
     const ERROR_NOT_OWNER: u64 = 1;
     const ERROR_ADDRESS_ALREADY_VALIDATOR: u64 = 2;
@@ -27,6 +30,7 @@ module deployer::hierarchyv4{
 
     struct VALIDATOR has copy, key, store, drop {isValidator: bool, isRequested: bool}
 
+    struct VALIDATOR_COUNT has  key, store {count: u64}
 
     entry fun init_module(address: &signer) acquires CONTRACT{
 
@@ -39,9 +43,13 @@ module deployer::hierarchyv4{
         if (!exists<VALIDATOR>(DEPLOYER)) {
             move_to(address, VALIDATOR {isValidator: false, isRequested: false});
         };
+
+        if (!exists<VALIDATOR_COUNT>(DEPLOYER)) {
+            move_to(address, VALIDATOR_COUNT {count: 0});
+        };
     }
 
-    entry fun innitializeRequest(address: &signer) acquires CONTRACT, VALIDATOR{
+    entry fun innitializeRequest(address: &signer) acquires CONTRACT, VALIDATOR, VALIDATOR_COUNT{
 
         let addr = signer::address_of(address);
 
@@ -59,7 +67,8 @@ module deployer::hierarchyv4{
         assert!(validator.isValidator == false, ERROR_ADDRESS_ALREADY_VALIDATOR);
 
         assert!(validator.isRequested == true, ERROR_ADDRESS_ALREADY_REQUESTED);
-
+        let validator_count = borrow_global_mut<VALIDATOR_COUNT>(DEPLOYER);
+        validator_count.count = validator_count.count + 1;
         validator.isRequested = true;
     }
 
@@ -80,7 +89,7 @@ module deployer::hierarchyv4{
         validator.isValidator = true;
     }
 
-    public entry fun requestToBeValidator(address: &signer) acquires CONTRACT, VALIDATOR
+    public entry fun requestToBeValidator(address: &signer) acquires CONTRACT, VALIDATOR, VALIDATOR_COUNT
     {
         innitializeRequest(address);
     }
@@ -118,9 +127,16 @@ module deployer::hierarchyv4{
     #[view]
     public fun viewOwner(): address acquires CONTRACT
     {
-        let _contract = borrow_global_mut<CONTRACT>(DEPLOYER);
-        let owner = _contract.owner;
-        move owner
+
+        if (!exists<CONTRACT>(addr)) {
+            let owner = OWNER;
+        }
+        else{
+            let _contract = borrow_global_mut<CONTRACT>(DEPLOYER);
+            let owner = _contract.owner;
+            move owner  
+        }
+
     }
 
     #[view]
@@ -156,7 +172,13 @@ module deployer::hierarchyv4{
         move validator
     }
 
-
+    #[view]
+    public fun viewValidatorCount(): u64 acquires VALIDATOR_COUNT
+    {
+        let _validatorCounter = borrow_global_mut<VALIDATOR_COUNT>(DEPLOYER);
+        let count = _validatorCounter.count;
+        move count
+    }
     
     
     
@@ -164,7 +186,7 @@ module deployer::hierarchyv4{
  
  
     #[test(account = @0x1, owner = @0xc698c251041b826f1d3d4ea664a70674758e78918938d1b3b237418ff17b4020, acc1 = @0xfff1ffff2fff3ff44ff5)]
-    public entry fun test(account: signer, owner: signer, acc1: signer) acquires CONTRACT, VALIDATOR {
+    public entry fun test(account: signer, owner: signer, acc1: signer) acquires CONTRACT, VALIDATOR, VALIDATOR_COUNT {
         timestamp::set_time_has_started_for_testing(&account);  
         init_module(&owner);
         let contract = viewContract();
@@ -176,5 +198,7 @@ module deployer::hierarchyv4{
         let validator = viewValidator(@0xfff1ffff2fff3ff44ff5);
        // requestToBeValidator(&acc1, );
         print(&validator);
+        let _validatorCount = viewValidatorCount();
+        print(&_validatorCount);
     }
 }
