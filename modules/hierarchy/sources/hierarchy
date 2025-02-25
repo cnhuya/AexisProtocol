@@ -11,7 +11,7 @@ module deployer::hierarchyv4{
 
     const OWNER: address = @owner;
     const DEPLOYER: address = @deployer;
-    const MESSAGER: address = @messager;
+    const VALIDATOR1: address = @validator;
     
     // ERROR CODES
     const ERROR_NOT_OWNER: u64 = 1;
@@ -19,32 +19,24 @@ module deployer::hierarchyv4{
     const ERROR_ADDRESS_ALREADY_REQUESTED: u64 = 3;
     const ERROR_OWNER_CANT_BE_VALIDATOR: u64 = 4;
     const ERROR_ADDRESS_IS_NOT_VALIDATOR: u64 = 5;
+    const ERROR_DEPLOYER_CANT_BE_VALIDATOR: u64 = 6;
 
 
     struct CONTRACT has copy, store, key, drop {deployer: address, owner: address, validators: vector<address>}
 
     struct VALIDATOR has copy, key, store, drop {isValidator: bool, isRequested: bool}
 
-    struct PROPOSAL has copy, key, store, drop {}
-
-    //  voted -->
-    // 0 = did not vote
-    // 1 = voted for yes
-    // 2 = voted for no
-    struct VOTE has copy, key, store, drop {validator: address, voted: u8}
-
-    struct VOTING_TABLE has copy, key, store, drop {}
 
     entry fun init_module(address: &signer) acquires CONTRACT{
 
         if (!exists<CONTRACT>(DEPLOYER)) {
             move_to(address, CONTRACT {deployer: DEPLOYER, owner: OWNER, validators: vector::empty()});
             let contract = borrow_global_mut<CONTRACT>(DEPLOYER);
-            vector::push_back(&mut contract.validators, MESSAGER);
+            vector::push_back(&mut contract.validators, VALIDATOR1);
         };
 
         if (!exists<VALIDATOR>(DEPLOYER)) {
-            move_to(address, VALIDATOR {isValidator: true, isRequested: false});
+            move_to(address, VALIDATOR {isValidator: false, isRequested: false});
         };
     }
 
@@ -58,6 +50,9 @@ module deployer::hierarchyv4{
 
         let owner = viewOwner();
         assert!(addr != owner, ERROR_OWNER_CANT_BE_VALIDATOR);
+
+        let deployer = viewDeployer();
+        assert!(addr != deployer, ERROR_OWNER_CANT_BE_VALIDATOR);
 
         let validator = borrow_global_mut<VALIDATOR>(addr);
         assert!(validator.isValidator == false, ERROR_ADDRESS_ALREADY_VALIDATOR);
@@ -145,6 +140,24 @@ module deployer::hierarchyv4{
         let validator = *borrow_global_mut<VALIDATOR>(validator);
         move validator
     }
+
+    
+    #[view]
+    public fun returnValidator(validator: address): address acquires VALIDATOR
+    {
+        if (!exists<VALIDATOR>(validator)) {
+           abort(ERROR_ADDRESS_IS_NOT_VALIDATOR)
+        };
+
+        let validator = *borrow_global_mut<VALIDATOR>(validator);
+        move validator
+    }
+
+
+    
+    
+    
+
  
  
     #[test(account = @0x1, owner = @0xc698c251041b826f1d3d4ea664a70674758e78918938d1b3b237418ff17b4020, acc1 = @0xfff1ffff2fff3ff44ff5)]
