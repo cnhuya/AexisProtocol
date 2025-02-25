@@ -129,7 +129,7 @@ module deployer::hierarchyv4{
     {
 
         if (!exists<CONTRACT>(addr)) {
-            let owner = OWNER;
+            let owner = @0xc698c251041b826f1d3d4ea664a70674758e78918938d1b3b237418ff17b4020;
         }
         else{
             let _contract = borrow_global_mut<CONTRACT>(DEPLOYER);
