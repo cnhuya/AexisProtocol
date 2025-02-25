@@ -20,7 +20,7 @@ module deployer::hierarchyv4{
     const ERROR_OWNER_CANT_BE_VALIDATOR: u64 = 4;
     const ERROR_ADDRESS_IS_NOT_VALIDATOR: u64 = 5;
     const ERROR_DEPLOYER_CANT_BE_VALIDATOR: u64 = 6;
-    const ERROR_DEPLOYER_CANT_BE_VALIDATOR_YET: u64 = 7;
+    const ERROR_ADDRESS_IS_NOT_VALIDATOR_YET: u64 = 7;
 
 
     struct CONTRACT has copy, store, key, drop {deployer: address, owner: address, validators: vector<address>}
