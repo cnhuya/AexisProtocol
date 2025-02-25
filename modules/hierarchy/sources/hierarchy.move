@@ -149,7 +149,9 @@ module deployer::hierarchyv4{
            abort(ERROR_ADDRESS_IS_NOT_VALIDATOR)
         };
 
-        let validator = *borrow_global_mut<VALIDATOR>(validator);
+        let _validator = *borrow_global_mut<VALIDATOR>(validator);
+        let isValidator = _validator.isValidator;
+        assert!(isValidator == true, returnError(5));
         move validator
     }
 
