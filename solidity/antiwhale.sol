@@ -74,7 +74,7 @@ contract AntiWhale{
             
     */
 
-    function snipe() public {
+    function snipe() internal  {
         uint256 _nowInHours = block.timestamp / 3600;
         uint256 _startInHours = _start / 3600;
         uint256 Diff = _nowInHours - _startInHours;
