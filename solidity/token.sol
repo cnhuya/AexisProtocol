@@ -5,21 +5,22 @@ pragma solidity ^0.8.22;
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {ERC20Burnable} from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
 import {ERC20Permit} from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
-import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol"; 
 import {AntiWhale} from "tests/antiwhale.sol";
+import {Governance} from "tests/governance.sol";
 
 
-contract Aexis is ERC20, ERC20Burnable, Ownable, ERC20Permit, AntiWhale {
+contract Aexis is ERC20, ERC20Burnable, ERC20Permit, AntiWhale, Governance {
     address public FeeCollector = 0xAb8483F64d9C6d1EcF9b849Ae677dD3315835cb2;
     uint8 public monthlyInflation = 10; // 0.1%
     uint8 public Fee = 25;
     uint256 public lastTimeClaimed;
     uint256 public difference;
     uint256 private abc = 100 * 10 ** decimals();
+    uint8 public proposalFee = 5;
 
     constructor()
         ERC20("Aexis Test", "AXS")
-        Ownable(msg.sender)
+        Governance()
         ERC20Permit("Aexis Test")
         AntiWhale(abc) // Correct constructor invocation
     {
@@ -64,5 +65,14 @@ contract Aexis is ERC20, ERC20Burnable, Ownable, ERC20Permit, AntiWhale {
         difference = daysPassed;
         lastTimeClaimed = currentTime;
         _mint(msg.sender, inflationAmount);
+    }
+
+//    function createProposal(string memory _name_, string memory _description,uint _period_, uint _proposalId) internal virtual onlyOwner {
+    function _createProposal(uint _proposalId, string memory _name_,string memory _description, uint _period_) public onlyOwner {
+        // Requires 0.005% of total supply in order to create a proposal.
+        uint256 _proposalFee = (uint256(proposalFee) * totalSupply()) / 10 ** 5;
+        require(balanceOf(msg.sender) >= _proposalFee, "Not enough tokens to call this function");
+        require(getProposal(_proposalId), "Cannot create proposal if one exists"); // Changed .id to .0 to access tuple element by index
+        createProposal(_proposalId, _name_, _description, _period_);
     }
 }
