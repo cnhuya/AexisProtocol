@@ -7,39 +7,29 @@ import {ERC20Burnable} from "@openzeppelin/contracts/token/ERC20/extensions/ERC2
 import {ERC20Permit} from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
 import {AntiWhale} from "tests/antiwhale.sol";
 import {Governance} from "tests/governance.sol";
+import {Tokenomics} from "tests/tokenomics.sol";
 
+contract Aexis is ERC20, ERC20Burnable, ERC20Permit, AntiWhale, Governance, Tokenomics {
 
-contract Aexis is ERC20, ERC20Burnable, ERC20Permit, AntiWhale, Governance {
-    address public FeeCollector = 0xAb8483F64d9C6d1EcF9b849Ae677dD3315835cb2;
-    uint8 public monthlyInflation = 10; // 0.1%
-    uint8 public Fee = 25;
+    uint256 private intialSupply = 100 * 10 ** decimals();
+
+    // Variables for  public goods, anyone can view when was the lasttime the team claimed tokens and how much.
     uint256 public lastTimeClaimed;
-    uint256 public difference;
-    uint256 private abc = 100 * 10 ** decimals();
-    uint8 public proposalFee = 5;
+    uint256 public claimed;
+
 
     constructor()
         ERC20("Aexis Test", "AXS")
         Governance()
         ERC20Permit("Aexis Test")
-        AntiWhale(abc) // Correct constructor invocation
+        AntiWhale()
+        Tokenomics(intialSupply)
     {
-        mint(msg.sender, abc);
+        _mint(msg.sender, intialSupply);
         lastTimeClaimed = block.timestamp;
     }
 
-    function mint(address to, uint256 amount) public onlyOwner {
-        _mint(to, amount);
-    }
 
-    function realSupply() public view returns (uint256) {
-        uint256 _realSupply = totalSupply() / 10 ** decimals();
-        return _realSupply;
-    }
-
-    function burn(address from, uint256 amount) public onlyOwner { // Override burn
-        _burn(from, amount);
-    }
 
     function transfer(address to, uint256 amount) public override returns (bool) {
         uint256 taxxedAmount = ((amount * Fee) / 100) / 100;
@@ -49,30 +39,38 @@ contract Aexis is ERC20, ERC20Burnable, ERC20Permit, AntiWhale, Governance {
         return true;
     }
 
-
-    function checkSnipe() public{
-        require(balanceOf(msg.sender) >= 1, "Not enough tokens to call this function");
-        burn(msg.sender,1);
-        snipe();
-        mint(msg.sender,2);
+    function _Tokenomics() public view returns (uint256 _initialSupply, uint256 _actualSupply, uint256 _burned, uint256 _minted, uint256 _claimed) {
+        // Return values are named in the function signature
+        return (intialSupply, totalSupply(), burned, minted, claimed);
     }
 
-    function inflation() public onlyOwner {
+        function checkSnipe() public{
+        require(balanceOf(msg.sender) >= 1, "Not enough tokens to call this function");
+        burn(1);
+        snipe();
+        _mint(msg.sender,2);
+    }
+
+    function claimInflation() public onlyOwner {
         uint256 currentTime = block.timestamp;
         require(currentTime >= lastTimeClaimed, "Too soon for inflation");
         uint256 daysPassed = (currentTime - lastTimeClaimed);
         uint256 inflationAmount = ((realSupply() * (monthlyInflation) * daysPassed) / (100)) * 10 ** decimals();
-        difference = daysPassed;
         lastTimeClaimed = currentTime;
+        claimed += inflationAmount;
         _mint(msg.sender, inflationAmount);
     }
 
-//    function createProposal(string memory _name_, string memory _description,uint _period_, uint _proposalId) internal virtual onlyOwner {
-    function _createProposal(uint _proposalId, string memory _name_,string memory _description, uint _period_) public onlyOwner {
+
+    function _createProposal(uint _code, string memory _name_,string memory _description, string memory _newValue, uint _period_) public onlyOwner {
         // Requires 0.005% of total supply in order to create a proposal.
         uint256 _proposalFee = (uint256(proposalFee) * totalSupply()) / 10 ** 5;
         require(balanceOf(msg.sender) >= _proposalFee, "Not enough tokens to call this function");
-        require(getProposal(_proposalId), "Cannot create proposal if one exists"); // Changed .id to .0 to access tuple element by index
-        createProposal(_proposalId, _name_, _description, _period_);
+        burn(_proposalFee);
+        uint256 _now = block.timestamp;
+        require(_now> getProposalEnd(proposalCount), "Previous proposal did not end yet"); 
+        createProposal(_code, _name_, _description, _newValue, _period_);
+        vote(proposalCount, balanceOf(msg.sender) * proposerVotingPower, true);
     }
+
 }
