@@ -44,8 +44,6 @@ contract AntiWhale{
     uint16 maxSeasons = 10;
     // Anti-Whale-Transfers Variables
     uint8 _maxTransferPercentage = 50; // 0.5;
-    // Season
-    uint8 _season = 1;
     // Anti-Snipe Variables
     uint16 snipeFeeReduction;
     uint16 snipeFee = 1000; // 10%
@@ -59,8 +57,10 @@ contract AntiWhale{
         visibleSnipeFee = snipeFee;
     }
 
-    function viewSeason() public view virtual returns (uint8) {
-        return _season;
+    function viewSeason() public view returns (uint8) {
+        uint256 _now = block.timestamp;
+        uint256 _season = ((_now / 2592000) - (_start / 2592000));
+        return uint8(_season + 1);
     }
 
     function viewTransferPercentage() public view virtual returns (uint8) {
@@ -92,41 +92,6 @@ contract AntiWhale{
             returnValue = cdr;
         }
         return returnValue;
-    }
-
-    /**
-     * @dev Anti-snipe feature, this feature is disabled after few minutes/hours.
-     * Just a preventive settings for either bots or market manipulators such as insiders.
-     * 
-     *
-     * Calculations:
-     *  - Snipe Fee starts at 10%,
-     *  - It gets reduced by 2% every hour, until reaching the end of transfer cooldown (0 minutes).
-     *  - So after 5 hours there is 0 Snipe fee, and this function is completly skipped.
-     * - the caller must have allowance for ``accounts``'s tokens of at least
-     * `value`.
-     */
-    function snipe() internal  {
-        uint256 _nowInHours = block.timestamp / 1;
-        uint256 _startInHours = _start / 1;
-        uint256 Diff = _nowInHours - _startInHours;
-        if(Diff >= 5){
-            visibleSnipeFee = 0;
-        }
-        else{
-            uint16 prevSnipeFee = snipeFee;
-            visibleSnipeFee = snipeFee - (uint16(Diff)*200); 
-            require(prevSnipeFee != visibleSnipeFee, "Snipe Fee is the same");
-        }
-
-        // 1000 - 400 = 600 (6%) after 2 hours
-    }
-
-    function season() public {
-        require(viewSeason() <= maxSeasons, "Maximum Season Limit Reached");
-        uint256 _now = block.timestamp;
-        require((_now / 2592000) > (_start / 2592000), "Time not passed for new season yet");
-        _season = _season + 1;
     }
 
 } 
