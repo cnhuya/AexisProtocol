@@ -3,15 +3,23 @@
 pragma solidity ^0.8.22;
 
 contract Infinity {
-    constructor() {}
+
+
+    uint8 internal monthlyInflation = 10; // 0.1%
+    uint8 internal _Fee = 100;
+    uint256 internal lastTimeClaimed;
+    uint256 internal claimed;
+    uint256 internal initialSupply;
     
+    constructor()
+     {
+     }
+
     struct UserStats {
         uint256 points;
         uint256 holderSince;
     }
 
-    uint8 public monthlyInflation = 10; // 0.1%
-    uint8 public Fee = 100;
 
     uint16 pointsForTX = 1;
     uint16 pointsForVolumePercentage = 10000; // 0.01%
@@ -50,7 +58,24 @@ contract Infinity {
         return (pointsForVolumePercentage);
     }
 
-    function addUserStats(address user, uint256 value) public {
+    function getLastTimeClaimed() internal view virtual returns (uint256 last_time_claimed) {
+        return (lastTimeClaimed);
+    }
+
+    function getTotalClaimed() internal view virtual returns (uint256 total_claimed) {
+        return (claimed);
+    }
+
+    function viewFee() public view virtual returns (uint256 Fee) {
+        return (_Fee);
+    }
+
+
+    function viewInflation() public view virtual returns (uint256 Inflation) {
+        return (monthlyInflation);
+    }
+
+    function addUserStats(address user, uint256 value) internal {
         require(value > 0, 'Invalid value');
         UserStats storage stats = users[user];
         // 1 000 000 / 10 000 = 100 + 1 = 101
