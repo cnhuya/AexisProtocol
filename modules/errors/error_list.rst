@@ -8,8 +8,8 @@ ERROR LIST
 .. code-block:: move
 
  const ERROR_NOT_OWNER: u64 = 1; // Returned whenever a signer is not an owner.
- const ERROR_NOT_OWNER: u64 = 1; // Returned whenever a signer is not an owner.
- const ERROR_NOT_OWNER: u64 = 1; // Returned whenever a signer is not an owner.
+ const ERROR_NOT_MESSAGER: u64 = 2; // Returned whenever a signer is not a messager.
+ const ERROR_NOT_VALIDATOR: u64 = 3; // Returned whenever a signer is not a validator.
  const ERROR_NOT_OWNER: u64 = 1; // Returned whenever a signer is not an owner.
  const ERROR_NOT_OWNER: u64 = 1; // Returned whenever a signer is not an owner.
  const ERROR_NOT_OWNER: u64 = 1; // Returned whenever a signer is not an owner.
