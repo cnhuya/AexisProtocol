@@ -4,15 +4,14 @@
 ERROR LIST
 ******************
 
- ! error_id ! error_name ! modules_containing ! desc
 
- 1 
+.. code-block:: move
 
-.. code-block:: solidity
-
-    // SPDX-License-Identifier: GPL-3.0
-    pragma solidity >=0.6.0 <0.9.0;
-
-    abstract contract Feline {
-        function utterance() public virtual returns (bytes32);
-    }
+ const ERROR_NOT_OWNER: u64 = 1; // Returned whenever a signer is not an owner.
+ const ERROR_NOT_OWNER: u64 = 1; // Returned whenever a signer is not an owner.
+ const ERROR_NOT_OWNER: u64 = 1; // Returned whenever a signer is not an owner.
+ const ERROR_NOT_OWNER: u64 = 1; // Returned whenever a signer is not an owner.
+ const ERROR_NOT_OWNER: u64 = 1; // Returned whenever a signer is not an owner.
+ const ERROR_NOT_OWNER: u64 = 1; // Returned whenever a signer is not an owner.
+ const ERROR_NOT_OWNER: u64 = 1; // Returned whenever a signer is not an owner.
+ const ERROR_NOT_OWNER: u64 = 1; // Returned whenever a signer is not an owner.
