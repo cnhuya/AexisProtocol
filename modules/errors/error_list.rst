@@ -1,4 +1,4 @@
-.. index:: ! contract;abstract, ! abstract contract
+.. index:: ! error_id ! error_name ! modules_containing ! desc
 
 ******************
 ERROR LIST
