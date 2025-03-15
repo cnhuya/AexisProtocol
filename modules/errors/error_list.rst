@@ -1,4 +1,4 @@
-.. index:: ! error_id ! error_name ! modules_containing ! desc
+ ! error_id ! error_name ! modules_containing ! desc
 
 ******************
 ERROR LIST
