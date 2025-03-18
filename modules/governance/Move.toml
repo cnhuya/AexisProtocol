@@ -1,0 +1,33 @@
+[package]
+name = "governancev27"
+version = "2.1.1"
+authors = []
+
+[addresses]
+deployer = "0xc698c251041b826f1d3d4ea664a70674758e78918938d1b3b237418ff17b4020"
+owner = "0xc698c251041b826f1d3d4ea664a70674758e78918938d1b3b237418ff17b4020"
+messager = "0xc698c251041b826f1d3d4ea664a70674758e78918938d1b3b237418ff17b4020"
+validator = "0x1ed618c4bbcd54ac81f020746e3855f938a7827775e5cf08f95caed8953e5387"
+[dev-addresses]
+
+
+[dependencies.core]
+git = "https://github.com/Entropy-Foundation/dora-interface.git"
+rev = "master"
+subdir = "supra/testnet/core"
+
+[dependencies.SupraFramework]
+git = "https://github.com/Entropy-Foundation/aptos-core.git"
+rev = "dev"
+subdir = "aptos-move/framework/supra-framework"
+
+[dependencies.errorsv3]
+git = 'https://github.com/cnhuya/test.git'
+rev = 'main'
+subdir = 'modules/errors'
+
+[dependencies.timev3]
+git = 'https://github.com/cnhuya/test.git'
+rev = 'main'
+subdir = 'modules/time'
+[dev-dependencies]
