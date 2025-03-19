@@ -1,4 +1,4 @@
-module deployer::pointsv7 {
+module deployer::pointsv9 {
     use std::signer;
     use std::vector;
     use std::account;
@@ -15,7 +15,7 @@ module deployer::pointsv7 {
     struct HOLDER has key, copy, store, drop { address: address, balance: u128 }
 
     const ROUNDING: u8 = 2;
-    const MESSAGER: address = @owner;
+    const MESSAGER: address = @deployer;
     const DEPLOYER: address = @deployer;
 
     const ERROR_NOT_MESSAGER: u64 = 1;
