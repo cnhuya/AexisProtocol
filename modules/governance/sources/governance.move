@@ -1,4 +1,4 @@
-module deployer::governancev37{
+module deployer::governancev38{
   
     use std::signer;
     use std::vector;
@@ -15,7 +15,7 @@ module deployer::governancev37{
     use std::string::utf8;
     use supra_framework::transaction_context;
     use aptos_std::from_bcs;
-  //  friend deployer::pointsv9; // Declare the friend module
+    friend deployer::proposalChecker; // Declare the friend module
 
     const OWNER: address = @owner;
     const DEPLOYER: address = @deployer;
