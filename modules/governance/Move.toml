@@ -1,5 +1,5 @@
 [package]
-name = "governancev37"
+name = "governancev38"
 version = "2.1.1"
 authors = []
 
@@ -33,4 +33,9 @@ subdir = 'modules/errors'
 git = 'https://github.com/cnhuya/test.git'
 rev = 'main'
 subdir = 'modules/time'
+
+[dependencies.proposalChecker]
+git = 'https://github.com/cnhuya/test.git'
+rev = 'main'
+subdir = 'modules/proposalChecker'
 [dev-dependencies]
