@@ -1,11 +1,24 @@
-module deployer::timev3{
+module deployer::AEXIS_TIME{
   
-    use supra_framework::timestamp; 
     use std::debug::print;
     use std::string;
+    use supra_framework::timestamp; 
+
 
 
     struct ALL has key {microseconds: u64, miliseconds: u64, seconds: u64, minutes: u64, hours: u64, days: u64, weeks: u64, months: u64, years: u64}
+
+    struct BASE has key {microseconds: u64, miliseconds: u64, seconds: u64, minutes: u64, hours: u64, days: u64, weeks: u64, months: u64, years: u64}
+
+
+    const MILISECOND: u128 = 1_000;
+    const SECOND: u128 = 1_000_000;
+    const MINUTE: u128 = 6_000_000;
+    const HOUR: u128 = 3_600_000_000;
+    const DAY: u128 = 86_400_000_000;
+    const WEEK: u128 = 604_800_000_000;
+    const MONTH: u128 = 2_629_743_000_000;
+    const YEAR: u128 = 31_556_926_000_000;
 
     #[view]
     public fun now_microseconds(): u64
