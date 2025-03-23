@@ -29,8 +29,4 @@ git = 'https://github.com/cnhuya/test.git'
 rev = 'main'
 subdir = 'modules/errors'
 
-[dependencies.timev3]
-git = 'https://github.com/cnhuya/test.git'
-rev = 'main'
-subdir = 'modules/time'
 [dev-dependencies]
