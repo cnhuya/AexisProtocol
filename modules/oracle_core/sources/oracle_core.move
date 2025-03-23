@@ -156,7 +156,7 @@ module deployer::oracle_core{
     }
 
     #[view]
-    public fun viewPrice(index: u32): u64
+    public fun viewPrice(index: u32): u128
     {
         let (price, decimals, timestamp, round_id) = supra_oracle_storage::get_price(index);
         move price
@@ -179,7 +179,7 @@ module deployer::oracle_core{
     }
 
     #[view]
-    public fun returnAggregatedPrice(index: u32, weight: u8): u64
+    public fun returnAggregatedPrice(index: u32, weight: u8): u128
     {
         let (price, decimals, timestamp, round_id) = supra_oracle_storage::get_price(index);
         let weightened_price = price * (weight as u128);
