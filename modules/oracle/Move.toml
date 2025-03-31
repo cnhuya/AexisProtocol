@@ -1,13 +1,12 @@
 [package]
-name = "oraclev5"
+name = "oracleHolderv21"
 version = "2.1.1"
 authors = []
 
 [addresses]
-testing = "0xc698c251041b826f1d3d4ea664a70674758e78918938d1b3b237418ff17b4020"
+deployer = "0xc698c251041b826f1d3d4ea664a70674758e78918938d1b3b237418ff17b4020"
 owner = "0xc698c251041b826f1d3d4ea664a70674758e78918938d1b3b237418ff17b4020"
-messager = "0xc698c251041b826f1d3d4ea664a70674758e78918938d1b3b237418ff17b4020"
-OWNER = "0xc698c251041b826f1d3d4ea664a70674758e78918938d1b3b237418ff17b4020"
+supra_framework = "0x1"
 [dev-addresses]
 
 [dependencies.SupraFramework]
@@ -15,8 +14,19 @@ git = "https://github.com/Entropy-Foundation/aptos-core.git"
 rev = "dev"
 subdir = "aptos-move/framework/supra-framework"
 
-[dependencies.utilizationv4]
+[dependencies.oracle_corev2]
 git = 'https://github.com/cnhuya/test.git'
 rev = 'main'
-subdir = 'modules/utilizationv4'
+subdir = 'modules/oracle_core'
+
+[dependencies.TIMEv5]
+git = 'https://github.com/cnhuya/test.git'
+rev = 'main'
+subdir = 'modules/time'
+
+[dependencies.AEXIS_SMART_MATH_BETA]
+git = 'https://github.com/cnhuya/test.git'
+rev = 'main'
+subdir = 'modules/smart_math'
+
 [dev-dependencies]
