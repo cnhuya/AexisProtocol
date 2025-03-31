@@ -1,4 +1,4 @@
-module deployer::TIMEv5{
+module AEXIS::TIMEv6{
   
     use std::debug::print;
     use std::string;
@@ -12,7 +12,7 @@ module deployer::TIMEv5{
 
     const MILISECOND: u64 = 1_000;
     const SECOND: u64 = 1_000_000;
-    const MINUTE: u64 = 6_000_000;
+    const MINUTE: u64 = 60_000_000;
     const HOUR: u64 = 3_600_000_000;
     const DAY: u64 = 86_400_000_000;
     const WEEK: u64 = 604_800_000_000;
