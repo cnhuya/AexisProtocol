@@ -1,4 +1,4 @@
-module AEXIS::TIMEv6{
+module deployer::TIMEv6{
   
     use std::debug::print;
     use std::string;
