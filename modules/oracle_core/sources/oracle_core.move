@@ -1,5 +1,5 @@
 
-module deployer::oracle_core{
+module deployer::oracle_corev2{
 
     use std::signer;
     use std::vector;
@@ -36,6 +36,7 @@ module deployer::oracle_core{
     const ERROR_COUNTER_DOESNT_EXISTS: u64 = 6;
     const ERROR_INVALID_TIER: u64 =7;
     const ERROR_MAX_TIERS_REACHED: u64 =8;
+    const ERROR_ROUNDING_CANT_BE_HIGHER_THAN_DECIMALS: u64 =9;
 
 
     //  CHANGING CODES
@@ -179,11 +180,15 @@ module deployer::oracle_core{
     }
 
     #[view]
-    public fun returnAggregatedPrice(index: u32, weight: u8): u128
+    public fun returnAggregatedPrice(index: u32, weight: u8, rounding: u16): u128
     {
         let (price, decimals, timestamp, round_id) = supra_oracle_storage::get_price(index);
+        assert!(decimals>=rounding, ERROR_ROUNDING_CANT_BE_HIGHER_THAN_DECIMALS);
         let weightened_price = price * (weight as u128);
-        move weightened_price
+        let number = decimals-rounding;
+        let _decimals = pow(10,(decimals-rounding as u128));
+        let price = weightened_price / _decimals;
+        move price
     }
 
 
