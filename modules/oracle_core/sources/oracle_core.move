@@ -26,7 +26,7 @@ module deployer::oracle_corev3{
 
 
     //CONFIG 
-    const ROUNDING: u16 = 5;
+    const ROUNDING: u8 = 5;
 
     const ERROR_NOT_OWNER: u64 = 1;
     const ERROR_NUMBER_TOO_BIG: u64 = 2;
@@ -67,11 +67,11 @@ module deployer::oracle_corev3{
 
     */
 
-    struct CONTRACT has key, drop, store,copy {base_reward: u8, deployer: address, owner: address}
+    struct CONTRACT has key, drop, store,copy {deployer: address, owner: address}
 
     struct TIER_TABLE has key, store {tiers: table::Table<u8, TIER>}
 
-    struct REWARDS has key, store {base_reward: u64, new_var_reward: u64}
+    struct CONFIG has key, store {base_reward: u64, new_var_reward: u64}
 
     fun init_module(address: &signer) acquires TIER_TABLE{
 
@@ -83,8 +83,8 @@ module deployer::oracle_corev3{
             move_to(address, TIER { rounding: ROUNDING, max_change: 0, reward_multi: 0, min_price_aggregation:0 });
         };
 
-        if (!exists<REWARD>(DEPLOYER)) {
-            move_to(address, REWARD { base_reward: 100, new_var_reward: 10000});
+        if (!exists<CONFIG>(DEPLOYER)) {
+            move_to(address, CONFIG { base_reward: 100, new_var_reward: 10000});
         };
 
         if (!exists<TIER_TABLE>(DEPLOYER)) {
@@ -140,7 +140,11 @@ module deployer::oracle_corev3{
     public fun viewConfig(): CONFIG acquires CONFIG
     {
         let config = borrow_global<CONFIG>(DEPLOYER);
-        move config
+        let _config = CONFIG {
+            base_reward: config.base_reward,
+            new_var_reward: config.new_var_reward,
+        };
+        move _config
     }
 
 
@@ -188,7 +192,6 @@ module deployer::oracle_corev3{
 
         let contract = borrow_global<CONTRACT>(DEPLOYER);
         let _contract = CONTRACT{
-            base_reward: contract.base_reward,
             deployer: deployer,
             owner: owner,
         };
@@ -249,6 +252,7 @@ module deployer::oracle_corev3{
         //print(&viewStructPrice(1));
         print(&viewContract());
         print(&viewALLTiers());
+        print(&viewConfig());
   }
 }   
 
