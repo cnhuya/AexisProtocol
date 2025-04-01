@@ -71,7 +71,7 @@ module deployer::oracle_corev3{
 
     struct TIER_TABLE has key, store {tiers: table::Table<u8, TIER>}
 
-    struct CONFIG has key, store {base_reward: u64, new_var_reward: u64}
+    struct CONFIG has key, store, drop {base_reward: u64, new_var_reward: u64}
 
     fun init_module(address: &signer) acquires TIER_TABLE{
 
@@ -244,7 +244,7 @@ module deployer::oracle_corev3{
 
 
     #[test(account = @0x1, owner = @0xc698c251041b826f1d3d4ea664a70674758e78918938d1b3b237418ff17b4020)]
-     public entry fun test(account: signer, owner: signer) acquires CONTRACT, TIER_TABLE {
+     public entry fun test(account: signer, owner: signer) acquires CONTRACT, TIER_TABLE, CONFIG {
         timestamp::set_time_has_started_for_testing(&account);  
         init_module(&owner);
         let addr = signer::address_of(&owner);
