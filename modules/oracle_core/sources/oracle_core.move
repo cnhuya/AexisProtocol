@@ -1,5 +1,5 @@
 
-module deployer::oracle_corev2{
+module deployer::oracle_corev3{
 
     use std::signer;
     use std::vector;
@@ -26,7 +26,7 @@ module deployer::oracle_corev2{
 
 
     //CONFIG 
-    const ROUNDING: u8 = 5;
+    const ROUNDING: u16 = 5;
 
     const ERROR_NOT_OWNER: u64 = 1;
     const ERROR_NUMBER_TOO_BIG: u64 = 2;
@@ -71,15 +71,20 @@ module deployer::oracle_corev2{
 
     struct TIER_TABLE has key, store {tiers: table::Table<u8, TIER>}
 
+    struct REWARDS has key, store {base_reward: u64, new_var_reward: u64}
 
     fun init_module(address: &signer) acquires TIER_TABLE{
 
         if (!exists<CONTRACT>(DEPLOYER)) {
-            move_to(address, CONTRACT { base_reward: 1, deployer: DEPLOYER, owner: OWNER });
+            move_to(address, CONTRACT { deployer: DEPLOYER, owner: OWNER });
         };
 
         if (!exists<TIER>(DEPLOYER)) {
             move_to(address, TIER { rounding: ROUNDING, max_change: 0, reward_multi: 0, min_price_aggregation:0 });
+        };
+
+        if (!exists<REWARD>(DEPLOYER)) {
+            move_to(address, REWARD { base_reward: 100, new_var_reward: 10000});
         };
 
         if (!exists<TIER_TABLE>(DEPLOYER)) {
@@ -94,6 +99,11 @@ module deployer::oracle_corev2{
         changeTier(5, 20000, 5000, 15);
     }
 
+    entry fun changeRewards(base_reward: u64, new_var_reward: u64) acquires CONFIG{
+        let config = borrow_global_mut<CONFIG>(DEPLOYER);
+        config.base_reward = base_reward;
+        config.new_var_reward = new_var_reward;
+    }
 
     entry fun changeTier(tier: u8, _max_change: u16, _reward_multi: u16, _min_price_aggregation: u8) acquires TIER_TABLE{
         assert!(tier <= 5, ERROR_MAX_TIERS_REACHED);
@@ -124,6 +134,13 @@ module deployer::oracle_corev2{
             time_secure: round_id,
         };
         move _price
+    }
+
+    #[view]
+    public fun viewConfig(): CONFIG acquires CONFIG
+    {
+        let config = borrow_global<CONFIG>(DEPLOYER);
+        move config
     }
 
 
