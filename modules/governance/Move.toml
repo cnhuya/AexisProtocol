@@ -1,5 +1,5 @@
 [package]
-name = "governancev38"
+name = "governancev39"
 version = "2.1.1"
 authors = []
 
@@ -24,18 +24,8 @@ git = "https://github.com/Entropy-Foundation/aptos-core.git"
 rev = "dev"
 subdir = "aptos-move/framework/supra-framework"
 
-[dependencies.errorsv3]
-git = 'https://github.com/cnhuya/test.git'
-rev = 'main'
-subdir = 'modules/errors'
-
 [dependencies.timev3]
 git = 'https://github.com/cnhuya/test.git'
 rev = 'main'
 subdir = 'modules/time'
-
-[dependencies.proposalChecker]
-git = 'https://github.com/cnhuya/test.git'
-rev = 'main'
-subdir = 'modules/proposalChecker'
 [dev-dependencies]
