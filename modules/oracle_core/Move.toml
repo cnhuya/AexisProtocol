@@ -19,4 +19,9 @@ git = "https://github.com/Entropy-Foundation/dora-interface.git"
 rev = 'master'
 subdir = 'supra/testnet/core'
 
+[dependencies.governancev42]
+git = 'https://github.com/cnhuya/test.git'
+rev = 'main'
+subdir = 'modules/governance'
+
 [dev-dependencies]
