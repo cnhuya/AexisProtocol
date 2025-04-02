@@ -1,4 +1,4 @@
-module deployer::governancev39{
+module deployer::governancev42{
   
     use std::signer;
     use std::vector;
@@ -370,6 +370,8 @@ module deployer::governancev39{
         move _proposal
     }
 
+
+
     #[view]
     public fun viewHierarch(address: address): HIERARCH acquires HIERARCHY {
         let hierarchy_table = borrow_global<HIERARCHY>(DEPLOYER); 
@@ -417,6 +419,16 @@ module deployer::governancev39{
         move data
     }
 
+
+    //id: u32, hash: vector<u8>, proposer: address, modul: u32, code: u16, name: vector<u8>, desc: vector<u8>, start: u64, end: u64, stats: PROPOSAL_STATS, status: PROPOSAL_STATUS, from: vector<u8>, to: vector<u8>
+    #[view]
+    public fun viewProposalByModule_tuple(_module: u32, _code: u16): (u32,address,u16,bool,bool,vector<u8>,vector<u8>) acquires MODULE_TABLE
+    {
+        let data = viewProposalByModule(_module, _code);
+        (data.id, data.proposer, data.code, data.status.pending, data.status.passed, data.from, data.to)
+    }
+
+
     #[view]
     public fun viewUserVote(user: address, _module: u32, _code: u16): VOTE acquires VOTERS_TABLE {
         let voters_table = borrow_global<VOTERS_TABLE>(DEPLOYER); 
@@ -451,6 +463,7 @@ module deployer::governancev39{
         print(&viewProposalByModule(1,1));
         updateHash(&owner, 1, 1, b"0xc698c251041b8fff1d3d4ea664a70674758e78918938d1b3b237418ff17bffff");
         print(&viewProposalByModule(1,1));
+       // print(&viewProposalByModule_tuple(1,1));
         vote(&owner,0,1,false);
         print(&viewUserVote(@0xc698c251041b826f1d3d4ea664a70674758e78918938d1b3b237418ff17b4020, 0,1));
         vote(&owner,0,5,true);
