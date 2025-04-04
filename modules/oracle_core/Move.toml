@@ -1,5 +1,5 @@
 [package]
-name = "oracle_corev3"
+name = "oracle_corev12"
 version = "2.1.1"
 authors = []
 
@@ -7,6 +7,9 @@ authors = []
 deployer = "0xc698c251041b826f1d3d4ea664a70674758e78918938d1b3b237418ff17b4020"
 owner = "0xc698c251041b826f1d3d4ea664a70674758e78918938d1b3b237418ff17b4020"
 supra_framework = "0x1"
+std = "0x1"
+aptos_std = "0x1"
+Extensions = "0x1" # For Prover to instantiate `{{Ext}}` in prelude.
 [dev-addresses]
 
 [dependencies.SupraFramework]
@@ -19,9 +22,14 @@ git = "https://github.com/Entropy-Foundation/dora-interface.git"
 rev = 'master'
 subdir = 'supra/testnet/core'
 
-[dependencies.governancev42]
+[dependencies.governancev45]
 git = 'https://github.com/cnhuya/test.git'
 rev = 'main'
 subdir = 'modules/governance'
+
+[dependencies.AptosStdlib]
+git = "https://github.com/Entropy-Foundation/aptos-core.git"
+rev = "dev"
+subdir = "aptos-move/framework/aptos-stdlib"
 
 [dev-dependencies]
