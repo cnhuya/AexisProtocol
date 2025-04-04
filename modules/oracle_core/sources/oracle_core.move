@@ -1,5 +1,5 @@
 
-module deployer::oracle_corev3{
+module deployer::oracle_corev6{
 
     use std::signer;
     use std::vector;
@@ -10,14 +10,10 @@ module deployer::oracle_corev3{
     use std::timestamp;
     use std::table;
     use supra_oracle::supra_oracle_storage;
-   // use 0xc698c251041b826f1d3d4ea664a70674758e78918938d1b3b237418ff17b4020::hierarchy;
-   // use 0xc698c251041b826f1d3d4ea664a70674758e78918938d1b3b237418ff17b4020::errors;
-   // use 0xc698c251041b826f1d3d4ea664a70674758e78918938d1b3b237418ff17b4020::governance;
-   // use 0xc698c251041b826f1d3d4ea664a70674758e78918938d1b3b237418ff17b4020::timev3;
-   // use 0xc698c251041b826f1d3d4ea664a70674758e78918938d1b3b237418ff17b4020::oracle_core;
+    use 0xc698c251041b826f1d3d4ea664a70674758e78918938d1b3b237418ff17b4020::governancev44;
 
     // MODULE ID
-    const MODULE_ID: u16 = 5;
+    const MODULE_ID: u32 = 5;
 
     // A wallet thats designed to hold the contract struct permanently.
     const DEPLOYER: address = @deployer;
@@ -37,16 +33,22 @@ module deployer::oracle_corev3{
     const ERROR_INVALID_TIER: u64 =7;
     const ERROR_MAX_TIERS_REACHED: u64 =8;
     const ERROR_ROUNDING_CANT_BE_HIGHER_THAN_DECIMALS: u64 =9;
-
+    const ERROR_ADDRESS_IS_ALREADY_VALIDATOR: u64 = 10;
+    const ERROR_ADDRESS_IS_NOT_VALIDATOR: u64 = 11;
+    const ERROR_PROPOSAL_NOT_STARTED: u64 = 12;
+    const ERROR_PROPOSAL_NOT_PASSED: u64 = 13;
+    const WRONG_HIERARCH: u64 = 14;
 
     //  CHANGING CODES
-    const CODE_CHANGE_TIER: u8 = 1;
+    const CODE_CHANGE_TIER: u16 = 1;
+    const CODE_CHANGE_REWARDS: u16 = 2;
+
 
 
 
     struct PRICE has key, drop {price: u128, decimals: u16, time: u64, time_secure: u64}
 
-    struct TIER has key, store, copy, drop {rounding: u8, max_change: u16, reward_multi: u16, min_price_aggregation: u8}
+    struct TIER has key, store, copy, drop {rounding: u8, max_change: u16, reward_multi: u16, min_price_weight: u8}
 
     /*
 
@@ -56,9 +58,9 @@ module deployer::oracle_corev3{
     TIER - A NUMBER (1 TO 5)
     MAX CHANGE - MAXIMUM PRICE IMPACT THAT VALIDATOR INPUTED PRICE CAN BE FROM CURRENT PRICE ORACLE
     REWARD_MULTIPLIER - A REWARD MULTIPLIER FOR SUCCESSFULL VALIDATED PRICE INPUT
-    MIN_PRICE_AGGREGATION - MINIMAL PRICE AGGREGATION FROM NATIVE SUPRA ORACLE, IF ITS PROVIDED BY SUPRA NATIVE ORACLES
+    MIN_PRICE_WEIGHT - MINIMAL PRICE AGGREGATION FROM NATIVE SUPRA ORACLE, IF ITS PROVIDED BY SUPRA NATIVE ORACLES
 
-    TIER | MAX_CHANGE | REWARD_MULTIPLIER | MIN_PRICE_AGGREGATION
+    TIER | MAX_CHANGE | REWARD_MULTIPLIER | MIN_PRICE_WEIGHT
     1          0,01%            1x                  1x
     2          0,025%           2x                  3x
     3          0,05%            3x                  5x
@@ -73,14 +75,23 @@ module deployer::oracle_corev3{
 
     struct CONFIG has key, store, drop {base_reward: u64, new_var_reward: u64}
 
+    struct VALIDATOR has key, drop, copy, store { isValidator: bool, count: u64, strikes: u8, weight: u8}
+
+    struct VALIDATOR_TABLE has key, store { database: table::Table<u16, table::Table<address, VALIDATOR>>}
+
     fun init_module(address: &signer) acquires TIER_TABLE{
 
         if (!exists<CONTRACT>(DEPLOYER)) {
             move_to(address, CONTRACT { deployer: DEPLOYER, owner: OWNER });
         };
 
+        if (!exists<VALIDATOR_TABLE>(DEPLOYER)) {
+            let validator_table = table::new<u16, table::Table<address, VALIDATOR>>();
+            move_to(address, VALIDATOR_TABLE {database: validator_table});
+        };
+
         if (!exists<TIER>(DEPLOYER)) {
-            move_to(address, TIER { rounding: ROUNDING, max_change: 0, reward_multi: 0, min_price_aggregation:0 });
+            move_to(address, TIER { rounding: ROUNDING, max_change: 0, reward_multi: 0, min_price_weight:0 });
         };
 
         if (!exists<CONFIG>(DEPLOYER)) {
@@ -92,27 +103,92 @@ module deployer::oracle_corev3{
             move_to(address, TIER_TABLE { tiers: price_table });
         };
 
-        changeTier(1, 1000, 1000, 1);
-        changeTier(2, 2500, 2000, 3);
-        changeTier(3, 5000, 3000, 5);
-        changeTier(4, 10000, 4000, 10);
-        changeTier(5, 20000, 5000, 15);
+        changeTier(address, 1, 1000, 1000, 1);
+        changeTier(address, 2, 2500, 2000, 3);
+        changeTier(address, 3, 5000, 3000, 5);
+        changeTier(address, 4, 10000, 4000, 10);
+        changeTier(address, 5, 20000, 5000, 15);
     }
 
-    entry fun changeRewards(base_reward: u64, new_var_reward: u64) acquires CONFIG{
+
+    public entry fun removeValidator(address: &signer, moduleID: u16, validator: address) acquires VALIDATOR_TABLE {
+
+        let addr = signer::address_of(address);
+
+        assert!(addr == DEPLOYER, ERROR_NOT_OWNER);
+
+        let validator_db = borrow_global_mut<VALIDATOR_TABLE>(DEPLOYER);
+        let validator_module = table::borrow_mut(&mut validator_db.database, moduleID);
+
+        if(!table::contains(validator_module, validator)) {
+            abort(ERROR_ADDRESS_IS_NOT_VALIDATOR)
+        } 
+        else {
+            table::remove(validator_module, validator); 
+        }
+    }
+
+
+    public entry fun allowValidator(address: &signer, moduleID: u16, validator: address) acquires VALIDATOR_TABLE{
+
+        let addr = signer::address_of(address);
+        let (address, hierarch, code) = governancev44::viewHierarch(address);
+        
+        assert!(hierarch == "oracle_core", ERROR_NOT_OWNER);
+        assert!(code == 1, WRONG_HIERARCH);
+    
+        let validator_db = borrow_global_mut<VALIDATOR_TABLE>(DEPLOYER);
+
+        if (!table::contains(&validator_db.database, moduleID)) {
+            let validator_table = table::new<address, VALIDATOR>();
+            table::add(&mut validator_db.database, moduleID, validator_table); 
+        };
+        let validator_module = table::borrow_mut(&mut validator_db.database, moduleID);
+        if(!table::contains(validator_module, validator)) {
+            let _validator = VALIDATOR {
+                isValidator: true,
+                 count: 0,
+                 strikes: 0,
+                 weight: 2,
+            };
+            table::add(validator_module, validator, _validator); 
+        } 
+          else {
+              abort(ERROR_ADDRESS_IS_ALREADY_VALIDATOR)
+        };
+    }
+
+
+     entry fun mock_changeRewards(base_reward: u64, new_var_reward: u64) acquires CONFIG{
         let config = borrow_global_mut<CONFIG>(DEPLOYER);
         config.base_reward = base_reward;
         config.new_var_reward = new_var_reward;
     }
 
-    entry fun changeTier(tier: u8, _max_change: u16, _reward_multi: u16, _min_price_aggregation: u8) acquires TIER_TABLE{
+
+/*    //id: u32, hash: vector<u8>, proposer: address, modul: u32, code: u16, name: vector<u8>, desc: vector<u8>, start: u64, end: u64, stats: PROPOSAL_STATS, status: PROPOSAL_STATUS, from: vector<u8>, to: vector<u8>
+    #[view]
+    public fun viewProposalByModule_tuple(_module: u32, _code: u16): (u32,address,u16,bool,bool,vector<u8>,vector<u8>) acquires MODULE_TABLE
+    {
+        let data = viewProposalByModule(_module, _code);
+        (data.id, data.proposer, data.code data.status.pending, data.status.passed, data.from, data.to)
+    }
+*/
+    public entry fun changeRewards(address: &signer, base_reward: u64, new_var_reward: u64) acquires CONFIG{
+        let (id, proposer, code, pending, passed, from, to) = governancev42::viewProposalByModule_tuple(MODULE_ID, CODE_CHANGE_REWARDS);
+        assert!(passed == true, ERROR_PROPOSAL_NOT_PASSED);
+        assert!(signer::address_of(address) == DEPLOYER, ERROR_NOT_OWNER);
+        mock_changeRewards(base_reward, new_var_reward);
+    }
+
+    entry fun mock_changeTier(tier: u8, _max_change: u16, _reward_multi: u16, min_price_weight: u8) acquires TIER_TABLE{
         assert!(tier <= 5, ERROR_MAX_TIERS_REACHED);
         let tier_table = borrow_global_mut<TIER_TABLE>(DEPLOYER);
         let _tier = TIER{
             rounding: ROUNDING,
             max_change: _max_change,
             reward_multi: _reward_multi,
-            min_price_aggregation: _min_price_aggregation,
+            min_price_weight: min_price_weight,
         };
 
         if (table::contains(&tier_table.tiers, tier)) {
@@ -121,6 +197,11 @@ module deployer::oracle_corev3{
         else{
              table::add(&mut tier_table.tiers, tier, _tier);
         };
+    }
+
+    public entry fun changeTier(address: &signer, tier: u8, _max_change: u16, _reward_multi: u16, min_price_weight: u8) acquires TIER_TABLE{
+        assert!(signer::address_of(address) == DEPLOYER, ERROR_NOT_OWNER);
+        mock_changeTier(tier, _max_change, _reward_multi, min_price_weight);
     }
 
     #[view]
@@ -145,6 +226,21 @@ module deployer::oracle_corev3{
             new_var_reward: config.new_var_reward,
         };
         move _config
+    }
+
+
+    #[view]
+    public fun viewValidator(moduleID: u16, validator: address): VALIDATOR acquires VALIDATOR_TABLE
+    {
+        let validator_db = borrow_global<VALIDATOR_TABLE>(DEPLOYER);
+        let validator_module = table::borrow(&validator_db.database, moduleID);
+
+        if (!table::contains(validator_module, validator)) {
+            abort(ERROR_ADDRESS_IS_NOT_VALIDATOR)
+        };
+        let _validator = *table::borrow(validator_module, validator);
+
+        move _validator
     }
 
 
@@ -244,7 +340,7 @@ module deployer::oracle_corev3{
 
 
     #[test(account = @0x1, owner = @0xc698c251041b826f1d3d4ea664a70674758e78918938d1b3b237418ff17b4020)]
-     public entry fun test(account: signer, owner: signer) acquires CONTRACT, TIER_TABLE, CONFIG {
+     public entry fun test(account: signer, owner: signer) acquires CONTRACT, TIER_TABLE, CONFIG, VALIDATOR_TABLE {
         timestamp::set_time_has_started_for_testing(&account);  
         init_module(&owner);
         let addr = signer::address_of(&owner);
@@ -253,6 +349,13 @@ module deployer::oracle_corev3{
         print(&viewContract());
         print(&viewALLTiers());
         print(&viewConfig());
+        changeRewards(&owner, 5,100);
+        print(&viewConfig());
+        allowValidator(&owner, 1, @0x123);
+        print(&viewValidator(1, @0x123));
+        removeValidator(&owner, 1, @0x123);
+        changeTier(&owner, 5, 20000, 5000, 20);
+        print(&viewALLTiers());
   }
 }   
 
