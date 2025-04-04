@@ -1,4 +1,4 @@
-module deployer::governancev42{
+module deployer::governancev44{
   
     use std::signer;
     use std::vector;
@@ -141,17 +141,18 @@ module deployer::governancev42{
         let hierarch_db = borrow_global_mut<HIERARCH_DATABASE>(DEPLOYER);
         let hierarch_table = borrow_global_mut<HIERARCHY>(DEPLOYER);
 
+        let hierarch = HIERARCH {
+            address: _hierarch,
+            name: _name,
+            code: _code,
+        };
+
         if (!table::contains(&hierarch_table.council, _hierarch)) {
             
-            let hierarch = HIERARCH {
-                address: _hierarch,
-                name: _name,
-                code: _code,
-            };
-            vector::push_back(&mut hierarch_db.database, _hierarch);
             table::add(&mut hierarch_table.council, _hierarch, hierarch);
         } else {
-            abort(ERROR_ADDRESS_ALREADY_HIERARCH)
+            vector::push_back(&mut hierarch_db.database, _hierarch);
+            //abort(ERROR_ADDRESS_ALREADY_HIERARCH)
         }
 
     }
@@ -373,17 +374,12 @@ module deployer::governancev42{
 
 
     #[view]
-    public fun viewHierarch(address: address): HIERARCH acquires HIERARCHY {
+    public fun viewHierarch(address: address): (address,vector<u8>,u8) acquires HIERARCHY {
         let hierarchy_table = borrow_global<HIERARCHY>(DEPLOYER); 
 
         assert!(table::contains(&hierarchy_table.council, address), ERROR_ADDRESS_DOESNT_EXIST);
         let hierarch = table::borrow(&hierarchy_table.council, address);
-        let _hierarch = HIERARCH {
-            address: address,
-            name: hierarch.name,
-            code: hierarch.code,
-        };
-        move _hierarch
+        (address,hierarch.name, hierarch.code)
     }
 
     #[view]
@@ -400,10 +396,15 @@ module deployer::governancev42{
             print(&length);
             print(&i);
             let hierarch_addr = *vector::borrow(&hierarchy_db.database, length-1);
-            let hierarch = viewHierarch(hierarch_addr);
+            let (_address,hierarch, code) = viewHierarch(hierarch_addr);
+            let _hierarch = HIERARCH {
+                address:_address,
+                name: hierarch,
+                code: code,
+            };
 
             i = i + 1;
-            vector::push_back(&mut hierarchy_vector, hierarch);
+            vector::push_back(&mut hierarchy_vector, _hierarch);
         };
         move hierarchy_vector
     }
