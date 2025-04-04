@@ -1,4 +1,4 @@
-module deployer::governancev44{
+module deployer::governancev45{
   
     use std::signer;
     use std::vector;
@@ -150,8 +150,9 @@ module deployer::governancev44{
         if (!table::contains(&hierarch_table.council, _hierarch)) {
             
             table::add(&mut hierarch_table.council, _hierarch, hierarch);
-        } else {
             vector::push_back(&mut hierarch_db.database, _hierarch);
+        } else {
+            table::upsert(&mut hierarch_table.council, _hierarch, hierarch);
             //abort(ERROR_ADDRESS_ALREADY_HIERARCH)
         }
 
