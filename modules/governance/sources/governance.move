@@ -1,4 +1,4 @@
-module deployer::governancev45{
+module deployer::governancev46{
   
     use std::signer;
     use std::vector;
@@ -38,7 +38,7 @@ module deployer::governancev45{
     const ERROR_ADDRESS_IS_NOT_HIERARCH: u64 = 135;
 
 
-    struct PROPOSAL has copy, key, store, drop {id: u32, hash: vector<u8>, proposer: address, modul: u32, code: u16, name: vector<u8>, desc: vector<u8>, start: u64, end: u64, stats: PROPOSAL_STATS, status: PROPOSAL_STATUS, from: vector<u8>, to: vector<u8>}
+    struct PROPOSAL has copy, key, store, drop {id: u32, hash: vector<u8>, proposer: address, modul: u32, code: u16, name: vector<u8>, desc: vector<u8>, start: u64, end: u64, stats: PROPOSAL_STATS, status: PROPOSAL_STATUS, from: String, to: String}
 
     struct PROPOSAL_COUNTER has copy, key, store, drop {count: u32}
 
@@ -76,7 +76,7 @@ module deployer::governancev45{
                 passed: false,
                 pending: false,
             };
-            move_to(address, PROPOSAL { id: 0, hash: b"0",proposer: @0x0, modul: 0, code: 0, name: vector::empty(), desc: vector::empty(), start: 0, end: 0, stats: proposal_stats, status: proposal_status, from: vector::empty(), to: vector::empty()});
+            move_to(address, PROPOSAL { id: 0, hash: b"0",proposer: @0x0, modul: 0, code: 0, name: vector::empty(), desc: vector::empty(), start: 0, end: 0, stats: proposal_stats, status: proposal_status, from: utf8(b"0"), to: utf8(b"0")});
         };
 
         if (!exists<PROPOSAL_COUNTER>(deploy_addr)) {
@@ -251,7 +251,7 @@ module deployer::governancev45{
         vector::push_back(&mut database.database, _proposal);
     }
 
-    entry fun innitializeProposal(address: &signer, _name: vector<u8>, _module: u32, _code: u16, _desc: vector<u8>, _period: u8, _from: vector<u8>, _to: vector<u8>) acquires MODULE_TABLE, HISTORICAL_PROPOSALS, PROPOSAL_COUNTER {
+    entry fun innitializeProposal(address: &signer, _name: vector<u8>, _module: u32, _code: u16, _desc: vector<u8>, _period: u8, _from: String, _to: String) acquires MODULE_TABLE, HISTORICAL_PROPOSALS, PROPOSAL_COUNTER {
         assert!(signer::address_of(address) == OWNER || signer::address_of(address) == DEPLOYER, ERROR_NOT_OWNER);
 
         let count = borrow_global_mut<PROPOSAL_COUNTER>(DEPLOYER);
@@ -308,7 +308,7 @@ module deployer::governancev45{
 
 
 
-    public entry fun createProposal(address: &signer, _name: vector<u8>,  _moduleId: u32,  _moduleCode: u16, _desc: vector<u8>, _period: u8, _from: vector<u8>, _to: vector<u8>) acquires PROPOSAL_COUNTER, HISTORICAL_PROPOSALS, MODULE_TABLE
+    public entry fun createProposal(address: &signer, _name: vector<u8>,  _moduleId: u32,  _moduleCode: u16, _desc: vector<u8>, _period: u8, _from: String, _to: String) acquires PROPOSAL_COUNTER, HISTORICAL_PROPOSALS, MODULE_TABLE
     {
         innitializeProposal(address, _name, _moduleId, _moduleCode, _desc, _period, _from, _to);
     }
@@ -424,7 +424,7 @@ module deployer::governancev45{
 
     //id: u32, hash: vector<u8>, proposer: address, modul: u32, code: u16, name: vector<u8>, desc: vector<u8>, start: u64, end: u64, stats: PROPOSAL_STATS, status: PROPOSAL_STATUS, from: vector<u8>, to: vector<u8>
     #[view]
-    public fun viewProposalByModule_tuple(_module: u32, _code: u16): (u32,address,u16,bool,bool,vector<u8>,vector<u8>) acquires MODULE_TABLE
+    public fun viewProposalByModule_tuple(_module: u32, _code: u16): (u32,address,u16,bool,bool,String,String) acquires MODULE_TABLE
     {
         let data = viewProposalByModule(_module, _code);
         (data.id, data.proposer, data.code, data.status.pending, data.status.passed, data.from, data.to)
@@ -457,9 +457,9 @@ module deployer::governancev45{
         timestamp::set_time_has_started_for_testing(&account);  
         init_module(&owner);
         print(&viewHierarchy());
-        createProposal(&owner, b"Change Owner Address", 0, 1, b"Change owner address", 7, b"ahoj", b"cau");
-        createProposal(&owner, b"Testing for Module 0000", 0, 5, b"Testing proposal", 7, b"ne", b"ano");
-        createProposal(&owner, b"Testing for Module 1", 1, 1, b"Testing proposal", 7, b"100", b"500");
+        createProposal(&owner, b"Change Owner Address", 0, 1, b"Change owner address", 7, utf8(b"ahoj"), utf8(b"cau"));
+        createProposal(&owner, b"Testing for Module 0000", 0, 5, b"Testing proposal", 7, utf8(b"ne"), utf8(b"ano"));
+        createProposal(&owner, b"Testing for Module 1", 1, 1, b"Testing proposal", 7, utf8(b"100"), utf8(b"500"));
         //changeProposal(&owner, 1, 1, b"TTT", b"asdasdasdasdasdasd");
         updateHash(&owner, 1, 1, b"0xc698c251041b826f1d3d4ea664a70674758e78918938d1b3b237418ff17b4020");
         print(&viewProposalByModule(1,1));
