@@ -1,5 +1,5 @@
 
-module dev::oracle_corev1{
+module deployer::oracle_corev30{
 
     use std::signer;
     use std::vector;
@@ -10,15 +10,15 @@ module dev::oracle_corev1{
     use std::timestamp;
     use std::table;
     use supra_oracle::supra_oracle_storage;
-    use 0x392727cb3021ab76bd867dd7740579bc9e42215d98197408b667897eb8e13a1f::governancev1;
+    use 0x392727cb3021ab76bd867dd7740579bc9e42215d98197408b667897eb8e13a1f::governance;
 
     // MODULE ID
     const MODULE_ID: u32 = 5;
 
     // A wallet thats designed to hold the contract struct permanently.
-    const DEPLOYER: address = @dev;
+    const DEPLOYER: address = @deployer;
     // A wallet which purpose is to the prices.
-    const OWNER: address = @dev;
+    const OWNER: address = @deployer;
 
 
     //CONFIG 
@@ -42,6 +42,7 @@ module dev::oracle_corev1{
     //  CHANGING CODES
     const CODE_CHANGE_TIER: u16 = 1;
     const CODE_CHANGE_REWARDS: u16 = 2;
+    const CODE_CHANGE_MAX_VALUES_STORED: u16 = 3;
 
 
 
@@ -73,13 +74,13 @@ module dev::oracle_corev1{
 
     struct TIER_TABLE has key, store {tiers: table::Table<u8, TIER>}
 
-    struct CONFIG has key, store, drop {base_reward: u64, new_var_reward: u64}
+    struct CONFIG has key, store, drop {base_reward: u64, max_values: u64}
 
     struct VALIDATOR has key, drop, copy, store { isValidator: bool, count: u64, strikes: u8, weight: u8}
 
     struct VALIDATOR_TABLE has key, store { database: table::Table<u16, table::Table<address, VALIDATOR>>}
 
-    fun init_module(address: &signer) acquires TIER_TABLE{
+    fun init_module(address: &signer){
 
         if (!exists<CONTRACT>(DEPLOYER)) {
             move_to(address, CONTRACT { deployer: DEPLOYER, owner: OWNER });
@@ -95,19 +96,55 @@ module dev::oracle_corev1{
         };
 
         if (!exists<CONFIG>(DEPLOYER)) {
-            move_to(address, CONFIG { base_reward: 100, new_var_reward: 10000});
+            move_to(address, CONFIG { base_reward: 100, max_values: 100});
         };
 
         if (!exists<TIER_TABLE>(DEPLOYER)) {
             let price_table = table::new<u8, TIER>();
+            let _tier1 = TIER{
+                rounding: ROUNDING,
+                max_change: 1000,
+                reward_multi: 1000,
+                min_price_weight: 1,
+            };
+
+            let _tier2 = TIER{
+                rounding: ROUNDING,
+                max_change: 2500,
+                reward_multi: 2000,
+                min_price_weight: 3,
+            };
+
+            let _tier3 = TIER{
+                rounding: ROUNDING,
+                max_change: 5000,
+                reward_multi: 3000,
+                min_price_weight: 5,
+            };
+
+            let _tier4 = TIER{
+                rounding: ROUNDING,
+                max_change: 10000,
+                reward_multi: 4000,
+                min_price_weight: 10,
+            };
+
+          let _tier5 = TIER{
+                rounding: ROUNDING,
+                max_change: 20000,
+                reward_multi: 5000,
+                min_price_weight: 15,
+            };
+            table::upsert(&mut price_table, 1, _tier1);
+            table::upsert(&mut price_table, 2, _tier2);
+            table::upsert(&mut price_table, 3, _tier3);
+            table::upsert(&mut price_table, 4, _tier4);
+            table::upsert(&mut price_table, 5, _tier5);
+            
             move_to(address, TIER_TABLE { tiers: price_table });
+
         };
 
-        changeTier(address, 1, 1000, 1000, 1);
-        changeTier(address, 2, 2500, 2000, 3);
-        changeTier(address, 3, 5000, 3000, 5);
-        changeTier(address, 4, 10000, 4000, 10);
-        changeTier(address, 5, 20000, 5000, 15);
     }
 
 
@@ -129,10 +166,12 @@ module dev::oracle_corev1{
     }
 
 
+
+
     public entry fun allowValidator(address: &signer, moduleID: u16, validator: address) acquires VALIDATOR_TABLE{
 
         let addr = signer::address_of(address);
-        let (address, hierarch, code) = governancev1::viewHierarch(addr);
+        let (id, address, hierarch, code) = governance::viewHierarch(addr);
         
         assert!(hierarch == b"oracle_core", ERROR_NOT_OWNER);
         assert!(code == 1, WRONG_HIERARCH);
@@ -159,10 +198,14 @@ module dev::oracle_corev1{
     }
 
 
-     entry fun mock_changeRewards(base_reward: u64, new_var_reward: u64) acquires CONFIG{
+     entry fun mock_change(code: u16, to: u64 ) acquires CONFIG{
         let config = borrow_global_mut<CONFIG>(DEPLOYER);
-        config.base_reward = base_reward;
-        config.new_var_reward = new_var_reward;
+        
+        if(code == CODE_CHANGE_REWARDS){
+            config.base_reward = to;
+        } else if (code == CODE_CHANGE_MAX_VALUES_STORED){
+            config.max_values = to;
+        }
     }
 
 
@@ -174,11 +217,11 @@ module dev::oracle_corev1{
         (data.id, data.proposer, data.code data.status.pending, data.status.passed, data.from, data.to)
     }
 */
-    public entry fun changeRewards(address: &signer, base_reward: u64, new_var_reward: u64) acquires CONFIG{
-        let (id, proposer, code, pending, passed, from, to, isbool) = governancev1::viewProposalByModule_tuple(MODULE_ID, CODE_CHANGE_REWARDS);
+    public entry fun change(address: &signer, _code: u16) acquires CONFIG{
+        let (id, proposer, code, pending, passed, from, to, type) = governance::viewProposalByModule_tuple(MODULE_ID, _code);
         assert!(passed == true, ERROR_PROPOSAL_NOT_PASSED);
         assert!(signer::address_of(address) == DEPLOYER, ERROR_NOT_OWNER);
-        mock_changeRewards(base_reward, new_var_reward);
+        mock_change(code, (to as u64));
     }
 
     entry fun mock_changeTier(tier: u8, _max_change: u16, _reward_multi: u16, min_price_weight: u8) acquires TIER_TABLE{
@@ -200,6 +243,8 @@ module dev::oracle_corev1{
     }
 
     public entry fun changeTier(address: &signer, tier: u8, _max_change: u16, _reward_multi: u16, min_price_weight: u8) acquires TIER_TABLE{
+        let (id, proposer, code, pending, passed, from, to, type) = governance::viewProposalByModule_tuple(MODULE_ID, CODE_CHANGE_TIER);
+        assert!(passed == true, ERROR_PROPOSAL_NOT_PASSED);
         assert!(signer::address_of(address) == DEPLOYER, ERROR_NOT_OWNER);
         mock_changeTier(tier, _max_change, _reward_multi, min_price_weight);
     }
@@ -223,7 +268,7 @@ module dev::oracle_corev1{
         let config = borrow_global<CONFIG>(DEPLOYER);
         let _config = CONFIG {
             base_reward: config.base_reward,
-            new_var_reward: config.new_var_reward,
+            max_values: config.max_values,
         };
         move _config
     }
@@ -339,7 +384,7 @@ module dev::oracle_corev1{
     }
 
 
-    #[test(account = @0x1, owner = @0xc698c251041b826f1d3d4ea664a70674758e78918938d1b3b237418ff17b4020)]
+    #[test(account = @0x1, owner = @0x392727cb3021ab76bd867dd7740579bc9e42215d98197408b667897eb8e13a1f)]
      public entry fun test(account: signer, owner: signer) acquires CONTRACT, TIER_TABLE, CONFIG, VALIDATOR_TABLE {
         timestamp::set_time_has_started_for_testing(&account);  
         init_module(&owner);
@@ -349,7 +394,7 @@ module dev::oracle_corev1{
         print(&viewContract());
         print(&viewALLTiers());
         print(&viewConfig());
-        changeRewards(&owner, 5,100);
+        change(&owner,2);
         print(&viewConfig());
         allowValidator(&owner, 1, @0x123);
         print(&viewValidator(1, @0x123));
