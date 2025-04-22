@@ -1,4 +1,4 @@
-module deployer::AEXIS_SMART_MATH_BETA {
+module aexis::smart_math {
 
     use std::signer;
     use std::vector;
@@ -11,7 +11,7 @@ module deployer::AEXIS_SMART_MATH_BETA {
 
     struct NUMBERS has key, store, drop, copy {numbers: vector<u8>}
 
-    const DEPLOYER: address = @deployer;
+    const DEPLOYER: address = @aexis;
 
     fun init_module(address: &signer) {
         if (!exists<NUMBERS>(DEPLOYER)) {
