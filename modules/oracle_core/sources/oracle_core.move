@@ -1,5 +1,5 @@
 
-module deployer::oracle_corev6{
+module dev::oracle_corev1{
 
     use std::signer;
     use std::vector;
@@ -10,15 +10,15 @@ module deployer::oracle_corev6{
     use std::timestamp;
     use std::table;
     use supra_oracle::supra_oracle_storage;
-    use 0xc698c251041b826f1d3d4ea664a70674758e78918938d1b3b237418ff17b4020::governancev44;
+    use 0x392727cb3021ab76bd867dd7740579bc9e42215d98197408b667897eb8e13a1f::governancev1;
 
     // MODULE ID
     const MODULE_ID: u32 = 5;
 
     // A wallet thats designed to hold the contract struct permanently.
-    const DEPLOYER: address = @deployer;
+    const DEPLOYER: address = @dev;
     // A wallet which purpose is to the prices.
-    const OWNER: address = @owner;
+    const OWNER: address = @dev;
 
 
     //CONFIG 
@@ -132,9 +132,9 @@ module deployer::oracle_corev6{
     public entry fun allowValidator(address: &signer, moduleID: u16, validator: address) acquires VALIDATOR_TABLE{
 
         let addr = signer::address_of(address);
-        let (address, hierarch, code) = governancev44::viewHierarch(address);
+        let (address, hierarch, code) = governancev1::viewHierarch(addr);
         
-        assert!(hierarch == "oracle_core", ERROR_NOT_OWNER);
+        assert!(hierarch == b"oracle_core", ERROR_NOT_OWNER);
         assert!(code == 1, WRONG_HIERARCH);
     
         let validator_db = borrow_global_mut<VALIDATOR_TABLE>(DEPLOYER);
@@ -175,7 +175,7 @@ module deployer::oracle_corev6{
     }
 */
     public entry fun changeRewards(address: &signer, base_reward: u64, new_var_reward: u64) acquires CONFIG{
-        let (id, proposer, code, pending, passed, from, to) = governancev42::viewProposalByModule_tuple(MODULE_ID, CODE_CHANGE_REWARDS);
+        let (id, proposer, code, pending, passed, from, to, isbool) = governancev1::viewProposalByModule_tuple(MODULE_ID, CODE_CHANGE_REWARDS);
         assert!(passed == true, ERROR_PROPOSAL_NOT_PASSED);
         assert!(signer::address_of(address) == DEPLOYER, ERROR_NOT_OWNER);
         mock_changeRewards(base_reward, new_var_reward);
