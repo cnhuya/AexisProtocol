@@ -1,4 +1,4 @@
-module deployer::governancev47{
+module deployer::governancev1{
   
     use std::signer;
     use std::vector;
