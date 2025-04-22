@@ -1,4 +1,4 @@
-module deployer::pointsv9 {
+module deployer::pointsv1 {
     use std::signer;
     use std::vector;
     use std::account;
