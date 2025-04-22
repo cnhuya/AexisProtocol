@@ -1,4 +1,4 @@
-module deployer::governancev45{
+module deployer::governancev1{
   
     use std::signer;
     use std::vector;
@@ -8,7 +8,7 @@ module deployer::governancev45{
     use std::string::String;
     use std::table;
     use std::debug::print;
-    use 0xc698c251041b826f1d3d4ea664a70674758e78918938d1b3b237418ff17b4020::pointsv9;
+    use 0x392727cb3021ab76bd867dd7740579bc9e42215d98197408b667897eb8e13a1f::pointsv1;
     use std::string::utf8;
    
 
@@ -175,7 +175,7 @@ module deployer::governancev45{
             let voter = table::borrow_mut(voter_module, code);
 
             let _vote = VOTE {
-                value:  pointsv9::viewBalance(signer::address_of(address)),
+                value:  pointsv1::viewBalance(signer::address_of(address)),
                 yes: yes,
             };
             table::add(voter, signer::address_of(address), _vote);
@@ -183,7 +183,7 @@ module deployer::governancev45{
                 let voter_module = table::borrow_mut(&mut voters_table.voters, modul);
                 if (!table::contains(voter_module, code)) {
                     let vote = VOTE {
-                        value: pointsv9::viewBalance(signer::address_of(address)),
+                        value: pointsv1::viewBalance(signer::address_of(address)),
                         yes: yes,
                     };
                     let addr = signer::address_of(address);
@@ -199,11 +199,11 @@ module deployer::governancev45{
         let modules_table = borrow_global_mut<MODULE_TABLE>(DEPLOYER);
         let proposals = table::borrow_mut(&mut modules_table.modules, modul);
         let proposal = table::borrow_mut(proposals, code);
-        assert!(pointsv9::viewBalance(signer::address_of(address)) > 0, ERROR_NOT_ENOUGH_BALANCE);
+        assert!(pointsv1::viewBalance(signer::address_of(address)) > 0, ERROR_NOT_ENOUGH_BALANCE);
         if(yes == true){
-            proposal.stats.yes = proposal.stats.yes + pointsv9::viewBalance(signer::address_of(address));   
+            proposal.stats.yes = proposal.stats.yes + pointsv1::viewBalance(signer::address_of(address));   
         } else {
-            proposal.stats.no = proposal.stats.no + pointsv9::viewBalance(signer::address_of(address)); 
+            proposal.stats.no = proposal.stats.no + pointsv1::viewBalance(signer::address_of(address)); 
         };
         deleteProposal(address, proposal.id);
         let _proposal = *proposal;
