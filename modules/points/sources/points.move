@@ -1,4 +1,4 @@
-module deployer::pointsv1 {
+module aexis::points {
     use std::signer;
     use std::vector;
     use std::account;
@@ -15,23 +15,23 @@ module deployer::pointsv1 {
     struct HOLDER has key, copy, store, drop { address: address, balance: u128 }
 
     const ROUNDING: u8 = 2;
-    const MESSAGER: address = @deployer;
-    const DEPLOYER: address = @deployer;
+    const MESSAGER: address = @aexis;
+    const DEPLOYER: address = @aexis;
+
 
     const ERROR_NOT_MESSAGER: u64 = 1;
     const ERROR_BAG_DOES_NOT_EXISTS: u64 = 2;
     const ERROR_BALANCE_TOO_LOW: u64 = 3;
 
     fun init_module(address: &signer) {
+
+        print(&MESSAGER);
         if (!exists<STATS>(DEPLOYER)) {
             move_to(address, STATS { total_points: 0, total_holders: 0 });
         };
         if (!exists<BAG>(DEPLOYER)) {
             let table = table::new<address, u128>();
             move_to(address, BAG { holders: table });
-        };
-        if (!exists<CONTRACT>(DEPLOYER)) {
-            move_to(address, CONTRACT { deployer: DEPLOYER, messager: MESSAGER });
         };
         if (!exists<HOLDERS>(DEPLOYER)) {
             move_to(address, HOLDERS { holders: vector::empty() });
@@ -145,7 +145,7 @@ module deployer::pointsv1 {
     }
 
     #[view]
-    public fun viewContract(): CONTRACT acquires CONTRACT {
+    public fun viewContract(): CONTRACT {
         let deployer = viewDeployer();
         let messager = viewMessager();
 
@@ -157,21 +157,19 @@ module deployer::pointsv1 {
     }
 
     #[view]
-    public fun viewMessager(): address acquires CONTRACT {
-        let contract = borrow_global<CONTRACT>(DEPLOYER);
-        let messager = contract.messager;
+    public fun viewMessager(): address {
+        let messager = MESSAGER;
         move messager
     }
 
     #[view]
-    public fun viewDeployer(): address acquires CONTRACT {
-        let contract = borrow_global<CONTRACT>(DEPLOYER);
-        let deployer = contract.deployer;
+    public fun viewDeployer(): address  {
+        let deployer = DEPLOYER;
         move deployer
     }
 
-    #[test(account = @0x1, owner = @0xc698c251041b826f1d3d4ea664a70674758e78918938d1b3b237418ff17b4020)]
-    public entry fun test(account: signer, owner: signer) acquires CONTRACT, BAG, STATS, HOLDERS {
+    #[test(account = @0x1, owner = @0x1928893148d317947c302185417e2c1d32640c6ef8521b48e1ae6308ab1a41c3)]
+    public entry fun test(account: signer, owner: signer) acquires BAG, STATS, HOLDERS {
         // Initialize the CurrentTimeMicroseconds resource
         init_module(&owner);
         let _owner = signer::address_of(&owner);
