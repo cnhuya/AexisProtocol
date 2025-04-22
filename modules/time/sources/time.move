@@ -1,10 +1,8 @@
-module deployer::TIMEv6{
+module aexis::time{
   
     use std::debug::print;
     use std::string;
     use supra_framework::timestamp; 
-
-
 
     struct ALL has key {microseconds: u64, miliseconds: u64, seconds: u64, minutes: u64, hours: u64, days: u64, weeks: u64, months: u64, years: u64}
 
