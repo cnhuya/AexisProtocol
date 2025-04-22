@@ -12,7 +12,7 @@ module deployer::oracleHolderv7{
    // use 0xc698c251041b826f1d3d4ea664a70674758e78918938d1b3b237418ff17b4020::hierarchy;
    // use 0xc698c251041b826f1d3d4ea664a70674758e78918938d1b3b237418ff17b4020::errors;
 // use 0xc698c251041b826f1d3d4ea664a70674758e78918938d1b3b237418ff17b4020::governancev44;
-    use 0x392727cb3021ab76bd867dd7740579bc9e42215d98197408b667897eb8e13a1f::oracle_corev30;
+    use 0x392727cb3021ab76bd867dd7740579bc9e42215d98197408b667897eb8e13a1f::oracle_corev30::TIER;
     use 0x1928893148d317947c302185417e2c1d32640c6ef8521b48e1ae6308ab1a41c3::smart_math;
     use 0x1928893148d317947c302185417e2c1d32640c6ef8521b48e1ae6308ab1a41c3::time;
     //use 0xc698c251041b826f1d3d4ea664a70674758e78918938d1b3b237418ff17b4020::oracle_corev3;
@@ -78,7 +78,7 @@ module deployer::oracleHolderv7{
 
 
         //    struct TIER has key, store, copy, drop {rounding: u8, max_change: u16, reward_multi: u16, min_price_weight: u8}
-        let tier = core_oraclev30::viewTier(1);
+        let tier = oracle_corev30::viewTier(1);
 
         if (!exists<CONTRACT>(DEPLOYER)) {
             move_to(address, CONTRACT { name: NAME, symbol: SYMBOL, decimals: DECIMALS, deployer: DEPLOYER, messager: MESSAGER, index: INDEX });
