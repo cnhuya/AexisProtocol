@@ -15,7 +15,7 @@ git = "https://github.com/Entropy-Foundation/aptos-core.git"
 rev = "dev"
 subdir = "aptos-move/framework/supra-framework"
 
-[dependencies.oracle_corev12]
+[dependencies.oracle_corev30]
 git = 'https://github.com/cnhuya/test.git'
 rev = 'main'
 subdir = 'modules/oracle_core'
