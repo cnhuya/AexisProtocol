@@ -1,13 +1,13 @@
 [package]
-name = "governancev45"
+name = "governancev1"
 version = "2.1.1"
 authors = []
 
 [addresses]
-deployer = "0xc698c251041b826f1d3d4ea664a70674758e78918938d1b3b237418ff17b4020"
-owner = "0xc698c251041b826f1d3d4ea664a70674758e78918938d1b3b237418ff17b4020"
-messager = "0xc698c251041b826f1d3d4ea664a70674758e78918938d1b3b237418ff17b4020"
-validator = "0x1ed618c4bbcd54ac81f020746e3855f938a7827775e5cf08f95caed8953e5387"
+deployer = "0x392727cb3021ab76bd867dd7740579bc9e42215d98197408b667897eb8e13a1f"
+owner = "0x392727cb3021ab76bd867dd7740579bc9e42215d98197408b667897eb8e13a1f"
+messager = "0x392727cb3021ab76bd867dd7740579bc9e42215d98197408b667897eb8e13a1f"
+validator = "0x392727cb3021ab76bd867dd7740579bc9e42215d98197408b667897eb8e13a1f"
 std = "0x1"
 aptos_std = "0x1"
 supra_framework = "0x1"
@@ -24,7 +24,7 @@ git = "https://github.com/Entropy-Foundation/aptos-core.git"
 rev = "dev"
 subdir = "aptos-move/framework/supra-framework"
 
-[dependencies.pointsv9]
+[dependencies.pointsv1]
 git = 'https://github.com/cnhuya/test.git'
 rev = 'main'
 subdir = 'modules/points'
