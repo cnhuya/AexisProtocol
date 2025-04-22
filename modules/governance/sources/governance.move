@@ -1,4 +1,4 @@
-module deployer::governancev1{
+module deployer::governancev47{
   
     use std::signer;
     use std::vector;
@@ -38,7 +38,11 @@ module deployer::governancev1{
     const ERROR_ADDRESS_IS_NOT_HIERARCH: u64 = 135;
 
 
-    struct PROPOSAL has copy, key, store, drop {id: u32, hash: vector<u8>, proposer: address, modul: u32, code: u16, name: vector<u8>, desc: vector<u8>, start: u64, end: u64, stats: PROPOSAL_STATS, status: PROPOSAL_STATUS, from: vector<u8>, to: vector<u8>}
+    // TYPE
+    // 1 = NUMBER
+    // 2 = BOOL
+    // 3 = ADDRESS
+    struct PROPOSAL has copy, key, store, drop {id: u32, hash: vector<u8>, proposer: address, modul: u32, code: u16, name: vector<u8>, desc: vector<u8>, start: u64, end: u64, stats: PROPOSAL_STATS, status: PROPOSAL_STATUS, from: u256, to: u256, isBool: bool}
 
     struct PROPOSAL_COUNTER has copy, key, store, drop {count: u32}
 
@@ -76,7 +80,7 @@ module deployer::governancev1{
                 passed: false,
                 pending: false,
             };
-            move_to(address, PROPOSAL { id: 0, hash: b"0",proposer: @0x0, modul: 0, code: 0, name: vector::empty(), desc: vector::empty(), start: 0, end: 0, stats: proposal_stats, status: proposal_status, from: vector::empty(), to: vector::empty()});
+            move_to(address, PROPOSAL { id: 0, hash: b"0",proposer: @0x0, modul: 0, code: 0, name: vector::empty(), desc: vector::empty(), start: 0, end: 0, stats: proposal_stats, status: proposal_status, from: 0, to: 0, isBool:false});
         };
 
         if (!exists<PROPOSAL_COUNTER>(deploy_addr)) {
@@ -251,7 +255,7 @@ module deployer::governancev1{
         vector::push_back(&mut database.database, _proposal);
     }
 
-    entry fun innitializeProposal(address: &signer, _name: vector<u8>, _module: u32, _code: u16, _desc: vector<u8>, _period: u8, _from: vector<u8>, _to: vector<u8>) acquires MODULE_TABLE, HISTORICAL_PROPOSALS, PROPOSAL_COUNTER {
+    entry fun innitializeProposal(address: &signer, _name: vector<u8>, _module: u32, _code: u16, _desc: vector<u8>, _period: u8, _from: u256, _to: u256, isBool: bool) acquires MODULE_TABLE, HISTORICAL_PROPOSALS, PROPOSAL_COUNTER {
         assert!(signer::address_of(address) == OWNER || signer::address_of(address) == DEPLOYER, ERROR_NOT_OWNER);
 
         let count = borrow_global_mut<PROPOSAL_COUNTER>(DEPLOYER);
@@ -282,6 +286,7 @@ module deployer::governancev1{
             status: proposal_status,
             from: _from,
             to: _to,
+            isBool: isBool,
         };
 
         let modules_table = borrow_global_mut<MODULE_TABLE>(DEPLOYER);
@@ -308,9 +313,9 @@ module deployer::governancev1{
 
 
 
-    public entry fun createProposal(address: &signer, _name: vector<u8>,  _moduleId: u32,  _moduleCode: u16, _desc: vector<u8>, _period: u8, _from: vector<u8>, _to: vector<u8>) acquires PROPOSAL_COUNTER, HISTORICAL_PROPOSALS, MODULE_TABLE
+    public entry fun createProposal(address: &signer, _name: vector<u8>,  _moduleId: u32,  _moduleCode: u16, _desc: vector<u8>, _period: u8, _from: u256, _to: u256, isBool:bool) acquires PROPOSAL_COUNTER, HISTORICAL_PROPOSALS, MODULE_TABLE
     {
-        innitializeProposal(address, _name, _moduleId, _moduleCode, _desc, _period, _from, _to);
+        innitializeProposal(address, _name, _moduleId, _moduleCode, _desc, _period, _from, _to, isBool);
     }
 
     public entry fun changeProposal(address: &signer, _moduleId: u32, _code: u16, _name: vector<u8>, _desc: vector<u8>) acquires MODULE_TABLE {
@@ -367,6 +372,8 @@ module deployer::governancev1{
             status: data.status,
             from: data.from,
             to: data.to,
+            isBool: data.isBool,
+            
         };
 
         move _proposal
@@ -424,10 +431,10 @@ module deployer::governancev1{
 
     //id: u32, hash: vector<u8>, proposer: address, modul: u32, code: u16, name: vector<u8>, desc: vector<u8>, start: u64, end: u64, stats: PROPOSAL_STATS, status: PROPOSAL_STATUS, from: vector<u8>, to: vector<u8>
     #[view]
-    public fun viewProposalByModule_tuple(_module: u32, _code: u16): (u32,address,u16,bool,bool,vector<u8>,vector<u8>) acquires MODULE_TABLE
+    public fun viewProposalByModule_tuple(_module: u32, _code: u16): (u32,address,u16,bool,bool,u256,u256,bool) acquires MODULE_TABLE
     {
         let data = viewProposalByModule(_module, _code);
-        (data.id, data.proposer, data.code, data.status.pending, data.status.passed, data.from, data.to)
+        (data.id, data.proposer, data.code, data.status.pending, data.status.passed, data.from, data.to, data.isBool)
     }
 
 
