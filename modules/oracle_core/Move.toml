@@ -1,11 +1,12 @@
 [package]
-name = "oracle_corev1"
+name = "oracle_corev30"
 version = "2.1.1"
 authors = []
 
 [addresses]
 owner = "0x392727cb3021ab76bd867dd7740579bc9e42215d98197408b667897eb8e13a1f"
-dev = "0x392727cb3021ab76bd867dd7740579bc9e42215d98197408b667897eb8e13a1f"
+deployer = "0x392727cb3021ab76bd867dd7740579bc9e42215d98197408b667897eb8e13a1f"
+aexis = "0x1928893148d317947c302185417e2c1d32640c6ef8521b48e1ae6308ab1a41c3"
 supra_framework = "0x1"
 std = "0x1"
 aptos_std = "0x1"
@@ -22,7 +23,7 @@ git = "https://github.com/Entropy-Foundation/dora-interface.git"
 rev = 'master'
 subdir = 'supra/testnet/core'
 
-[dependencies.governancev1]
+[dependencies.governance]
 git = 'https://github.com/cnhuya/test.git'
 rev = 'main'
 subdir = 'modules/governance'
