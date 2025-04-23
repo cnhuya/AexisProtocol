@@ -1,5 +1,5 @@
 
-module deployer::oracle_corev30{
+module deployer::oracle_corev3{
 
     use std::signer;
     use std::vector;
@@ -263,14 +263,9 @@ module deployer::oracle_corev30{
     }
 
     #[view]
-    public fun viewConfig(): CONFIG acquires CONFIG
-    {
+    public fun viewConfig(): (u64, u64) acquires CONFIG {
         let config = borrow_global<CONFIG>(DEPLOYER);
-        let _config = CONFIG {
-            base_reward: config.base_reward,
-            max_values: config.max_values,
-        };
-        move _config
+        (config.base_reward, config.max_values) // Returns a tuple of two u64 values
     }
 
 
@@ -289,19 +284,24 @@ module deployer::oracle_corev30{
     }
 
 
-    #[view]
-    public fun viewTier(tier: u8): TIER acquires TIER_TABLE
-    {
-        let tier_table = borrow_global<TIER_TABLE>(DEPLOYER);
-        
-        if (!table::contains(&tier_table.tiers, tier)) {
-            abort(ERROR_INVALID_TIER)
-        };
+#[view]
+public fun viewTier(tier: u8): (u8, u16, u16, u8) acquires TIER_TABLE {
+    let tier_table = borrow_global<TIER_TABLE>(DEPLOYER);
+    
+    if (!table::contains(&tier_table.tiers, tier)) {
+        abort(ERROR_INVALID_TIER)
+    };
 
-        let  tier = *table::borrow(&tier_table.tiers, tier);
-
-        move tier
-    }
+    let tier_data = table::borrow(&tier_table.tiers, tier);
+    
+    // Destructure the TIER struct and return as a tuple
+    (
+        tier_data.rounding,      // u8
+        tier_data.max_change,    // u16
+        tier_data.reward_multi,  // u16
+        tier_data.min_price_weight // u8
+    )
+}
 
     #[view]
     public fun viewALLTiers(): vector<TIER> acquires TIER_TABLE
@@ -310,8 +310,14 @@ module deployer::oracle_corev30{
         let tier_count = 5;
         let tier_vector = vector::empty();
         while(tier_count >0){
-            let tier = viewTier(tier_count);
-            vector::push_back(&mut tier_vector, tier);
+            let (rounding, max_change, reward_multi, min_price_weight) = viewTier(tier_count);
+            let _tier = TIER{
+                rounding: rounding,
+                max_change: max_change,
+                reward_multi: reward_multi,
+                min_price_weight: min_price_weight,
+            };
+            vector::push_back(&mut tier_vector, _tier);
             tier_count = tier_count-1;
         };
 
@@ -393,9 +399,9 @@ module deployer::oracle_corev30{
         //print(&viewStructPrice(1));
         print(&viewContract());
         print(&viewALLTiers());
-        print(&viewConfig());
+        //print(&viewConfig());
         change(&owner,2);
-        print(&viewConfig());
+        //print(&viewConfig());
         allowValidator(&owner, 1, @0x123);
         print(&viewValidator(1, @0x123));
         removeValidator(&owner, 1, @0x123);
