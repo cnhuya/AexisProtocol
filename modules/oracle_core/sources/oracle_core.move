@@ -1,5 +1,5 @@
 
-module deployer::oracle_corev3{
+module deployer::oracle_corev4{
 
     use std::signer;
     use std::vector;
@@ -96,7 +96,7 @@ module deployer::oracle_corev3{
         };
 
         if (!exists<CONFIG>(DEPLOYER)) {
-            move_to(address, CONFIG { base_reward: 100, max_values: 100});
+            move_to(address, CONFIG { base_reward: 100, max_values: 1000});
         };
 
         if (!exists<TIER_TABLE>(DEPLOYER)) {
