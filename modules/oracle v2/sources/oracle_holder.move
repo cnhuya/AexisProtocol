@@ -12,7 +12,7 @@ module deployer::oracleHolderv21{
    // use 0xc698c251041b826f1d3d4ea664a70674758e78918938d1b3b237418ff17b4020::hierarchy;
    // use 0xc698c251041b826f1d3d4ea664a70674758e78918938d1b3b237418ff17b4020::errors;
     use 0x392727cb3021ab76bd867dd7740579bc9e42215d98197408b667897eb8e13a1f::governance;
-    use 0x392727cb3021ab76bd867dd7740579bc9e42215d98197408b667897eb8e13a1f::oracle_corev3;
+    use 0x392727cb3021ab76bd867dd7740579bc9e42215d98197408b667897eb8e13a1f::oracle_corev15;
     use 0x1928893148d317947c302185417e2c1d32640c6ef8521b48e1ae6308ab1a41c3::smart_math;
     use 0x1928893148d317947c302185417e2c1d32640c6ef8521b48e1ae6308ab1a41c3::time;
     //use 0xc698c251041b826f1d3d4ea664a70674758e78918938d1b3b237418ff17b4020::oracle_corev3;
@@ -147,7 +147,7 @@ module deployer::oracleHolderv21{
 
    entry fun savePrice(address: &signer, _price: u64, _weight: u8) acquires LAST_TIME, OHCL, DATABASE, FAKE_DATABASE, POINTS, ACTUAL_PRICE, TIER_ {
         let time = time::now_minutes();
-        let (base_reward, max_values) = oracle_corev3::viewConfig();
+        let (base_reward, max_values) = oracle_corev15::viewConfig();
 
         let last_time = borrow_global_mut<LAST_TIME>(DEPLOYER);
         let ohcl = borrow_global_mut<OHCL>(DEPLOYER);
@@ -309,7 +309,7 @@ module deployer::oracleHolderv21{
     {
         //assert!(exists<VALIDATOR>(addr), ERROR_ADDRESS_IS_NOT_VALIDATOR);
         let balance = borrow_global_mut<POINTS>(addr);
-        let (decimals, max_reward, max_values, min_price_weight) = oracle_corev3::viewTier(viewTier());
+        let (decimals, max_reward, max_values, min_price_weight) = oracle_corev15::viewTier(viewTier());
         let display = balance.points / (smart_math::pow(10, (decimals as u256)) as u64);
         move display
     }
@@ -396,7 +396,7 @@ module deployer::oracleHolderv21{
     public fun viewTierConfig(): (u8, u16, u16, u8) acquires TIER_
     {
         let _tier = borrow_global<TIER_>(DEPLOYER);
-        let (rounding, max_change, reward_multi, min_price_weight) = oracle_corev3::viewTier(_tier.tier);
+        let (rounding, max_change, reward_multi, min_price_weight) = oracle_corev15::viewTier(_tier.tier);
         (rounding, max_change, reward_multi, min_price_weight)
     }
 
