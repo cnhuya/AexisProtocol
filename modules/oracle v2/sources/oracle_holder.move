@@ -1,5 +1,5 @@
 
-module deployer::oracleHolderv7{
+module deployer::oracleHolderv21{
 
     use std::signer;
     use std::vector;
@@ -11,14 +11,14 @@ module deployer::oracleHolderv7{
     use supra_oracle::supra_oracle_storage;
    // use 0xc698c251041b826f1d3d4ea664a70674758e78918938d1b3b237418ff17b4020::hierarchy;
    // use 0xc698c251041b826f1d3d4ea664a70674758e78918938d1b3b237418ff17b4020::errors;
-// use 0xc698c251041b826f1d3d4ea664a70674758e78918938d1b3b237418ff17b4020::governancev44;
-    use 0x392727cb3021ab76bd867dd7740579bc9e42215d98197408b667897eb8e13a1f::oracle_corev30::TIER;
+    use 0x392727cb3021ab76bd867dd7740579bc9e42215d98197408b667897eb8e13a1f::governance;
+    use 0x392727cb3021ab76bd867dd7740579bc9e42215d98197408b667897eb8e13a1f::oracle_corev3;
     use 0x1928893148d317947c302185417e2c1d32640c6ef8521b48e1ae6308ab1a41c3::smart_math;
     use 0x1928893148d317947c302185417e2c1d32640c6ef8521b48e1ae6308ab1a41c3::time;
     //use 0xc698c251041b826f1d3d4ea664a70674758e78918938d1b3b237418ff17b4020::oracle_corev3;
 
     // MODULE ID
-    const MODULE_ID: u16 = 6;
+    const MODULE_ID: u32 = 6;
 
     const DEPLOYER: address = @deployer;
     const MESSAGER: address = @deployer;
@@ -27,7 +27,7 @@ module deployer::oracleHolderv7{
     const SYMBOL: vector<u8> = b"ETH";
     const DECIMALS: u16 = 2;
     const INDEX: u32 = 2;
-    const TIER: u8 = 1;
+    const STARTING_TIER: u8 = 1;
 
     const ERROR_NOT_OWNER: u64 = 1; 
     const ERROR_NUMBER_TOO_BIG: u64 = 2;
@@ -49,17 +49,19 @@ module deployer::oracleHolderv7{
     const ERROR_NOT_ENOUGH_POINTS: u64 = 18;
     const ERROR_VECTOR_IS_EMPTY: u64 = 19;
     const ERROR_ADDITIONAL_OHCL_OVER_PUBLISH_TIME: u64 = 20;
+    const ERROR_PROPOSAL_NOT_PASSED: u64 = 21;
 
     //  CHANGING CODES
-    const CODE_CHANGE_OWNER: u8 = 1;
-    const CODE_CHANGE_MESSAGER: u8 = 2;
+    const CODE_CHANGE_TIER: u16 = 1;
 
 
     struct POINTS has key {points: u64}
 
     struct CONTRACT has key, drop, store,copy {name: vector<u8>, symbol: vector<u8>, decimals: u16, deployer: address, messager: address, index: u32}
 
-    struct CONFIG has key, store, drop {tier: u8 }
+    struct TIER_ has key, store, drop {tier: u8}
+
+    struct LAST_TIME has key, store {timestamp: u64}
 
     struct PRICE has store, key, copy, drop{ sender: address, timestamp: u64, price: u64, weight: u8  }
 
@@ -67,18 +69,15 @@ module deployer::oracleHolderv7{
 
     struct OHCL has store, key, copy, drop{ start: u64, o: u64, h: u64, c: u64, l: u64 }
 
-    struct DATABASE has store, drop, key,copy {database: vector<PRICE>}
+    struct DATABASE has store, drop, key,copy {database: vector<OHCL>}
 
-    struct FAKE_DATABASE has key, store, drop, copy {database: vector<PRICE>}
+    struct FAKE_DATABASE has key, store, drop, copy {database: vector<OHCL>}
 
     struct EMPTY_VEC has key, store {database: vector<PRICE>}
 
 
     fun init_module(address: &signer) {
 
-
-        //    struct TIER has key, store, copy, drop {rounding: u8, max_change: u16, reward_multi: u16, min_price_weight: u8}
-        let tier = oracle_corev30::viewTier(1);
 
         if (!exists<CONTRACT>(DEPLOYER)) {
             move_to(address, CONTRACT { name: NAME, symbol: SYMBOL, decimals: DECIMALS, deployer: DEPLOYER, messager: MESSAGER, index: INDEX });
@@ -89,11 +88,15 @@ module deployer::oracleHolderv7{
         };
 
         if (!exists<ACTUAL_PRICE>(DEPLOYER)) {
-            move_to(address, ACTUAL_PRICE {price: 10000});
+            move_to(address, ACTUAL_PRICE {price: 179717});
         };
 
-        if (!exists<CONFIG>(DEPLOYER)) {
-            move_to(address, CONFIG {tier: 1 });
+        if (!exists<TIER_>(DEPLOYER)) {
+            move_to(address, TIER_ {tier: STARTING_TIER });
+        };
+
+        if (!exists<LAST_TIME>(DEPLOYER)) {
+            move_to(address, LAST_TIME {timestamp: time::now_minutes()});
         };
 
         if (!exists<POINTS>(DEPLOYER)) {
@@ -108,6 +111,21 @@ module deployer::oracleHolderv7{
             move_to(address, FAKE_DATABASE { database: vector::empty() });
         };
 
+        if (!exists<OHCL>(DEPLOYER)) {
+            move_to(address, OHCL { start:time::now_minutes(),o:0,h:0,c:0,l:0 });
+        };
+
+    }
+
+    entry fun mock_changeTier(address: &signer, _tier: u8) acquires TIER_{
+        let tier = borrow_global_mut<TIER_>(DEPLOYER);
+        tier.tier = _tier;
+    }
+
+    public entry fun changeTier(address: &signer) acquires TIER_{
+        let (id, proposer, code, pending, passed, from, to, type) = governance::viewProposalByModule_tuple(MODULE_ID, CODE_CHANGE_TIER);
+        assert!(passed == true, ERROR_PROPOSAL_NOT_PASSED);
+        mock_changeTier(address, (to as u8));
     }
 
     entry fun addPoints(address: &signer, value: u64) acquires POINTS {
@@ -127,54 +145,53 @@ module deployer::oracleHolderv7{
 
 
 
-    entry fun savePrice(address: &signer, _price: u64, _weight: u8) acquires DATABASE, FAKE_DATABASE, POINTS, ACTUAL_PRICE, CONFIG {
-        let time_minutes = 0;
+   entry fun savePrice(address: &signer, _price: u64, _weight: u8) acquires LAST_TIME, OHCL, DATABASE, FAKE_DATABASE, POINTS, ACTUAL_PRICE, TIER_ {
+        let time = time::now_minutes();
+        let (base_reward, max_values) = oracle_corev3::viewConfig();
 
-        //if (!exists<FAKE_DATABASE>(DEPLOYER)) {
-         //   move_to(address, DATABASE { database: vector::empty() });
-        //};
-
-        let config = borrow_global<CONFIG>(DEPLOYER);
-        let database = borrow_global_mut<FAKE_DATABASE>(DEPLOYER);
+        let last_time = borrow_global_mut<LAST_TIME>(DEPLOYER);
+        let ohcl = borrow_global_mut<OHCL>(DEPLOYER);
+        let (rounding, max_change, reward_multi, min_price_weight) = viewTierConfig();
         let actual_price = borrow_global_mut<ACTUAL_PRICE>(DEPLOYER);
+        actual_price.price = ((actual_price.price + (_price * (_weight as u64))) / ((_weight as u64)+1));
+        addPoints(address, 15);
 
-        let new_price = PRICE {
-            sender: signer::address_of(address),
-            timestamp: time_minutes,
-            price: _price,
-            weight: _weight,
-        };
+        let price = actual_price.price;
 
 
-        vector::push_back(&mut database.database, new_price);  
-
-        if(vector::length(&database.database) > 100){
-            let real_database = borrow_global_mut<DATABASE>(DEPLOYER);
-            while(vector::length(&database.database) > 0){
-                let old_price = vector::pop_back(&mut database.database);
-                vector::push_back(&mut real_database.database, old_price);
-                addPoints(address, 2000);
+            if(ohcl.o == 0){
+                ohcl.o = price
+            };
+            if(price < 999999999999999){
+                ohcl.l = price
+            };
+            if(ohcl.h < price){
+                ohcl.h = price
             };
 
+        if (time > last_time.timestamp) {
+            ohcl.start = time-1;
+            ohcl.c = price;
+            let ohcl_dropped = *ohcl;
 
-            print(&utf8(b"REAL DATABASE"));
-            print(&real_database.database);
+            ohcl.o = 0;  // Open becomes last close
 
-            print(&utf8(b"FAKE DATABASE"));
-            print(&database.database);
-
-          //  vector::destroy_empty(database.database);
-          //  move_from<FAKE_DATABASE>(DEPLOYER);
-
+            let database = borrow_global_mut<FAKE_DATABASE>(DEPLOYER);
+            vector::push_back(&mut database.database, ohcl_dropped);
+            let reward = base_reward * (reward_multi as u64);  
+            last_time.timestamp = time;
+            if (vector::length(&database.database) > max_values) {
+                let real_database = borrow_global_mut<DATABASE>(DEPLOYER);
+                while (vector::length(&database.database) > 0) {
+                    let old_price = vector::pop_back(&mut database.database);
+                    vector::push_back(&mut real_database.database, old_price);
+                    addPoints(address, reward);
+                };
+            };
         };
-        
-
-        //10000 + (10080 * 2) / 3
-        actual_price.price = ((actual_price.price + (_price * (_weight as u64))) / ((_weight as u64)+1));
-        addPoints(address, 1000);
     }
 
-    public entry fun fetchPrice(address: &signer, _price: u64) acquires DATABASE, FAKE_DATABASE, ACTUAL_PRICE, POINTS, CONFIG
+    public entry fun fetchPrice(address: &signer, _price: u64) acquires DATABASE, FAKE_DATABASE, ACTUAL_PRICE, POINTS, OHCL, LAST_TIME, TIER_
       {
         let addr = signer::address_of(address);
 
@@ -199,7 +216,7 @@ module deployer::oracleHolderv7{
     }
 
     #[view] // view function, which returns price from all saved prices as argument.
-    public fun viewAllPrices(): vector<PRICE> acquires DATABASE, FAKE_DATABASE
+    public fun viewAllPrices(): vector<OHCL> acquires DATABASE, FAKE_DATABASE
     {
         let database = borrow_global<FAKE_DATABASE>(DEPLOYER);
         let real_database = borrow_global<DATABASE>(DEPLOYER);
@@ -207,32 +224,6 @@ module deployer::oracleHolderv7{
         vector::append(&mut prices_vector, database.database);
 
         move prices_vector
-    }
-
-
-    #[view] // view function, which returns price from all saved prices as argument.
-    public fun viewPastPricesInMinute(validator: address): vector<PRICE> acquires DATABASE, FAKE_DATABASE
-    {
-        let vect = vector::empty();
-        let prices_vector = viewAllPrices();
-        let leng = vector::length(&prices_vector);
-        while(leng > 0){
-            let oracle = vector::borrow(&prices_vector, leng-1); 
-
-            let price = PRICE {
-                sender: oracle.sender,
-                timestamp: oracle.timestamp,
-                price: oracle.price,
-                weight: oracle.weight,
-            };
-
-            if(oracle.sender == validator){
-              vector::push_back(&mut vect, price);
-            };
-
-            leng = leng - 1;
-        };
-        move vect
     }
 
 
@@ -255,6 +246,15 @@ module deployer::oracleHolderv7{
         let price = (actual_price.price as u128);
 
         move price
+    }
+
+
+    
+   #[view] // view function, which returns current price
+    public fun viewCurrentOHCL(): OHCL acquires OHCL
+    {
+        let ohcl = *borrow_global<OHCL>(DEPLOYER);
+        move ohcl
     }
    
 
@@ -305,11 +305,12 @@ module deployer::oracleHolderv7{
     }
 */
     #[view] // view function, which returns the reward points of validators
-    public fun viewPoints(addr: address): u64 acquires POINTS
+    public fun viewPoints(addr: address): u64 acquires POINTS, TIER_
     {
         //assert!(exists<VALIDATOR>(addr), ERROR_ADDRESS_IS_NOT_VALIDATOR);
         let balance = borrow_global_mut<POINTS>(addr);
-        let display = balance.points;
+        let (decimals, max_reward, max_values, min_price_weight) = oracle_corev3::viewTier(viewTier());
+        let display = balance.points / (smart_math::pow(10, (decimals as u256)) as u64);
         move display
     }
 
@@ -328,9 +329,9 @@ module deployer::oracleHolderv7{
         // 0.64% = 68
         if(current_price != 0 ){
             percentage_change = (((diff as u64) * 100)  * (smart_math::pow(10, (DECIMALS as u256)) as u64) / (current_price as u64));   
-            print(&percentage_change);
-            print(&diff);
-            print(&current_price);
+          //  print(&percentage_change);
+           // print(&diff);
+           // print(&current_price);
         }
         else{
             //abort(99999);
@@ -356,14 +357,12 @@ module deployer::oracleHolderv7{
     }
 
         #[view]
-    public fun viewConfig(): CONFIG acquires CONFIG
+    public fun viewTier(): u8 acquires TIER_
     {
-        let config = borrow_global<CONFIG>(DEPLOYER);   
-        let _config = CONFIG{
-            tier: config.tier,
-        };
+        let tier = borrow_global<TIER_>(DEPLOYER);   
+        let _tier = tier.tier;
 
-        move _config
+        move _tier
     }
 
 
@@ -393,9 +392,18 @@ module deployer::oracleHolderv7{
     }
 
 
+    #[view]
+    public fun viewTierConfig(): (u8, u16, u16, u8) acquires TIER_
+    {
+        let _tier = borrow_global<TIER_>(DEPLOYER);
+        let (rounding, max_change, reward_multi, min_price_weight) = oracle_corev3::viewTier(_tier.tier);
+        (rounding, max_change, reward_multi, min_price_weight)
+    }
+
+
  
     #[test(account = @0x1, owner = @0x392727cb3021ab76bd867dd7740579bc9e42215d98197408b667897eb8e13a1f)]
-     public entry fun test(account: signer, owner: signer) acquires DATABASE, FAKE_DATABASE, POINTS, ACTUAL_PRICE, CONFIG {
+     public entry fun test(account: signer, owner: signer) acquires DATABASE, FAKE_DATABASE, POINTS, ACTUAL_PRICE, OHCL, LAST_TIME,TIER_ {
         //timestamp::set_time_has_started_for_testing(&account);  
         init_module(&owner);
         let addr = signer::address_of(&owner);
@@ -421,11 +429,11 @@ module deployer::oracleHolderv7{
       //  print(&utf8(b"PAST PRICE"));
     //    print(&viewPastPrice(1, 3));
         print(&utf8(b"POINTS"));
-        print(&viewPoints(addr));
+     //   print(&viewPoints(addr));
         print(&utf8(b"CURRENT PRICE"));
         print(&viewCurrentPrice());
         print(&utf8(b"viewPastPricesInMinute PRICE"));
-        print(&viewPastPricesInMinute(@0x392727cb3021ab76bd867dd7740579bc9e42215d98197408b667897eb8e13a1f));
+        //print(&viewPastPricesInMinute(@0x392727cb3021ab76bd867dd7740579bc9e42215d98197408b667897eb8e13a1f));
         //print(&viewPrice(1));
         //let (price, decimals, timestamp, round_id) = supra_oracle_storage::get_price(1);
         //print(&price);       // Print the u128 value
