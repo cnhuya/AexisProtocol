@@ -1,5 +1,5 @@
 
-module deployer::oracle_corev4{
+module deployer::oracle_corev15{
 
     use std::signer;
     use std::vector;
