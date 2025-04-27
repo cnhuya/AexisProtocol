@@ -1,5 +1,5 @@
 [package]
-name = "oracleHolderv7"
+name = "oracleHolderv21"
 version = "2.1.1"
 authors = []
 
@@ -15,7 +15,7 @@ git = "https://github.com/Entropy-Foundation/aptos-core.git"
 rev = "dev"
 subdir = "aptos-move/framework/supra-framework"
 
-[dependencies.oracle_corev30]
+[dependencies.oracle_corev15]
 git = 'https://github.com/cnhuya/test.git'
 rev = 'main'
 subdir = 'modules/oracle_core'
