@@ -4,9 +4,9 @@ version = "2.1.1"
 authors = []
 
 [addresses]
-deployer = "0xc698c251041b826f1d3d4ea664a70674758e78918938d1b3b237418ff17b4020"
-owner = "0xc698c251041b826f1d3d4ea664a70674758e78918938d1b3b237418ff17b4020"
-dev = "0x392727cb3021ab76bd867dd7740579bc9e42215d98197408b667897eb8e13a1f"
+deployer = "0xc5e7e76cbce04ac46b408d26fdb0ba3e0fbbbd6b0cd3f4f9bfc62466f6ab72c2"
+owner = "0xc5e7e76cbce04ac46b408d26fdb0ba3e0fbbbd6b0cd3f4f9bfc62466f6ab72c2"
+dev = "0xc5e7e76cbce04ac46b408d26fdb0ba3e0fbbbd6b0cd3f4f9bfc62466f6ab72c2"
 supra_oracle = "0x5615001f63d3223f194498787647bb6f8d37b8d1e6773c00dcdd894079e56190"
 supra_framework = "0x1"
 [dev-addresses]
