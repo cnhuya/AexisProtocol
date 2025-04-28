@@ -1,5 +1,5 @@
 [package]
-name = "oracleHolderv1"
+name = "Randomv13"
 version = "2.1.1"
 authors = []
 
@@ -7,6 +7,7 @@ authors = []
 deployer = "0xc698c251041b826f1d3d4ea664a70674758e78918938d1b3b237418ff17b4020"
 owner = "0xc698c251041b826f1d3d4ea664a70674758e78918938d1b3b237418ff17b4020"
 dev = "0x392727cb3021ab76bd867dd7740579bc9e42215d98197408b667897eb8e13a1f"
+supra_oracle = "0x5615001f63d3223f194498787647bb6f8d37b8d1e6773c00dcdd894079e56190"
 supra_framework = "0x1"
 [dev-addresses]
 
@@ -15,19 +16,10 @@ git = "https://github.com/Entropy-Foundation/aptos-core.git"
 rev = "dev"
 subdir = "aptos-move/framework/supra-framework"
 
-[dependencies.oracle_corev12]
-git = 'https://github.com/cnhuya/test.git'
-rev = 'main'
-subdir = 'modules/oracle_core'
+[dependencies.core]
+git = "https://github.com/Entropy-Foundation/dora-interface.git"
+rev = "master"
+subdir = "supra/testnet/core"
 
-[dependencies.TIMEv6]
-git = 'https://github.com/cnhuya/test.git'
-rev = 'main'
-subdir = 'modules/time'
-
-[dependencies.AEXIS_SMART_MATH_BETA]
-git = 'https://github.com/cnhuya/test.git'
-rev = 'main'
-subdir = 'modules/smart_math'
 
 [dev-dependencies]
