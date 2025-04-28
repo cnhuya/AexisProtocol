@@ -1,5 +1,5 @@
 
-module deployer::Randomv14{
+module deployer::Randomv15{
     use std::debug::print;
     use std::string::utf8;
     use std::vector;
@@ -73,7 +73,7 @@ module deployer::Randomv14{
         
         // Loop through all elements in the vector
         while (leng > 0) {
-            let wrapped_price = vector::borrow(&prices, leng);
+            let wrapped_price = vector::borrow(&prices, leng-1);
             let (index, price, decimals, timestamp, round_id) = supra_oracle_storage::extract_price(wrapped_price);
             _price = _price + (price as u256);
             random_number = _price % (range as u256);
