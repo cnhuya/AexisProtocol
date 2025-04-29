@@ -49,17 +49,6 @@ Empowering the decentralized internet by combining trustless infrastructure, ful
 
 ---
 
-## 💸 Funding Ask
-
-- **Raising**: $250K–$500K (Pre-seed SAFE)
-- **Use of Funds**:
-  - Security audits
-  - Cross-chain deployment
-  - Token design + launchpad
-  - Community, content, growth
-
----
-
 ## 👤 Team
 
 - **Founder**: [Your Name]  
@@ -70,10 +59,11 @@ Empowering the decentralized internet by combining trustless infrastructure, ful
 
 ## 📬 Contact & Links
 
-- Website/Demo: [your-link.com]
-- Twitter: [@yourhandle]
-- GitHub: [github.com/yourrepo]
-- Docs: [docs.yourproject.com]
+- Website/Demo: Coming soon...
+- Twitter: https://x.com/Aexisprotocol
+- GitHub: https://github.com/cnhuya/AexisProtocol
+- Docs:  Coming soon...
+- Discord: Coming soon...
 - Contact: [Telegram/Email/Discord]
 
 ---
