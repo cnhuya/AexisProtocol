@@ -1,5 +1,5 @@
 
-module deployer::Randomv15{
+module deployer::Randomv20{
     use std::debug::print;
     use std::string::utf8;
     use std::vector;
@@ -63,6 +63,8 @@ module deployer::Randomv15{
         let random_number = _price % (range as u256);
         move random_number
     }
+
+
     // Function which combines multiple price oracles, which might reduce the propability of "breaking" down the algoritm and "predicting" the potencial outcome.
     #[view]
     public fun extremeRandomNumber(indexes:vector<u32>, range:u64): u256 {
@@ -83,20 +85,29 @@ module deployer::Randomv15{
     }
 
     
-    /*#[view]
-    public fun generateRange(min:u64, max:u64): u256 {
+    #[view]
+    public fun softRangeRandom(number: u256, min:u256, max:u256): u256{
+        let softRandom = number % max;
+        assert!(min <= max, 1);
+        if(softRandom < min){
+            softRandom = min;
+        };
+        assert!(softRandom >= min && softRandom <= max, 2);
+        move softRandom
+    }
+
+    #[view]
+    public fun generateRange(precise: vector<u32>,min:u64, max:u64): u256 {
         let _price = 0;
         let i = 0;
         // Loop through all elements in the vector
         while (_price < (min as u256) || _price > (max as u256)) {
-            let empty_vec = vector::empty();
-            vector::push_back(&mut empty_vec, i);
-            let random_number = extremeRandomNumber(empty_vec, max);
+            let random_number = extremeRandomNumber(precise, max);
             _price = random_number;
             i = i + 1;
         };
         _price
-    }*/
+    }
 
     //
 
@@ -128,7 +139,9 @@ module deployer::Randomv15{
                 let wrapped_price = vector::borrow(&prices, leng-1);
                 let (index, price, decimals, timestamp, round_id) = supra_oracle_storage::extract_price(wrapped_price);
                 let random_number = ((price as u256)+random) % (max as u256);
-                vector::push_back(&mut empty_vec, random_number);
+                    if(vector::length(&empty_vec) < values){
+                        vector::push_back(&mut empty_vec, random_number);
+                    };
                 leng = leng - 1;
               };
               leng2 = leng2 - 1;
@@ -136,6 +149,47 @@ module deployer::Randomv15{
         empty_vec
     }
 
+
+    #[view]
+    public fun generateRangeArray(indexes: vector<u32>,min: u64, max: u64, values:u64): vector<u256>{
+        let empty_vec = vector::empty();
+        let vec = generateArray(indexes, max, values*10);
+        let leng = vector::length(&vec);
+        while(leng > 0 ){
+            let price = *vector::borrow(&vec, leng-1);
+            if (price > (min as u256) && price < (max as u256)){
+                    if(vector::length(&empty_vec) < values){
+                        vector::push_back(&mut empty_vec, price);
+                    };
+            };
+            leng = leng - 1;
+        };
+        empty_vec
+    }
+
+   /* #[view]
+    public fun generateRangeArray(indexes: vector<u32>,min: u64, max: u64, values:u64): vector<u256>{
+        let empty_vec = vector::empty();
+        let prices = supra_oracle_storage::get_prices(indexes);
+        let leng2 = vector::length(&prices);
+        // Loop through all elements in the vector
+        while(leng2 > 0 ){
+            let leng = vector::length(&prices);
+           // let supply = coin::supply<SupraCoin>();
+            let random = (randomNumber((leng2 as u32),max) as u256);
+            while (leng > 0) {
+                let wrapped_price = vector::borrow(&prices, leng-1);
+                let (index, price, decimals, timestamp, round_id) = supra_oracle_storage::extract_price(wrapped_price);
+                let random_number = ((price as u256)+random) % (max as u256);
+                if (random_number > (min as u256) && random_number < (max as u256)){
+                    vector::push_back(&mut empty_vec, random_number);
+                };
+                leng = leng - 1;
+              };
+              leng2 = leng2 - 1;
+        };
+        empty_vec
+    }*/
 
 
     #[view]
@@ -149,12 +203,14 @@ module deployer::Randomv15{
            // let supply = coin::supply<SupraCoin>();
             let random = (randomNumber((leng2 as u32),max) as u256);
             while (leng > 0) {
-                let wrapped_price = vector::borrow(&prices, leng-1);
-                let (index, price, decimals, timestamp, round_id) = supra_oracle_storage::extract_price(wrapped_price);
-                let random_number = ((price as u256)+random) % (max as u256);
-                if(!vector::contains(&empty_vec, &random_number)){
-                    vector::push_back(&mut empty_vec, random_number);
-                };
+                    let wrapped_price = vector::borrow(&prices, leng-1);
+                    let (index, price, decimals, timestamp, round_id) = supra_oracle_storage::extract_price(wrapped_price);
+                    let random_number = ((price as u256)+random) % (max as u256);
+                    if(!vector::contains(&empty_vec, &random_number)){
+                        if(vector::length(&empty_vec) < values){
+                           vector::push_back(&mut empty_vec, random_number);
+                        };
+                     };
                 leng = leng - 1;
               };
               leng2 = leng2 - 1;
@@ -167,7 +223,6 @@ module deployer::Randomv15{
     #[test(account = @0x1, owner = @0x392727cb3021ab76bd867dd7740579bc9e42215d98197408b667897eb8e13a1f)]
      public entry fun test(account: signer, owner: signer)  { 
         //timestamp::set_time_has_started_for_testing(&account);  
-        init_module(&owner);
         print(&randomNumber(1,100));
   }
 }   
