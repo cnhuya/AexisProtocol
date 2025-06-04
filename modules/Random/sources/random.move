@@ -1,5 +1,5 @@
 
-module deployer::Randomv20{
+module deployer::randomv1{
     use std::debug::print;
     use std::string::utf8;
     use std::vector;
@@ -125,6 +125,7 @@ module deployer::Randomv20{
 
 
     // there might be a hard limit cap for 25 lenght of vector.
+
     #[view]
     public fun generateArray(indexes: vector<u32>,max: u64, values:u64): vector<u256>{
         let empty_vec = vector::empty();
@@ -134,7 +135,7 @@ module deployer::Randomv20{
         while(leng2 > 0 ){
             let leng = vector::length(&prices);
            // let supply = coin::supply<SupraCoin>();
-            let random = (randomNumber((leng2 as u32),max) as u256);
+            let random = (randomNumber((leng2 as u32),max*leng2) as u256);
             while (leng > 0) {
                 let wrapped_price = vector::borrow(&prices, leng-1);
                 let (index, price, decimals, timestamp, round_id) = supra_oracle_storage::extract_price(wrapped_price);
