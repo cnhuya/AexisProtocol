@@ -140,6 +140,10 @@ module deployer::testCore5 {
         value.value
     }
 
+    public fun change_value_value(value: &mut Value, val: u8) {
+        value.value = val
+    }
+
     public fun make_string_value(value: &Value): ValueString {
         ValueString { name: convert_valueID_to_String(value.valueID), isEnemy: value.isEnemy, value: value.value}
     }
@@ -173,6 +177,10 @@ module deployer::testCore5 {
 
     public fun get_stat_value(stat: &Stat): u64 {
         stat.value
+    }
+
+    public fun change_stat_value(stat: &mut Stat, val: u64) {
+        stat.value = val
     }
 
 
