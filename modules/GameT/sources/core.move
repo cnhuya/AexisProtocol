@@ -1,4 +1,4 @@
-module deployer::testCore4 {
+module deployer::testCore5 {
 
     use std::debug::print;
     use std::string::{String, utf8};
@@ -128,6 +128,18 @@ module deployer::testCore4 {
         Value { valueID: id, isEnemy: isEnemy, value: val }
     }
 
+    public fun get_value_ID(value: &Value): u8 {
+        value.valueID
+    }
+
+    public fun get_value_isEnemy(value: &Value): bool {
+        value.isEnemy
+    }
+
+    public fun get_value_value(value: &Value): u8 {
+        value.value
+    }
+
     public fun make_string_value(value: &Value): ValueString {
         ValueString { name: convert_valueID_to_String(value.valueID), isEnemy: value.isEnemy, value: value.value}
     }
@@ -155,9 +167,20 @@ module deployer::testCore4 {
         Stat { statID: id, value: val }
     }
 
+    public fun get_stat_ID(stat: &Stat): u8 {
+        stat.statID
+    }
+
+    public fun get_stat_value(stat: &Stat): u64 {
+        stat.value
+    }
+
+
     public fun make_string_stat(stat: &Stat): StatString {
         StatString { name: convert_statID_to_String(stat.statID), value: stat.value}
     }
+
+
 
     public fun make_range_stat(id: u8, min: u64, max: u64): StatRange {
         StatRange { statID: id, min: min, max: max }
