@@ -1,4 +1,4 @@
-module deployer::testCore5 {
+module deployer::testCore6 {
 
     use std::debug::print;
     use std::string::{String, utf8};
@@ -140,8 +140,9 @@ module deployer::testCore5 {
         value.value
     }
 
-    public fun change_value_value(value: &mut Value, val: u8) {
-        value.value = val
+    public fun change_value_value(value: &mut Value, val: u8): ValueString {
+        value.value = val;
+        make_string_value(&*value)
     }
 
     public fun make_string_value(value: &Value): ValueString {
@@ -179,8 +180,9 @@ module deployer::testCore5 {
         stat.value
     }
 
-    public fun change_stat_value(stat: &mut Stat, val: u64) {
-        stat.value = val
+    public fun change_stat_value(stat: &mut Stat, val: u64): StatString {
+        stat.value = val;
+        make_string_stat(&*stat)
     }
 
 
