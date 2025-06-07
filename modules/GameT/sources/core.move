@@ -151,14 +151,44 @@ module deployer::testCore2 {
         StatRangeString { name: convert_statID_to_String(stat.statID),  min: stat.min, max: stat.max}
     }
 
-    // Type
+
+
+    ///////////
+    // TYPE //
+    //////////
     public fun make_type(name: String, stat_multi: u16): Type {
         Type { name: name, stat_multi: stat_multi }
     }
 
-    // Location
+    public fun get_type_name(type: &Type): String {
+        type.name
+    }
+
+    public fun get_stat_multi(type: &Type): u16 {
+        type.stat_multi
+    }
+
+    public fun set_stat_multi(type: &mut Type, value: u16) {
+        type.stat_multi = value;
+    }
+
+    //////////////
+    // Location //
+    //////////////
     public fun make_location(name: String, stat_multi: u16): Location {
         Location { name: name, stat_multi: stat_multi }
+    }
+
+    public fun get_location_name(type: &Location): String {
+        type.name
+    }
+
+    public fun get_location_multi(type: &Location): u16 {
+        type.stat_multi
+    }
+
+    public fun set_location_multi(type: &mut Location, value: u16) {
+        type.stat_multi = value;
     }
 
     // === Converters ===
