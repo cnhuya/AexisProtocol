@@ -1,4 +1,4 @@
-module deployer::testCore2 {
+module deployer::testCore3 {
 
     use std::debug::print;
     use std::string::{String, utf8};
@@ -272,7 +272,7 @@ module deployer::testCore2 {
         let i = 0;
         while (i < len) {
             let stat = *vector::borrow(&stats, i);
-            vector::push_back(&mut output, make_string_value(stat));
+            vector::push_back(&mut output, make_string_stat(stat));
             i = i + 1;
         };
         output
