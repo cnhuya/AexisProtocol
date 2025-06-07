@@ -48,7 +48,7 @@ module deployer::testCore2 {
     }
 
 
-    struct StatString has copy {
+    struct StatString has copy,drop,store {
         name: String, value: u64
     }
 
@@ -56,7 +56,7 @@ module deployer::testCore2 {
         statID: u8, min: u64, max: u64
     }
 
-    struct StatRangeString has copy {
+    struct StatRangeString has copy,drop,store {
         name: String, min: u64, max: u64
     }
 
@@ -67,7 +67,7 @@ module deployer::testCore2 {
     struct ValueList has copy, drop, store, key{
         list: vector<Value>
     }
-    struct ValueString has copy, drop {
+    struct ValueString has copy,drop,store {
         name: String, isEnemy: bool, value: u8
     }
 
@@ -164,11 +164,11 @@ module deployer::testCore2 {
         type.name
     }
 
-    public fun get_stat_multi(type: &Type): u16 {
+    public fun get_type_multi(type: &Type): u16 {
         type.stat_multi
     }
 
-    public fun set_stat_multi(type: &mut Type, value: u16) {
+    public fun set_type_multi(type: &mut Type, value: u16) {
         type.stat_multi = value;
     }
 
@@ -260,6 +260,19 @@ module deployer::testCore2 {
         while (i < len) {
             let value = *vector::borrow(&values, i);
             vector::push_back(&mut output, make_string_value(value));
+            i = i + 1;
+        };
+        output
+    }
+
+
+    public fun build_stats_with_strings(stats: vector<Stat>): vector<StatString> {
+        let len = vector::length(&stats);
+        let output = vector::empty<StatString>();
+        let i = 0;
+        while (i < len) {
+            let stat = *vector::borrow(&stats, i);
+            vector::push_back(&mut output, make_string_value(stat));
             i = i + 1;
         };
         output
