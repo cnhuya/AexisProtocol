@@ -140,9 +140,9 @@ module deployer::testCore9 {
         value.value
     }
 
-    public fun change_value_value(value: &mut ValueString, val: u8): ValueString {
+    public fun change_value_value(value: &mut Value, val: u8): ValueString {
         value.value = val;
-        *value
+        make_string_value(&*value)
     }
 
     public fun make_string_value(value: &Value): ValueString {
@@ -180,9 +180,9 @@ module deployer::testCore9 {
         stat.value
     }
 
-    public fun change_stat_value(stat: &mut StatString, val: u64): StatString {
+    public fun change_stat_value(stat: &mut Stat, val: u64): StatString {
         stat.value = val;
-        *stat
+        make_string_stat(&*stat)
     }
 
 
