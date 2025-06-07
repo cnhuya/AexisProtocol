@@ -1,4 +1,4 @@
-module deployer::testCore3 {
+module deployer::testCore4 {
 
     use std::debug::print;
     use std::string::{String, utf8};
@@ -88,6 +88,22 @@ module deployer::testCore3 {
         Entity { entityID: entityID, entityName: entityName, entityType: entityType, location: entityLocation }
     }
 
+    public fun get_entity_name(entity: &Entity): String {
+        entity.entityName
+    }
+
+    public fun get_entity_ID(entity: &Entity): u8 {
+        entity.entityID
+    }
+
+    public fun get_entity_type(entity: &Entity): String {
+        entity.entityType
+    }
+
+    public fun get_entity_location(entity: &Entity): String {
+        entity.location
+    }
+
     // Value
     public fun extract_value_list(address: &signer): vector<Value> acquires ValueList {
         let value_list = borrow_global_mut<ValueList>(signer::address_of(address));
@@ -112,7 +128,7 @@ module deployer::testCore3 {
         Value { valueID: id, isEnemy: isEnemy, value: val }
     }
 
-    public fun make_string_value(value: Value): ValueString {
+    public fun make_string_value(value: &Value): ValueString {
         ValueString { name: convert_valueID_to_String(value.valueID), isEnemy: value.isEnemy, value: value.value}
     }
 
@@ -139,7 +155,7 @@ module deployer::testCore3 {
         Stat { statID: id, value: val }
     }
 
-    public fun make_string_stat(stat: Stat): StatString {
+    public fun make_string_stat(stat: &Stat): StatString {
         StatString { name: convert_statID_to_String(stat.statID), value: stat.value}
     }
 
@@ -147,7 +163,7 @@ module deployer::testCore3 {
         StatRange { statID: id, min: min, max: max }
     }
 
-    public fun make_string_stat_range(stat: StatRange): StatRangeString {
+    public fun make_string_stat_range(stat: &StatRange): StatRangeString {
         StatRangeString { name: convert_statID_to_String(stat.statID),  min: stat.min, max: stat.max}
     }
 
@@ -258,7 +274,7 @@ module deployer::testCore3 {
         let output = vector::empty<ValueString>();
         let i = 0;
         while (i < len) {
-            let value = *vector::borrow(&values, i);
+            let value = vector::borrow(&values, i);
             vector::push_back(&mut output, make_string_value(value));
             i = i + 1;
         };
@@ -271,7 +287,7 @@ module deployer::testCore3 {
         let output = vector::empty<StatString>();
         let i = 0;
         while (i < len) {
-            let stat = *vector::borrow(&stats, i);
+            let stat = vector::borrow(&stats, i);
             vector::push_back(&mut output, make_string_stat(stat));
             i = i + 1;
         };
