@@ -1,4 +1,4 @@
-module deployer::testCore7 {
+module deployer::testCore9 {
 
     use std::debug::print;
     use std::string::{String, utf8};
