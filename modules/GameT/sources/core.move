@@ -1,4 +1,4 @@
-module deployer::testCore9 {
+module deployer::testCore10 {
 
     use std::debug::print;
     use std::string::{String, utf8};
@@ -38,15 +38,17 @@ module deployer::testCore9 {
     const ABILITY_TYPE_ACTIVE: u8 = 2;
     const ABILITY_TYPE_TOGGLE: u8 = 3;
 
-    // === Structs ===
+// ===  ===  ===  ===  ===
+// ===     STRUCTS     ===
+// ===  ===  ===  ===  ===
+// Stat
     struct Stat has copy, drop, store{
         statID: u8, value: u64
+  
     }
-
     struct StatList has copy, drop, store, key{
         list: vector<Stat>
     }
-
 
     struct StatString has copy,drop,store {
         name: String, value: u64
@@ -59,7 +61,7 @@ module deployer::testCore9 {
     struct StatRangeString has copy,drop,store {
         name: String, min: u64, max: u64
     }
-
+// Value
     struct Value has copy, drop,store {
         valueID: u8, isEnemy: bool, value: u8
     }
@@ -70,20 +72,84 @@ module deployer::testCore9 {
     struct ValueString has copy,drop,store {
         name: String, isEnemy: bool, value: u8
     }
-
+// Type
     struct Type has copy, drop,store {
         name: String, stat_multi: u16
     }
-
+// Location
     struct Location has copy, drop,store {
         name: String, stat_multi: u16
     }
-
+// Entity
     struct Entity has copy,drop,store {
         entityID: u8, entityName: String, entityType: String, location: String
     }
-    // === Factory Functions ===
-    // Entity
+// Material
+    struct Material has copy, key, store, drop {
+        materialID: u8, amount: u16
+    }
+
+    struct MaterialList has copy, drop, store, key{
+        list: vector<Material>
+    }
+
+
+    struct MaterialString has copy, key, store, drop {
+        materialID: u8, materialName: String, amount: u16
+    }
+
+//Expedition 
+    struct Expedition has copy, drop, store, key {
+        id: u8, required_level: u8, costs: vector<Material>, rewards: vector<Material>, entered: bool, entry_time: u64
+    }    
+    struct ExpeditionString has copy, drop, store, key {
+        id: u8, name: String, required_level: u8, costs: vector<MaterialString>, rewards: vector<MaterialString>, entered: bool, entry_time: u64
+    }    
+// ===  ===  ===  ===  === ===
+// ===  Factory Functions  ===
+// ===  ===  ===  ===  === ===
+// Material
+
+    public fun get_material_list(address: &signer): vector<Material> acquires MaterialList{
+        let material_list = borrow_global_mut<MaterialList>(signer::address_of(address));
+        material_list.list
+    }
+
+    public fun extract_material_list(address: &signer): vector<Material> acquires MaterialList {
+        let material_list = borrow_global_mut<MaterialList>(signer::address_of(address));
+        let extracted_list = material_list.list;
+        material_list.list = vector::empty<Material>();
+        extracted_list
+    }
+
+    public entry fun register_material(address: &signer, id: u8, val: u16) acquires MaterialList{
+        let material = make_material(id, val);
+
+        if (!exists<MaterialList>(signer::address_of(address))) {
+          move_to(address, MaterialList { list: vector::empty()});
+        };
+
+        let material_list = borrow_global_mut<MaterialList>(signer::address_of(address));
+        vector::push_back(&mut material_list.list, material);
+    }
+
+    public fun make_material(materialID: u8, amount: u16): Material {
+        Material { materialID: materialID, amount: amount}
+    }
+
+    public fun get_material_ID(material: &Material): u8{
+        material.materialID
+    }
+
+    public fun get_material_amount(material: &Material): u16{
+        material.amount
+    }
+
+    public fun make_material_string(material: &Material): MaterialString {
+        MaterialString { materialID: material.materialID, materialName: convert_materialID_to_String(material.materialID), amount: material.amount}
+    }
+
+// Entity
     public fun make_entity(entityID: u8, entityName: String, entityType: String, entityLocation: String): Entity {
         Entity { entityID: entityID, entityName: entityName, entityType: entityType, location: entityLocation }
     }
@@ -104,7 +170,13 @@ module deployer::testCore9 {
         entity.location
     }
 
-    // Value
+// Value
+
+    public fun get_value_list(address: &signer): vector<Value> acquires ValueList{
+        let value_list = borrow_global_mut<ValueList>(signer::address_of(address));
+        value_list.list
+    }
+
     public fun extract_value_list(address: &signer): vector<Value> acquires ValueList {
         let value_list = borrow_global_mut<ValueList>(signer::address_of(address));
         let extracted_list = value_list.list;
@@ -149,7 +221,13 @@ module deployer::testCore9 {
         ValueString { name: convert_valueID_to_String(value.valueID), isEnemy: value.isEnemy, value: value.value}
     }
 
-    // Stat
+// Stat
+
+    public fun get_stat_list(address: &signer): vector<Stat> acquires StatList {
+        let stat_list = borrow_global_mut<StatList>(signer::address_of(address));
+        stat_list.list
+    }
+
     public fun extract_stat_list(address: &signer): vector<Stat> acquires StatList {
         let stat_list = borrow_global_mut<StatList>(signer::address_of(address));
         let extracted_list = stat_list.list;
@@ -185,12 +263,9 @@ module deployer::testCore9 {
         make_string_stat(&*stat)
     }
 
-
     public fun make_string_stat(stat: &Stat): StatString {
         StatString { name: convert_statID_to_String(stat.statID), value: stat.value}
     }
-
-
 
     public fun make_range_stat(id: u8, min: u64, max: u64): StatRange {
         StatRange { statID: id, min: min, max: max }
@@ -200,11 +275,7 @@ module deployer::testCore9 {
         StatRangeString { name: convert_statID_to_String(stat.statID),  min: stat.min, max: stat.max}
     }
 
-
-
-    ///////////
-    // TYPE //
-    //////////
+// Type
     public fun make_type(name: String, stat_multi: u16): Type {
         Type { name: name, stat_multi: stat_multi }
     }
@@ -221,9 +292,7 @@ module deployer::testCore9 {
         type.stat_multi = value;
     }
 
-    //////////////
-    // Location //
-    //////////////
+// Location
     public fun make_location(name: String, stat_multi: u16): Location {
         Location { name: name, stat_multi: stat_multi }
     }
@@ -239,9 +308,51 @@ module deployer::testCore9 {
     public fun set_location_multi(type: &mut Location, value: u16) {
         type.stat_multi = value;
     }
+// Expedition
+    public fun make_expedition(id: u8, required_level: u8, costs: vector<Material>, rewards: vector<Material>): Expedition {
+        Expedition { id: id, required_level: required_level, costs: costs, rewards:rewards, entered: false, entry_time:0 }
+    }
 
-    // === Converters ===
-    fun convert_valueID_to_String(valueID: u8): String {
+    public fun make_string_expedition(expedition: &Expedition): ExpeditionString {
+        ExpeditionString { id: expedition.id, name: convert_expeditionID_to_String(expedition.id), required_level: expedition.required_level, costs: build_materials_with_strings(expedition.costs), rewards:build_materials_with_strings(expedition.rewards), entered: expedition.entered, entry_time: expedition.entry_time }
+    }
+
+    public fun get_expedition_ID(expedition: &Expedition): u8 {
+        expedition.id
+    }
+
+    public fun get_expedition_required_level(expedition: &Expedition): u8 {
+        expedition.required_level
+    }
+
+    public fun get_expedition_costs(expedition: &Expedition): vector<Material> {
+        expedition.costs
+    }
+
+
+    public fun change_expedition_costs(address: &signer, expedition: &mut Expedition): Expedition acquires MaterialList{
+        expedition.costs = extract_material_list(address);
+        *expedition
+    }
+
+    public fun get_expedition_rewards(expedition: &mut Expedition, value: u16): vector<Material>{
+        expedition.rewards
+    }
+
+    public fun change_expedition_rewards(address: &signer, expedition: &mut Expedition): Expedition acquires MaterialList{
+        expedition.rewards = extract_material_list(address);
+        *expedition
+    }
+
+    public fun change_expedition_required_level(expedition: &mut Expedition, required_level: u8 ): Expedition {
+        expedition.required_level = required_level;
+        *expedition
+    }
+
+// ===  ===  ===  ===  === 
+// ===     CONVERTS    ===
+// ===  ===  ===  ===  ===
+     fun convert_valueID_to_String(valueID: u8): String {
         if (valueID == VALUE_ID_FIRE) {
             utf8(b"fire")
         } else if (valueID == VALUE_ID_POISON) {
@@ -301,7 +412,116 @@ module deployer::testCore9 {
         }
     }
 
-    // === Batch Conversion ===
+    fun convert_materialID_to_String(materialID: u8): String {
+        if (materialID == 1) {
+            utf8(b"Gold")
+        } else if (materialID == 2) {
+            utf8(b"Essence")
+        } else if (materialID == 3) {
+            utf8(b"Organic")
+        } else if (materialID == 4) {
+            utf8(b"Leather")
+        } else if (materialID == 5) {
+            utf8(b"Stone")
+        } else if (materialID == 6) {
+            utf8(b"Flint")
+        } else if (materialID == 7) {
+            utf8(b"Basalt")
+        } else if (materialID == 8) {
+            utf8(b"Bones")
+        } else if (materialID == 9) {
+            utf8(b"Iron")
+        } else if (materialID == 10) {
+            utf8(b"Obsidian")
+        } else if (materialID == 11) {
+            utf8(b"Diamond")
+        } else if (materialID == 12) {
+            utf8(b"Shungite")
+        } 
+        else {
+            utf8(b"Unknown")
+        }
+    }
+
+    fun convert_typeID_to_String(typeID: u8): String {
+        if (typeID == 1) {
+            utf8(b"Helmet")
+        } else if (typeID == 2) {
+            utf8(b"Chestplate")
+        } else if (typeID == 3) {
+            utf8(b"Leggings")
+        } else if (typeID == 4) {
+            utf8(b"Boots")
+        } else if (typeID == 5) {
+            utf8(b"Sword")
+        } else if (typeID == 6) {
+            utf8(b"Shield")
+        } else if (typeID == 7) {
+            utf8(b"Bow")
+        } else if (typeID == 8) {
+            utf8(b"Arrow")
+        } else if (typeID == 9) {
+            utf8(b"Wand")
+        } else if (typeID == 10) {
+            utf8(b"Book")
+        } else if (typeID == 11) {
+            utf8(b"Scyth")
+        } else if (typeID == 12) {
+            utf8(b"Lantern")
+        } else if (typeID == 13) {
+            utf8(b"Dagger")
+        } else if (typeID == 14) {
+            utf8(b"Amulet")
+        } else if (typeID == 15) {
+            utf8(b"Cape")
+        } else if (typeID == 16) {
+            utf8(b"Ring")
+        } 
+        else {
+            utf8(b"Unknown")
+        }
+
+    }
+
+    fun convert_rarityID_to_String(rarityID: u8): String {
+        if (rarityID == 1) {
+            utf8(b"Common")
+        } else if (rarityID == 2) {
+            utf8(b"Uncommon")
+        } else if (rarityID == 3) {
+            utf8(b"Rare")
+        } else if (rarityID == 4) {
+            utf8(b"Epic")
+        } else if (rarityID == 5) {
+            utf8(b"Legendary")
+        } 
+        else {
+            utf8(b"Unknown")
+        }
+    }
+
+    fun convert_expeditionID_to_String(expeditionID: u8): String {
+        if (expeditionID == 1) {
+            utf8(b"Valley")
+        } else if (expeditionID == 2) {
+            utf8(b"Desert")
+        } else if (expeditionID == 3) {
+            utf8(b"Frostland")
+        } else if (expeditionID == 4) {
+            utf8(b"Graveyard")
+        } else if (expeditionID == 5) {
+            utf8(b"Sea")
+        } else if (expeditionID == 6) {
+            utf8(b"Underground")
+        } 
+        else {
+            utf8(b"Unknown")
+        }
+    }
+
+// ===  ===  ===  ===  ===  ===
+// ===   BATCH CONVERTIONS  ===
+// ===  ===  ===  ===  ===  ===
     public fun build_values_with_strings(values: vector<Value>): vector<ValueString> {
         let len = vector::length(&values);
         let output = vector::empty<ValueString>();
@@ -325,5 +545,30 @@ module deployer::testCore9 {
             i = i + 1;
         };
         output
+    }
+
+    public fun build_materials_with_strings(materials: vector<Material>): vector<MaterialString> {
+        let len = vector::length(&materials);
+        let output = vector::empty<MaterialString>();
+        let i = 0;
+        while (i < len) {
+            let material = vector::borrow(&materials, i);
+            vector::push_back(&mut output, make_material_string(material));
+            i = i + 1;
+        };
+        output
+    }
+
+    public fun change_material_amount(materials: vector<Material>, id:u8, amount: u16): Material {
+        let len = vector::length(&materials);
+        let i = 0;
+        while (i < len) {
+            let material = vector::borrow_mut(&mut materials, i);
+            if(get_material_ID(material) == id){
+                material.amount = amount;
+                return *material
+            }
+        };
+        abort(1)
     }
 }
