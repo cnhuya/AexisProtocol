@@ -1,4 +1,4 @@
-module deployer::testCore12 {
+module deployer::testCore13 {
 
     use std::debug::print;
     use std::string::{String, utf8};
@@ -100,10 +100,10 @@ module deployer::testCore12 {
 
 //Expedition 
     struct Expedition has copy, drop, store, key {
-        id: u8, required_level: u8, costs: vector<Material>, rewards: vector<Material>, entered: bool, entry_time: u64
+        id: u8, required_level: u8, costs: vector<Material>, rewards: vector<Material>
     }    
     struct ExpeditionString has copy, drop, store, key {
-        id: u8, name: String, required_level: u8, costs: vector<MaterialString>, rewards: vector<MaterialString>, entered: bool, entry_time: u64
+        id: u8, name: String, required_level: u8, costs: vector<MaterialString>, rewards: vector<MaterialString>
     }    
 // ===  ===  ===  ===  === ===
 // ===  Factory Functions  ===
@@ -310,11 +310,11 @@ module deployer::testCore12 {
     }
 // Expedition
     public fun make_expedition(id: u8, required_level: u8, costs: vector<Material>, rewards: vector<Material>): Expedition {
-        Expedition { id: id, required_level: required_level, costs: costs, rewards:rewards, entered: false, entry_time:0 }
+        Expedition { id: id, required_level: required_level, costs: costs, rewards:rewards}
     }
 
     public fun make_string_expedition(expedition: &Expedition): ExpeditionString {
-        ExpeditionString { id: expedition.id, name: convert_expeditionID_to_String(expedition.id), required_level: expedition.required_level, costs: build_materials_with_strings(expedition.costs), rewards:build_materials_with_strings(expedition.rewards), entered: expedition.entered, entry_time: expedition.entry_time }
+        ExpeditionString { id: expedition.id, name: convert_expeditionID_to_String(expedition.id), required_level: expedition.required_level, costs: build_materials_with_strings(expedition.costs), rewards:build_materials_with_strings(expedition.rewards) }
     }
 
     public fun get_expedition_ID(expedition: &Expedition): u8 {
