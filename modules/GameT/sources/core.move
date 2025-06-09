@@ -1,4 +1,4 @@
-module deployer::testCore13 {
+module deployer::testCore14 {
 
     use std::debug::print;
     use std::string::{String, utf8};
@@ -98,13 +98,26 @@ module deployer::testCore13 {
         materialID: u8, materialName: String, amount: u16
     }
 
-//Expedition 
+// Expedition 
     struct Expedition has copy, drop, store, key {
         id: u8, required_level: u8, costs: vector<Material>, rewards: vector<Material>
     }    
     struct ExpeditionString has copy, drop, store, key {
         id: u8, name: String, required_level: u8, costs: vector<MaterialString>, rewards: vector<MaterialString>
     }    
+// Dungeon
+    struct Dungeon has copy, drop, store, key {
+        id: u8, floors: vector<Floor>, rewards: vector<Material>
+    }    
+    struct DungeonString has copy, drop, store, key {
+        id: u8, name: String, floors: vector<FloorString>, rewards: vector<MaterialString>
+    }   
+    struct Floor has copy, drop, store, key {
+        id: u8, mob: u8, rewards: vector<Material>
+    }   
+    struct FloorString has copy, drop, store, key {
+        id: u8, mobID: u8, mobName:String, rewards: vector<MaterialString>
+    }   
 // ===  ===  ===  ===  === ===
 // ===  Factory Functions  ===
 // ===  ===  ===  ===  === ===
@@ -136,6 +149,12 @@ module deployer::testCore13 {
     public fun make_material(materialID: u8, amount: u16): Material {
         Material { materialID: materialID, amount: amount}
     }
+
+    public fun change_material_amount(material: &mut Material, amount: u16): Material {
+        material.amount = amount;
+        *material
+    }
+
 
     public fun get_material_ID(material: &Material): u8{
         material.materialID
@@ -200,6 +219,11 @@ module deployer::testCore13 {
         Value { valueID: id, isEnemy: isEnemy, value: val }
     }
 
+    public fun change_value_amount(value: &mut Value, amount: u8): Value {
+        value.value = amount;
+        *value
+    }
+
     public fun get_value_ID(value: &Value): u8 {
         value.valueID
     }
@@ -248,6 +272,11 @@ module deployer::testCore13 {
 
     public fun make_stat(id: u8, val: u64): Stat {
         Stat { statID: id, value: val }
+    }
+    
+    public fun change_stat_amount(stat: &mut Stat, value: u64): Stat {
+        stat.value = value;
+        *stat
     }
 
     public fun get_stat_ID(stat: &Stat): u8 {
@@ -348,6 +377,34 @@ module deployer::testCore13 {
         expedition.required_level = required_level;
         *expedition
     }
+// Dungeon
+    public fun make_dungeon(id: u8, floor: vector<Floor>, rewards: vector<Material>): Dungeon {
+        Dungeon { id: id, floors: floor, rewards:rewards}
+    }
+
+ /*   public fun make_string_dungeon(dungeon: Dungeon): DungeonString {
+        DungeonString { id: dungeon.id, floors: floors, rewards:build_materials_with_strings(dungeon.rewards)}
+    }*/
+
+    public fun get_dungeon_ID(dungeon: &Dungeon): u8 {
+        dungeon.id
+    }
+
+
+    public fun get_dungeon_floors(dungeon: &Dungeon): vector<Floor> {
+        dungeon.floors
+    }
+
+
+    public fun change_dungeon_rewards(address: &signer, dungeon: &mut Dungeon): Dungeon acquires MaterialList{
+        dungeon.rewards = extract_material_list(address);
+        *dungeon
+    }
+
+    public fun get_dungeon_rewards(dungeon: &mut Dungeon): vector<Material>{
+        dungeon.rewards
+    }
+
 
 // ===  ===  ===  ===  === 
 // ===     CONVERTS    ===
@@ -559,7 +616,7 @@ module deployer::testCore13 {
         output
     }
 
-    public fun change_material_amount(materials: vector<Material>, id:u8, amount: u16): Material {
+  /*  public fun change_material_amount(materials: vector<Material>, id:u8, amount: u16): Material {
         let len = vector::length(&materials);
         let i = 0;
         while (i < len) {
@@ -570,5 +627,5 @@ module deployer::testCore13 {
             }
         };
         abort(1)
-    }
+    }*/
 }
