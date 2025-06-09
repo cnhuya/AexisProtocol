@@ -1,4 +1,4 @@
-module deployer::testCore11 {
+module deployer::testCore12 {
 
     use std::debug::print;
     use std::string::{String, utf8};
@@ -335,7 +335,7 @@ module deployer::testCore11 {
         *expedition
     }
 
-    public fun get_expedition_rewards(expedition: &mut Expedition, value: u16): vector<Material>{
+    public fun get_expedition_rewards(expedition: &mut Expedition): vector<Material>{
         expedition.rewards
     }
 
