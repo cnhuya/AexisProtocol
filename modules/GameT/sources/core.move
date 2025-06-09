@@ -1,4 +1,4 @@
-module deployer::testCore10 {
+module deployer::testCore11 {
 
     use std::debug::print;
     use std::string::{String, utf8};
@@ -352,7 +352,7 @@ module deployer::testCore10 {
 // ===  ===  ===  ===  === 
 // ===     CONVERTS    ===
 // ===  ===  ===  ===  ===
-     fun convert_valueID_to_String(valueID: u8): String {
+    public fun convert_valueID_to_String(valueID: u8): String {
         if (valueID == VALUE_ID_FIRE) {
             utf8(b"fire")
         } else if (valueID == VALUE_ID_POISON) {
@@ -372,7 +372,7 @@ module deployer::testCore10 {
         }
     }
 
-    fun convert_statID_to_String(statID: u8): String {
+    public fun convert_statID_to_String(statID: u8): String {
         if (statID == STAT_ID_HEALTH) {
             utf8(b"Health")
         } else if (statID == STAT_ID_DAMAGE) {
@@ -386,7 +386,7 @@ module deployer::testCore10 {
         }
     }
 
-    fun convert_ability_typeID_to_String(typeID: u8): String {
+    public fun convert_ability_typeID_to_String(typeID: u8): String {
         if (typeID == ABILITY_TYPE_PASSIVE) {
             utf8(b"Passive")
         } else if (typeID == ABILITY_TYPE_ACTIVE) {
@@ -396,7 +396,7 @@ module deployer::testCore10 {
         }
     }
 
-    fun convert_classID_to_String(classID: u8): String {
+    public fun convert_classID_to_String(classID: u8): String {
         if (classID == CLASS_ID_WARRIOR) {
             utf8(b"Warrior")
         } else if (classID == CLASS_ID_ARCHER) {
@@ -412,7 +412,7 @@ module deployer::testCore10 {
         }
     }
 
-    fun convert_materialID_to_String(materialID: u8): String {
+    public fun convert_materialID_to_String(materialID: u8): String {
         if (materialID == 1) {
             utf8(b"Gold")
         } else if (materialID == 2) {
@@ -443,7 +443,7 @@ module deployer::testCore10 {
         }
     }
 
-    fun convert_typeID_to_String(typeID: u8): String {
+    public fun convert_typeID_to_String(typeID: u8): String {
         if (typeID == 1) {
             utf8(b"Helmet")
         } else if (typeID == 2) {
@@ -483,7 +483,7 @@ module deployer::testCore10 {
 
     }
 
-    fun convert_rarityID_to_String(rarityID: u8): String {
+    public fun convert_rarityID_to_String(rarityID: u8): String {
         if (rarityID == 1) {
             utf8(b"Common")
         } else if (rarityID == 2) {
@@ -500,7 +500,7 @@ module deployer::testCore10 {
         }
     }
 
-    fun convert_expeditionID_to_String(expeditionID: u8): String {
+    public fun convert_expeditionID_to_String(expeditionID: u8): String {
         if (expeditionID == 1) {
             utf8(b"Valley")
         } else if (expeditionID == 2) {
