@@ -745,6 +745,18 @@ module deployer::testCore19 {
         output
     }
 
+        public fun build_statsRange_with_strings(statsRange: vector<StatRange>): vector<StatRangeString> {
+        let len = vector::length(&statsRange);
+        let output = vector::empty<StatRangeString>();
+        let i = 0;
+        while (i < len) {
+            let statRange = vector::borrow(&statsRange, i);
+            vector::push_back(&mut output, make_string_stat_range(statRange));
+            i = i + 1;
+        };
+        output
+    }
+
     public fun build_materials_with_strings(materials: vector<Material>): vector<MaterialString> {
         let len = vector::length(&materials);
         let output = vector::empty<MaterialString>();
