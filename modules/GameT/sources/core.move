@@ -1,4 +1,4 @@
-module deployer::testCore16 {
+module deployer::testCore17 {
 
     use std::debug::print;
     use std::string::{String, utf8};
@@ -61,6 +61,7 @@ module deployer::testCore16 {
     struct StatRangeString has copy,drop,store {
         name: String, min: u64, max: u64
     }
+    
 // Value
     struct Value has copy, drop,store {
         valueID: u8, isEnemy: bool, value: u8
@@ -119,6 +120,14 @@ module deployer::testCore16 {
     struct Floor has copy, drop, store, key {
         id: u8, entityName: String,
     }   
+// Rarity    
+    struct Rarity has copy, store, drop, key {
+        rarityID: u8, chance: u8, multi: u16, number_of_values:u8
+    }
+
+    struct RarityString has copy, store, drop, key {
+        rarityID: u8, rarityName: String, chance:u8, multi: u16, number_of_values: u8
+    }
 // ===  ===  ===  ===  === ===
 // ===  Factory Functions  ===
 // ===  ===  ===  ===  === ===
@@ -437,7 +446,33 @@ module deployer::testCore16 {
         let floor_list = borrow_global_mut<FloorList>(signer::address_of(address));
         vector::push_back(&mut floor_list.list, floor);
     }
+// Rarity
 
+
+    public fun make_rarity(id: u8, chance: u8, multi: u16, number_of_values: u8): Rarity {
+        Rarity { rarityID: id, chance: chance, multi: multi, number_of_values: number_of_values}
+    }
+
+    public fun get_rarity_id(rarity: Rarity): u8 {
+        rarity.rarityID
+    }
+
+    public fun get_rarity_chance(rarity: Rarity): u8 {
+        rarity.chance
+    }
+
+    public fun get_rarity_multi(rarity: Rarity): u16 {
+        rarity.multi
+    }
+
+    public fun get_rarity_number_of_values(rarity: Rarity): u8 {
+        rarity.number_of_values
+    }
+    
+
+    public fun make_string_rarity(rarity: Rarity): RarityString{
+        RarityString {rarityID: rarity.rarityID, rarityName: convert_rarityID_to_String(rarity.rarityID), chance: rarity.chance, multi: rarity.multi, number_of_values: rarity.number_of_values}
+    }
 // ===  ===  ===  ===  === 
 // ===     CONVERTS    ===
 // ===  ===  ===  ===  ===
@@ -607,48 +642,48 @@ module deployer::testCore16 {
             utf8(b"Unknown")
         }
     }
-/// Any value outside that range returns **"Unknown"**
-public fun convert_dungeonID_to_String(dungeonID: u8): String {
-    if (dungeonID == 1) {
-        utf8(b"The Depths of Hell")
-    } else if (dungeonID == 2) {
-        utf8(b"Realm of Silent Passing")
-    } else if (dungeonID == 3) {
-        utf8(b"Crossroads of the Underworld")
-    } else if (dungeonID == 4) {
-        utf8(b"Void of Eternal Night")
-    } else if (dungeonID == 5) {
-        utf8(b"Abyssal Shadow Realm")
-    } else if (dungeonID == 6) {
-        utf8(b"The Blooming Descent")
-    } else if (dungeonID == 7) {
-        utf8(b"Fields of Eternal Harvest")
-    } else if (dungeonID == 8) {
-        utf8(b"Vine-Laced Wildlands")
-    } else if (dungeonID == 9) {
-        utf8(b"Sacred Moonlit Forests")
-    } else if (dungeonID == 10) {
-        utf8(b"Crossroads of Realms")
-    } else if (dungeonID == 11) {
-        utf8(b"Battlefield of Eternal Conflict")
-    } else if (dungeonID == 12) {
-        utf8(b"Citadel of Divine Knowledge")
-    } else if (dungeonID == 13) {
-        utf8(b"Divine Forge in Volcanic Core")
-    } else if (dungeonID == 14) {
-        utf8(b"Palace beneath the Ocean")
-    } else if (dungeonID == 15) {
-        utf8(b"Temple of Solar Harmony")
-    } else if (dungeonID == 16) {
-        utf8(b"Island of Divine Desire")
-    } else if (dungeonID == 17) {
-        utf8(b"Nexus of Creation")
-    } else if (dungeonID == 18) {
-        utf8(b"Mount Olympus")
-    } else {
-        utf8(b"Unknown")
+
+    public fun convert_dungeonID_to_String(dungeonID: u8): String {
+        if (dungeonID == 1) {
+            utf8(b"The Depths of Hell")
+        } else if (dungeonID == 2) {
+            utf8(b"Realm of Silent Passing")
+        } else if (dungeonID == 3) {
+            utf8(b"Crossroads of the Underworld")
+        } else if (dungeonID == 4) {
+            utf8(b"Void of Eternal Night")
+        } else if (dungeonID == 5) {
+            utf8(b"Abyssal Shadow Realm")
+        } else if (dungeonID == 6) {
+            utf8(b"The Blooming Descent")
+        } else if (dungeonID == 7) {
+            utf8(b"Fields of Eternal Harvest")
+        } else if (dungeonID == 8) {
+            utf8(b"Vine-Laced Wildlands")
+        } else if (dungeonID == 9) {
+            utf8(b"Sacred Moonlit Forests")
+        } else if (dungeonID == 10) {
+            utf8(b"Crossroads of Realms")
+        } else if (dungeonID == 11) {
+            utf8(b"Battlefield of Eternal Conflict")
+        } else if (dungeonID == 12) {
+            utf8(b"Citadel of Divine Knowledge")
+        } else if (dungeonID == 13) {
+            utf8(b"Divine Forge in Volcanic Core")
+        } else if (dungeonID == 14) {
+            utf8(b"Palace beneath the Ocean")
+        } else if (dungeonID == 15) {
+            utf8(b"Temple of Solar Harmony")
+        } else if (dungeonID == 16) {
+            utf8(b"Island of Divine Desire")
+        } else if (dungeonID == 17) {
+            utf8(b"Nexus of Creation")
+        } else if (dungeonID == 18) {
+            utf8(b"Mount Olympus")
+        } else {
+            utf8(b"Unknown")
+        }
     }
-}
 
 
 // ===  ===  ===  ===  ===  ===
@@ -692,7 +727,21 @@ public fun convert_dungeonID_to_String(dungeonID: u8): String {
     }
 
 
-  /*  public fun change_material_amount(materials: vector<Material>, id:u8, amount: u16): Material {
+    public fun build_rarity_with_strings(rarity: vector<Rarity>): vector<RarityString> {
+        let len = vector::length(&rarity);
+        let vec = vector::empty<RarityString>();
+
+        while (len > 0){
+            let rarity = vector::borrow(&rarity, len-1);
+            let _rarity = make_string_rarity(*rarity);
+            vector::push_back(&mut vec, _rarity);
+            len = len-1 
+
+        };
+        move vec
+    }
+
+  /*  public fun change_material_amount(materials: v    ector<Material>, id:u8, amount: u16): Material {
         let len = vector::length(&materials);
         let i = 0;
         while (i < len) {
