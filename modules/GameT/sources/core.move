@@ -321,6 +321,14 @@ module deployer::testCore18 {
         statRange.max
     }
 
+    public fun change_statRange_min(statRange: &mut StatRange, min: u64)  {
+        statRange.min = min
+    }
+
+    public fun change_statRange_max(statRange: &mut StatRange, max: u64) {
+        statRange.max = max
+    }
+
     public fun make_string_stat_range(stat: &StatRange): StatRangeString {
         StatRangeString { name: convert_statID_to_String(stat.statID),  min: stat.min, max: stat.max}
     }
