@@ -1,4 +1,4 @@
-module deployer::testCore14 {
+module deployer::testCore16 {
 
     use std::debug::print;
     use std::string::{String, utf8};
@@ -107,16 +107,17 @@ module deployer::testCore14 {
     }    
 // Dungeon
     struct Dungeon has copy, drop, store, key {
-        id: u8, floors: vector<Floor>, rewards: vector<Material>
+        id: u8, entityID: u8, floors: vector<Floor>, rewards: vector<Material>
     }    
     struct DungeonString has copy, drop, store, key {
-        id: u8, name: String, floors: vector<FloorString>, rewards: vector<MaterialString>
+        id: u8, entityName: String, name: String, floors: vector<Floor>, rewards: vector<MaterialString>
     }   
+    // floors arent needed? cuz the entities already have type (eg. titan)? so i can create a function that fetches all titans in certain dung
+    struct FloorList has copy, drop, store, key{
+        list: vector<Floor>
+    }
     struct Floor has copy, drop, store, key {
-        id: u8, mob: u8, rewards: vector<Material>
-    }   
-    struct FloorString has copy, drop, store, key {
-        id: u8, mobID: u8, mobName:String, rewards: vector<MaterialString>
+        id: u8, entityName: String,
     }   
 // ===  ===  ===  ===  === ===
 // ===  Factory Functions  ===
@@ -378,23 +379,26 @@ module deployer::testCore14 {
         *expedition
     }
 // Dungeon
-    public fun make_dungeon(id: u8, floor: vector<Floor>, rewards: vector<Material>): Dungeon {
-        Dungeon { id: id, floors: floor, rewards:rewards}
+    public fun make_dungeon(id: u8, entityID:u8, floor: vector<Floor>, rewards: vector<Material>): Dungeon {
+        Dungeon { id: id, entityID: entityID, floors: floor, rewards:rewards}
     }
 
- /*   public fun make_string_dungeon(dungeon: Dungeon): DungeonString {
-        DungeonString { id: dungeon.id, floors: floors, rewards:build_materials_with_strings(dungeon.rewards)}
-    }*/
+    public fun make_string_dungeon(dungeon: Dungeon, entityName:String): DungeonString {
+        DungeonString { id: dungeon.id, entityName: entityName, name: convert_dungeonID_to_String(dungeon.id), floors: dungeon.floors, rewards: build_materials_with_strings(dungeon.rewards)}
+    }
 
     public fun get_dungeon_ID(dungeon: &Dungeon): u8 {
         dungeon.id
     }
 
+    public fun change_dungeon_floors(address: &signer, dungeon: &mut Dungeon): Dungeon acquires FloorList{
+        dungeon.floors = extract_floor_list(address);
+        *dungeon
+    }
 
     public fun get_dungeon_floors(dungeon: &Dungeon): vector<Floor> {
         dungeon.floors
     }
-
 
     public fun change_dungeon_rewards(address: &signer, dungeon: &mut Dungeon): Dungeon acquires MaterialList{
         dungeon.rewards = extract_material_list(address);
@@ -405,6 +409,34 @@ module deployer::testCore14 {
         dungeon.rewards
     }
 
+// Floor
+
+    public fun make_floor(id: u8, entityName: String): Floor {
+        Floor { id: id, entityName: entityName}
+    }
+
+
+    public fun get_floor_list(address: &signer): vector<Floor> acquires FloorList{
+        let floor_list = borrow_global_mut<FloorList>(signer::address_of(address));
+        floor_list.list
+    }
+
+    public fun extract_floor_list(address: &signer): vector<Floor> acquires FloorList {
+        let floor_list = borrow_global_mut<FloorList>(signer::address_of(address));
+        let extracted_list = floor_list.list;
+        floor_list.list = vector::empty<Floor>();
+        extracted_list
+    }
+
+    public entry fun register_floor(address: &signer, id: u8, entityName: String) acquires FloorList{
+        if (!exists<FloorList>(signer::address_of(address))) {
+          move_to(address, FloorList { list: vector::empty()});
+        };
+        let floor = make_floor(id, entityName);
+
+        let floor_list = borrow_global_mut<FloorList>(signer::address_of(address));
+        vector::push_back(&mut floor_list.list, floor);
+    }
 
 // ===  ===  ===  ===  === 
 // ===     CONVERTS    ===
@@ -575,6 +607,49 @@ module deployer::testCore14 {
             utf8(b"Unknown")
         }
     }
+/// Any value outside that range returns **"Unknown"**
+public fun convert_dungeonID_to_String(dungeonID: u8): String {
+    if (dungeonID == 1) {
+        utf8(b"The Depths of Hell")
+    } else if (dungeonID == 2) {
+        utf8(b"Realm of Silent Passing")
+    } else if (dungeonID == 3) {
+        utf8(b"Crossroads of the Underworld")
+    } else if (dungeonID == 4) {
+        utf8(b"Void of Eternal Night")
+    } else if (dungeonID == 5) {
+        utf8(b"Abyssal Shadow Realm")
+    } else if (dungeonID == 6) {
+        utf8(b"The Blooming Descent")
+    } else if (dungeonID == 7) {
+        utf8(b"Fields of Eternal Harvest")
+    } else if (dungeonID == 8) {
+        utf8(b"Vine-Laced Wildlands")
+    } else if (dungeonID == 9) {
+        utf8(b"Sacred Moonlit Forests")
+    } else if (dungeonID == 10) {
+        utf8(b"Crossroads of Realms")
+    } else if (dungeonID == 11) {
+        utf8(b"Battlefield of Eternal Conflict")
+    } else if (dungeonID == 12) {
+        utf8(b"Citadel of Divine Knowledge")
+    } else if (dungeonID == 13) {
+        utf8(b"Divine Forge in Volcanic Core")
+    } else if (dungeonID == 14) {
+        utf8(b"Palace beneath the Ocean")
+    } else if (dungeonID == 15) {
+        utf8(b"Temple of Solar Harmony")
+    } else if (dungeonID == 16) {
+        utf8(b"Island of Divine Desire")
+    } else if (dungeonID == 17) {
+        utf8(b"Nexus of Creation")
+    } else if (dungeonID == 18) {
+        utf8(b"Mount Olympus")
+    } else {
+        utf8(b"Unknown")
+    }
+}
+
 
 // ===  ===  ===  ===  ===  ===
 // ===   BATCH CONVERTIONS  ===
@@ -615,6 +690,7 @@ module deployer::testCore14 {
         };
         output
     }
+
 
   /*  public fun change_material_amount(materials: vector<Material>, id:u8, amount: u16): Material {
         let len = vector::length(&materials);
