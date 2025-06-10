@@ -1,4 +1,4 @@
-module deployer::testCore18 {
+module deployer::testCore19 {
 
     use std::debug::print;
     use std::string::{String, utf8};
@@ -479,7 +479,7 @@ module deployer::testCore18 {
     public fun get_rarity_chance(rarity: Rarity): u8 {
         rarity.chance
     }
-    public fun chance_rarity_chance(rarity: &mut Rarity, new_chance: u8): Rarity {
+    public fun change_rarity_chance(rarity: &mut Rarity, new_chance: u8): Rarity {
         rarity.chance = new_chance;
         *rarity
 
@@ -489,7 +489,7 @@ module deployer::testCore18 {
         rarity.multi
     }
     
-    public fun chance_rarity_multi(rarity: &mut Rarity, new_multi: u16): Rarity {
+    public fun change_rarity_multi(rarity: &mut Rarity, new_multi: u16): Rarity {
         rarity.multi = new_multi;
         *rarity
 
