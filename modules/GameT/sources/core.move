@@ -1,4 +1,4 @@
-module deployer::testCore19 {
+module deployer::testCore20 {
 
     use std::debug::print;
     use std::string::{String, utf8};
@@ -51,7 +51,7 @@ module deployer::testCore19 {
     }
 
     struct StatString has copy,drop,store {
-        name: String, value: u64
+         statID: u8, name: String, value: u64
     }
 
     struct StatRange has copy,drop,store {
@@ -59,7 +59,7 @@ module deployer::testCore19 {
     }
 
     struct StatRangeString has copy,drop,store {
-        name: String, min: u64, max: u64
+         statID: u8, name: String, min: u64, max: u64
     }
     
 // Value
@@ -71,7 +71,7 @@ module deployer::testCore19 {
         list: vector<Value>
     }
     struct ValueString has copy,drop,store {
-        name: String, isEnemy: bool, value: u8
+        valueID: u8, name: String, isEnemy: bool, value: u8
     }
 // Type
     struct Type has copy, drop,store {
@@ -160,6 +160,8 @@ module deployer::testCore19 {
         Material { materialID: materialID, amount: amount}
     }
 
+
+
     public fun change_material_amount(material: &mut Material, amount: u16): Material {
         material.amount = amount;
         *material
@@ -176,6 +178,10 @@ module deployer::testCore19 {
 
     public fun make_material_string(material: &Material): MaterialString {
         MaterialString { materialID: material.materialID, materialName: convert_materialID_to_String(material.materialID), amount: material.amount}
+    }
+
+    public fun degrade_string_materialString_to_material(materialString: &MaterialString): Material {
+        Material { materialID: materialString.materialID, amount: materialString.amount}
     }
 
 // Entity
@@ -252,7 +258,11 @@ module deployer::testCore19 {
     }
 
     public fun make_string_value(value: &Value): ValueString {
-        ValueString { name: convert_valueID_to_String(value.valueID), isEnemy: value.isEnemy, value: value.value}
+        ValueString { valueID: value.valueID, name: convert_valueID_to_String(value.valueID), isEnemy: value.isEnemy, value: value.value}
+    }
+
+    public fun degrade_string_value_to_value(valueString: &ValueString): Value {
+        Value { valueID: valueString.valueID, isEnemy: valueString.isEnemy, value: valueString.value }
     }
 
 // Stat
@@ -303,7 +313,10 @@ module deployer::testCore19 {
     }
 
     public fun make_string_stat(stat: &Stat): StatString {
-        StatString { name: convert_statID_to_String(stat.statID), value: stat.value}
+        StatString { statID: stat.statID, name: convert_statID_to_String(stat.statID), value: stat.value}
+    }
+    public fun degrade_string_stat_to_stat(statRange: &StatString): Stat {
+        Stat { statID: statRange.statID,  value: statRange.value}
     }
 
     public fun make_range_stat(id: u8, min: u64, max: u64): StatRange {
@@ -330,7 +343,11 @@ module deployer::testCore19 {
     }
 
     public fun make_string_stat_range(stat: &StatRange): StatRangeString {
-        StatRangeString { name: convert_statID_to_String(stat.statID),  min: stat.min, max: stat.max}
+        StatRangeString { statID: stat.statID, name: convert_statID_to_String(stat.statID),  min: stat.min, max: stat.max}
+    }
+
+    public fun degrade_string_statRange_to_statRange(statRangeString: &StatRangeString): StatRange {
+        StatRange { statID: statRangeString.statID,  min: statRangeString.min, max: statRangeString.max}
     }
 
 // Type
@@ -503,6 +520,10 @@ module deployer::testCore19 {
 
     public fun make_string_rarity(rarity: Rarity): RarityString{
         RarityString {rarityID: rarity.rarityID, rarityName: convert_rarityID_to_String(rarity.rarityID), chance: rarity.chance, multi: rarity.multi, number_of_values: rarity.number_of_values}
+    }
+
+    public fun degrade_stringRarity_to_rarity(rarityString: RarityString): Rarity{
+        Rarity { rarityID: rarityString.rarityID, chance: rarityString.chance, multi: rarityString.multi, number_of_values: rarityString.number_of_values}
     }
 // ===  ===  ===  ===  === 
 // ===     CONVERTS    ===
