@@ -1,4 +1,4 @@
-module deployer::testCore17 {
+module deployer::testCore18 {
 
     use std::debug::print;
     use std::string::{String, utf8};
@@ -308,6 +308,17 @@ module deployer::testCore17 {
 
     public fun make_range_stat(id: u8, min: u64, max: u64): StatRange {
         StatRange { statID: id, min: min, max: max }
+    }
+    public fun get_statRange_ID(statRange: &StatRange): u8 {
+        statRange.statID
+    }
+
+    public fun get_statRange_min(statRange: &StatRange): u64 {
+        statRange.min
+    }
+
+    public fun get_statRange_max(statRange: &StatRange): u64 {
+        statRange.max
     }
 
     public fun make_string_stat_range(stat: &StatRange): StatRangeString {
