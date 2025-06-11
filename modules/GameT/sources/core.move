@@ -139,6 +139,13 @@ module deployer::testCore20 {
     struct RaceString has copy,drop,store,key {
         raceID: u8, raceName: String, values: vector<ValueString>
     }    
+// Perk
+    struct Perk has copy, drop, key, store{
+        perkID: u64, name: String, typeID: u8, stamina: u8, damage:u32, values: vector<Value>
+    }
+    struct PerkString has copy, drop, key, store{
+        perkID: u64, name: String, typeID: u8, typeName: String, stamina: u8, damage:u32, values: vector<ValueString>
+    }
 // ===  ===  ===  ===  === ===
 // ===  Factory Functions  ===
 // ===  ===  ===  ===  === ===
@@ -591,7 +598,42 @@ module deployer::testCore20 {
     public fun make_string_race(race: &Race): RaceString{
         RaceString { raceID: race.raceID, raceName: get_race_name(race), values: build_values_with_strings(race.values) }
     }
+// Perk
+    public fun make_perk(perkID: u64, name: String, typeID: u8, stamina: u8, damage: u32, values: vector<Value>): Perk {
+        Perk { perkID: perkID, name: name, typeID: typeID, stamina: stamina, damage:damage, values: values }
+    }
 
+    public fun get_perk_id(perk: &Perk): u64 {
+        perk.perkID
+    }
+
+    public fun get_perk_name(perk: &Perk): String {
+        perk.name
+    }
+    public fun get_perk_typeID(perk: &Perk): u8 {
+        perk.typeID
+    }
+    public fun get_perk_typeName(perk: &Perk): String {
+        convert_perksTypeID_to_String(perk.typeID)
+    }
+    public fun get_perk_stamina(perk: &Perk): u8 {
+        perk.stamina
+    }
+    public fun change_perk_stamina(perk: &mut Perk, new_stamina: u8) {
+        perk.stamina = new_stamina
+    }
+    public fun get_perk_damage(perk: &Perk): u32 {
+        perk.damage
+    }
+    public fun change_perk_damage(perk: &mut Perk, new_damage: u32) {
+        perk.damage = new_damage
+    }
+    public fun get_perk_values(perk: &Perk): vector<Value> {
+        perk.values
+    }
+    public fun make_string_perk(perk: &Perk): PerkString{
+        PerkString { perkID: perk.perkID, name: perk.name, typeID: perk.typeID, typeName: convert_perksTypeID_to_String(perk.typeID), stamina: perk.stamina, damage:perk.damage, values: build_values_with_strings(perk.values) }
+    }
 // ===  ===  ===  ===  === 
 // ===     CONVERTS    ===
 // ===  ===  ===  ===  ===
@@ -803,7 +845,7 @@ module deployer::testCore20 {
             utf8(b"Unknown")
         }
     }
-    
+
     public fun convert_raceID_to_String(raceID: u8): String {
         if (raceID == 1) {
             utf8(b"Human")
@@ -815,6 +857,18 @@ module deployer::testCore20 {
             utf8(b"Celestial")
         } else if (raceID == 5) {
             utf8(b"Undead")
+        } else {
+            utf8(b"Unknown")
+        }
+    }
+
+    public fun convert_perksTypeID_to_String(perkTypeID: u8): String {
+        if (perkTypeID == 1) {
+            utf8(b"Offensive")
+        } else if (perkTypeID == 2) {
+            utf8(b"Defensive")
+        } else if (perkTypeID == 3) {
+            utf8(b"Utility")
         } else {
             utf8(b"Unknown")
         }
