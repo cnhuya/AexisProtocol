@@ -132,6 +132,13 @@ module deployer::testCore20 {
     struct RarityString has copy, store, drop, key {
         rarityID: u8, rarityName: String, chance:u8, multi: u16, number_of_values: u8
     }
+// Race
+    struct Race has copy,drop,store,key {
+        raceID: u8, values: vector<Value>
+    }
+    struct RaceString has copy,drop,store,key {
+        raceID: u8, raceName: String, values: vector<ValueString>
+    }    
 // ===  ===  ===  ===  === ===
 // ===  Factory Functions  ===
 // ===  ===  ===  ===  === ===
@@ -259,6 +266,17 @@ module deployer::testCore20 {
     public fun change_value_value(value: &mut Value, val: u8): ValueString {
         value.value = val;
         make_string_value(&*value)
+    }
+
+    public fun get_value_from_vector_value(vect: vector<Value>, valueID: u8): Value {
+        let len = vector::length(&vect);
+        while(len > 0){
+            let value = vector::borrow(&mut vect, len-1);
+            if(value.valueID == valueID){
+                return *value
+            };
+        };
+        abort(1)
     }
 
     public fun make_string_value(value: &Value): ValueString {
@@ -553,6 +571,27 @@ module deployer::testCore20 {
     public fun degrade_stringRarity_to_rarity(rarityString: RarityString): Rarity{
         Rarity { rarityID: rarityString.rarityID, chance: rarityString.chance, multi: rarityString.multi, number_of_values: rarityString.number_of_values}
     }
+// Race
+    public fun make_race(raceID: u8, values: vector<Value>): Race {
+        Race { raceID: raceID, values: values }
+    }
+
+    public fun get_race_id(race: &Race): u8 {
+        race.raceID
+    }
+
+    public fun get_race_name(race: &Race): String {
+        convert_raceID_to_String(race.raceID)
+    }
+
+    public fun get_race_values(race: &Race): vector<Value> {
+        race.values
+    }
+
+    public fun make_string_race(race: &Race): RaceString{
+        RaceString { raceID: race.raceID, raceName: get_race_name(race), values: build_values_with_strings(race.values) }
+    }
+
 // ===  ===  ===  ===  === 
 // ===     CONVERTS    ===
 // ===  ===  ===  ===  ===
@@ -760,6 +799,22 @@ module deployer::testCore20 {
             utf8(b"Nexus of Creation")
         } else if (dungeonID == 18) {
             utf8(b"Mount Olympus")
+        } else {
+            utf8(b"Unknown")
+        }
+    }
+    
+    public fun convert_raceID_to_String(raceID: u8): String {
+        if (raceID == 1) {
+            utf8(b"Human")
+        } else if (raceID == 2) {
+            utf8(b"Orc")
+        } else if (raceID == 3) {
+            utf8(b"Elf")
+        } else if (raceID == 4) {
+            utf8(b"Celestial")
+        } else if (raceID == 5) {
+            utf8(b"Undead")
         } else {
             utf8(b"Unknown")
         }
