@@ -58,6 +58,10 @@ module deployer::testCore20 {
         statID: u8, min: u64, max: u64
     }
 
+    struct StatRangeList has copy,drop,store,key {
+        list: vector<StatRange>
+    }
+
     struct StatRangeString has copy,drop,store {
          statID: u8, name: String, min: u64, max: u64
     }
@@ -266,6 +270,30 @@ module deployer::testCore20 {
     }
 
 // Stat
+
+    public fun get_stat_range_list(address: &signer): vector<StatRange> acquires StatRangeList {
+        let stat_list = borrow_global_mut<StatRangeList>(signer::address_of(address));
+        stat_list.list
+    }
+
+    public fun extract_stat_range_list(address: &signer): vector<StatRange> acquires StatRangeList {
+        let stat_list = borrow_global_mut<StatRangeList>(signer::address_of(address));
+        let extracted_list = stat_list.list;
+        stat_list.list = vector::empty<StatRange>();
+        extracted_list
+    }
+
+    public entry fun register_stat_range(address: &signer, id: u8, min: u64, max:u64) acquires StatRangeList{
+        let stat = make_range_stat(id, min,max);
+
+        if (!exists<StatRangeList>(signer::address_of(address))) {
+          move_to(address, StatRangeList { list: vector::empty()});
+        };
+
+        let stat_list = borrow_global_mut<StatRangeList>(signer::address_of(address));
+        vector::push_back(&mut stat_list.list, stat);
+    }
+
 
     public fun get_stat_list(address: &signer): vector<Stat> acquires StatList {
         let stat_list = borrow_global_mut<StatList>(signer::address_of(address));
