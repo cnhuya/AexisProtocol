@@ -1,4 +1,4 @@
-module deployer::testCore20 {
+module deployer::testCore21 {
 
     use std::debug::print;
     use std::string::{String, utf8};
@@ -87,7 +87,7 @@ module deployer::testCore20 {
     }
 // Entity
     struct Entity has copy,drop,store {
-        entityID: u8, entityName: String, entityType: String, location: String
+        entityID: u8, entityStatsMulti: u16, entityName: String, entityType: String, location: String
     }
 // Material
     struct Material has copy, key, store, drop {
@@ -203,12 +203,16 @@ module deployer::testCore20 {
     }
 
 // Entity
-    public fun make_entity(entityID: u8, entityName: String, entityType: String, entityLocation: String): Entity {
-        Entity { entityID: entityID, entityName: entityName, entityType: entityType, location: entityLocation }
+    public fun make_entity(entityID: u8, entityStatsMulti: u16, entityName: String, entityType: String, entityLocation: String): Entity {
+        Entity { entityID: entityID, entityStatsMulti: entityStatsMulti, entityName: entityName, entityType: entityType, location: entityLocation }
     }
 
     public fun get_entity_name(entity: &Entity): String {
         entity.entityName
+    }
+
+    public fun get_entity_statsMulti(entity: &Entity): u16 {
+        entity.entityStatsMulti
     }
 
     public fun get_entity_ID(entity: &Entity): u8 {
