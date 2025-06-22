@@ -1,4 +1,4 @@
-module deployer::testCore22 {
+module deployer::testCore23 {
 
     use std::debug::print;
     use std::string::{String, utf8};
@@ -46,10 +46,6 @@ module deployer::testCore22 {
         statID: u8, value: u64
   
     }
-    struct StatList has copy, drop, store, key{
-        list: vector<Stat>
-    }
-
     struct StatString has copy,drop,store {
          statID: u8, name: String, value: u64
     }
@@ -57,11 +53,6 @@ module deployer::testCore22 {
     struct StatRange has copy,drop,store {
         statID: u8, min: u64, max: u64
     }
-
-    struct StatRangeList has copy,drop,store,key {
-        list: vector<StatRange>
-    }
-
     struct StatRangeString has copy,drop,store {
          statID: u8, name: String, min: u64, max: u64
     }
@@ -69,10 +60,6 @@ module deployer::testCore22 {
 // Value
     struct Value has copy, drop,store {
         valueID: u8, isEnemy: bool, value: u8
-    }
-
-    struct ValueList has copy, drop, store, key{
-        list: vector<Value>
     }
     struct ValueString has copy,drop,store {
         valueID: u8, name: String, isEnemy: bool, value: u8
@@ -93,16 +80,9 @@ module deployer::testCore22 {
     struct Material has copy, key, store, drop {
         materialID: u8, amount: u32
     }
-
-    struct MaterialList has copy, drop, store, key{
-        list: vector<Material>
-    }
-
-
     struct MaterialString has copy, key, store, drop {
         materialID: u8, materialName: String, amount: u32
     }
-
 // Expedition 
     struct Expedition has copy, drop, store, key {
         id: u8, required_level: u8, costs: vector<Material>, rewards: vector<Material>
@@ -143,524 +123,465 @@ module deployer::testCore22 {
 // ===  Factory Functions  ===
 // ===  ===  ===  ===  === ===
 // Material
-
-    public fun get_material_list(address: &signer): vector<Material> acquires MaterialList{
-        let material_list = borrow_global_mut<MaterialList>(signer::address_of(address));
-        material_list.list
-    }
-
-    public fun extract_material_list(address: &signer): vector<Material> acquires MaterialList {
-        let material_list = borrow_global_mut<MaterialList>(signer::address_of(address));
-        let extracted_list = material_list.list;
-        material_list.list = vector::empty<Material>();
-        extracted_list
-    }
-
-    public entry fun register_material(address: &signer, id: u8, val: u32) acquires MaterialList{
-        let material = make_material(id, val);
-
-        if (!exists<MaterialList>(signer::address_of(address))) {
-          move_to(address, MaterialList { list: vector::empty()});
-        };
-
-        let material_list = borrow_global_mut<MaterialList>(signer::address_of(address));
-        vector::push_back(&mut material_list.list, material);
-    }
-
-    public entry fun register_materials(address: &signer, ids: vector<u8>, vals: vector<u32>) acquires MaterialList{
-
-        assert!(vector::length(&ids) == vector::length(&vals),5);
-
-        let i = vector::length(&ids);
-        while(i > 0){
-            let id = vector::borrow(&ids, i-1);
-            let val = vector::borrow(&vals, i-1);
-            register_material(address, *id, *val);
-            i = i-1;
-        };
-
-    }
-    public fun make_material(materialID: u8, amount: u32): Material {
-        Material { materialID: materialID, amount: amount}
-    }
+    //makes
+        public fun make_material(materialID: u8, amount: u32): Material {
+            Material { materialID: materialID, amount: amount}
+        }
+        public fun make_material_string(material: &Material): MaterialString {
+            MaterialString { materialID: material.materialID, materialName: convert_materialID_to_String(material.materialID), amount: material.amount}
+        }
 
 
+    //changes
+        public fun change_material_amount(material: &mut Material, amount: u32): Material {
+            material.amount = amount;
+            *material
+        }
 
-    public fun change_material_amount(material: &mut Material, amount: u32): Material {
-        material.amount = amount;
-        *material
-    }
+    //gets
+        public fun get_material_ID(material: &Material): u8{
+            material.materialID
+        }
+
+        public fun get_material_amount(material: &Material): u32{
+            material.amount
+        }
 
 
-    public fun get_material_ID(material: &Material): u8{
-        material.materialID
-    }
+    //multiples
+        public fun make_multiple_string_materials(materials: vector<Material>, amounts: vector<u32>): vector<MaterialString> {
+            let len = vector::length(&materials);
+            let vect = vector::empty<MaterialString>();
+            while(len>0){
+                let material = make_material_string(vector::borrow(&materials, len-1));
+                vector::push_back(&mut vect, material);
+                len=len-1;
+            };
+            move vect
+        }
+        public fun make_multiple_materials(materialIDs: vector<u8>, amounts: vector<u32>): vector<Material> {
+            assert!(vector::length(&materialIDs) == vector::length(&amounts),5);
+            let len = vector::length(&materialIDs);
+            let vect = vector::empty<Material>();
+            while(len>0){
+                let material = make_material(*vector::borrow(&materialIDs, len-1), *vector::borrow(&amounts, len-1));
+                vector::push_back(&mut vect, material);
+                len=len-1;
+            };
+            move vect
+        }
 
-    public fun get_material_amount(material: &Material): u32{
-        material.amount
-    }
-
-    public fun make_material_string(material: &Material): MaterialString {
-        MaterialString { materialID: material.materialID, materialName: convert_materialID_to_String(material.materialID), amount: material.amount}
-    }
-
-    public fun degrade_string_materialString_to_material(materialString: &MaterialString): Material {
-        Material { materialID: materialString.materialID, amount: materialString.amount}
-    }
+    //degrades
+        public fun degrade_string_materialString_to_material(materialString: &MaterialString): Material {
+            Material { materialID: materialString.materialID, amount: materialString.amount}
+        }
 
 // Entity
-    public fun make_entity(entityID: u8, entityStatsMulti: u16, entityName: String, entityType: String, entityLocation: String): Entity {
-        Entity { entityID: entityID, entityStatsMulti: entityStatsMulti, entityName: entityName, entityType: entityType, location: entityLocation }
-    }
+    //makes
+        public fun make_entity(entityID: u8, entityStatsMulti: u16, entityName: String, entityType: String, entityLocation: String): Entity {
+            Entity { entityID: entityID, entityStatsMulti: entityStatsMulti, entityName: entityName, entityType: entityType, location: entityLocation }
+        }
+    //gets
+        public fun get_entity_name(entity: &Entity): String {
+            entity.entityName
+        }
 
-    public fun get_entity_name(entity: &Entity): String {
-        entity.entityName
-    }
+        public fun get_entity_statsMulti(entity: &Entity): u16 {
+            entity.entityStatsMulti
+        }
 
-    public fun get_entity_statsMulti(entity: &Entity): u16 {
-        entity.entityStatsMulti
-    }
+        public fun get_entity_ID(entity: &Entity): u8 {
+            entity.entityID
+        }
 
-    public fun get_entity_ID(entity: &Entity): u8 {
-        entity.entityID
-    }
+        public fun get_entity_type(entity: &Entity): String {
+            entity.entityType
+        }
 
-    public fun get_entity_type(entity: &Entity): String {
-        entity.entityType
-    }
+        public fun get_entity_location(entity: &Entity): String {
+            entity.location
+        }
 
-    public fun get_entity_location(entity: &Entity): String {
-        entity.location
-    }
 
 // Value
+    //makes
+        public fun make_value(id: u8, isEnemy: bool, val: u8): Value {
+            Value { valueID: id, isEnemy: isEnemy, value: val }
+        }
 
-    public fun get_value_list(address: &signer): vector<Value> acquires ValueList{
-        let value_list = borrow_global_mut<ValueList>(signer::address_of(address));
-        value_list.list
-    }
+        public fun make_string_value(value: &Value): ValueString {
+            ValueString { valueID: value.valueID, name: convert_valueID_to_String(value.valueID), isEnemy: value.isEnemy, value: value.value}
+        }
 
-    public fun extract_value_list(address: &signer): vector<Value> acquires ValueList {
-        let value_list = borrow_global_mut<ValueList>(signer::address_of(address));
-        let extracted_list = value_list.list;
-        value_list.list = vector::empty<Value>();
-        extracted_list
-    }
+    //changes
+        public fun change_value_amount(value: &mut Value, amount: u8): Value {
+            value.value = amount;
+            *value
+        }
+        
+        public fun change_value_value(value: &mut Value, val: u8): ValueString {
+            value.value = val;
+            make_string_value(&*value)
+        }
 
+    //gets
+        public fun get_value_ID(value: &Value): u8 {
+            value.valueID
+        }
 
-    public entry fun register_value(address: &signer, id: u8, isEnemy: bool, val: u8) acquires ValueList{
-        let value = make_value(id,isEnemy,val);
+        public fun get_value_isEnemy(value: &Value): bool {
+            value.isEnemy
+        }
 
-        if (!exists<ValueList>(signer::address_of(address))) {
-          move_to(address, ValueList { list: vector::empty()});
-        };
+        public fun get_value_value(value: &Value): u8 {
+            value.value
+        }
 
-        let value_list = borrow_global_mut<ValueList>(signer::address_of(address));
-        vector::push_back(&mut value_list.list, value);
-    }
-
-    public entry fun register_values(address: &signer, ids: vector<u8>, isEnemies: vector<bool>, vals: vector<u8>) acquires ValueList{
-
-        assert!(vector::length(&ids) == vector::length(&vals) || vector::length(&ids) == vector::length(&isEnemies), 5);
-
-        let i = vector::length(&ids);
-        while(i > 0){
-            let id = vector::borrow(&ids, i-1);
-            let isEnemy = vector::borrow(&isEnemies, i-1);
-            let val = vector::borrow(&vals, i-1);
-            register_value(address, *id, *isEnemy, *val);
-            i = i-1;
-        };
-
-    }
-
-    public fun make_value(id: u8, isEnemy: bool, val: u8): Value {
-        Value { valueID: id, isEnemy: isEnemy, value: val }
-    }
-
-    public fun change_value_amount(value: &mut Value, amount: u8): Value {
-        value.value = amount;
-        *value
-    }
-
-    public fun get_value_ID(value: &Value): u8 {
-        value.valueID
-    }
-
-    public fun get_value_isEnemy(value: &Value): bool {
-        value.isEnemy
-    }
-
-    public fun get_value_value(value: &Value): u8 {
-        value.value
-    }
-
-    public fun change_value_value(value: &mut Value, val: u8): ValueString {
-        value.value = val;
-        make_string_value(&*value)
-    }
-
-    public fun get_value_from_vector_value(vect: vector<Value>, valueID: u8): Value {
-        let len = vector::length(&vect);
-        while(len > 0){
-            let value = vector::borrow(&mut vect, len-1);
-            if(value.valueID == valueID){
-                return *value
+        public fun get_value_from_vector_value(vect: vector<Value>, valueID: u8): Value {
+            let len = vector::length(&vect);
+            while(len > 0){
+                let value = vector::borrow(&mut vect, len-1);
+                if(value.valueID == valueID){
+                    return *value
+                };
             };
-        };
-        abort(1)
-    }
+            abort(1)
+        }
 
-    public fun make_string_value(value: &Value): ValueString {
-        ValueString { valueID: value.valueID, name: convert_valueID_to_String(value.valueID), isEnemy: value.isEnemy, value: value.value}
-    }
 
-    public fun degrade_string_value_to_value(valueString: &ValueString): Value {
-        Value { valueID: valueString.valueID, isEnemy: valueString.isEnemy, value: valueString.value }
-    }
+    //degrades
+        public fun degrade_string_value_to_value(valueString: &ValueString): Value {
+            Value { valueID: valueString.valueID, isEnemy: valueString.isEnemy, value: valueString.value }
+        }
+
+    //multiples
+        public fun make_multiple_values(valueIDs: vector<u8>, isEnemy: vector<bool>, values: vector<u8>): vector<Value> {
+            assert!(vector::length(&valueIDs) == vector::length(&values),5);
+            let len = vector::length(&valueIDs);
+            let vect = vector::empty<Value>();
+            while(len>0){
+                let value = make_value(*vector::borrow(&valueIDs, len-1), *vector::borrow(&isEnemy, len-1),*vector::borrow(&values, len-1));
+                vector::push_back(&mut vect, value);
+                len=len-1;
+            };
+            move vect
+        }
+
+        public fun make_multiple_string_values(values: vector<Value>): vector<ValueString> {
+            let len = vector::length(&values);
+            let vect = vector::empty<ValueString>();
+            while(len>0){
+                let value_string = make_string_value(vector::borrow(&values, len-1));
+                vector::push_back(&mut vect, value_string);
+                len=len-1;
+            };
+            move vect
+        }
 
 // Stat
+    //makes
+        public fun make_stat(id: u8, val: u64): Stat {
+            Stat { statID: id, value: val }
+        }
 
-    public fun get_stat_range_list(address: &signer): vector<StatRange> acquires StatRangeList {
-        let stat_list = borrow_global_mut<StatRangeList>(signer::address_of(address));
-        stat_list.list
-    }
+        public fun make_string_stat(stat: &Stat): StatString {
+            StatString { statID: stat.statID, name: convert_statID_to_String(stat.statID), value: stat.value}
+        }
+        public fun make_range_stat(id: u8, min: u64, max: u64): StatRange {
+            StatRange { statID: id, min: min, max: max }
+        }
 
-    public fun extract_stat_range_list(address: &signer): vector<StatRange> acquires StatRangeList {
-        let stat_list = borrow_global_mut<StatRangeList>(signer::address_of(address));
-        let extracted_list = stat_list.list;
-        stat_list.list = vector::empty<StatRange>();
-        extracted_list
-    }
-
-    public entry fun register_stat_range(address: &signer, id: u8, min: u64, max:u64) acquires StatRangeList{
-        let stat = make_range_stat(id, min,max);
-
-        if (!exists<StatRangeList>(signer::address_of(address))) {
-          move_to(address, StatRangeList { list: vector::empty()});
-        };
-
-        let stat_list = borrow_global_mut<StatRangeList>(signer::address_of(address));
-        vector::push_back(&mut stat_list.list, stat);
-    }
+        public fun make_string_stat_range(stat: &StatRange): StatRangeString {
+            StatRangeString { statID: stat.statID, name: convert_statID_to_String(stat.statID),  min: stat.min, max: stat.max}
+        }
 
 
-    public entry fun register_stat_ranges(address: &signer, ids: vector<u8>, mins: vector<u64>, maxs: vector<u64>) acquires StatRangeList{
+    //changes
+        public fun change_stat_amount(stat: &mut Stat, value: u64): Stat {
+            stat.value = value;
+            *stat
+        }
+        public fun change_stat_value(stat: &mut Stat, val: u64): StatString {
+            stat.value = val;
+            make_string_stat(&*stat)
+        }
+        public fun change_statRange_min(statRange: &mut StatRange, min: u64)  {
+            statRange.min = min
+        }
+        public fun change_statRange_max(statRange: &mut StatRange, max: u64) {
+            statRange.max = max
+        }
 
-        assert!(vector::length(&ids) == vector::length(&mins) || vector::length(&ids) == vector::length(&maxs), 5);
+    //gets
+        public fun get_stat_ID(stat: &Stat): u8 {
+            stat.statID
+        }
+        public fun get_stat_value(stat: &Stat): u64 {
+            stat.value
+        }
+        public fun get_statRange_ID(statRange: &StatRange): u8 {
+            statRange.statID
+        }
 
-        let i = vector::length(&ids);
-        while(i > 0){
-            let id = vector::borrow(&ids, i-1);
-            let min = vector::borrow(&mins, i-1);
-            let max = vector::borrow(&maxs, i-1);
-            register_stat_range(address, *id, *min, *max);
-            i = i-1;
-        };
+        public fun get_statRange_min(statRange: &StatRange): u64 {
+            statRange.min
+        }
 
-    }
-
-    public fun get_stat_list(address: &signer): vector<Stat> acquires StatList {
-        let stat_list = borrow_global_mut<StatList>(signer::address_of(address));
-        stat_list.list
-    }
-
-    public fun extract_stat_list(address: &signer): vector<Stat> acquires StatList {
-        let stat_list = borrow_global_mut<StatList>(signer::address_of(address));
-        let extracted_list = stat_list.list;
-        stat_list.list = vector::empty<Stat>();
-        extracted_list
-    }
-
-    public entry fun register_stat(address: &signer, id: u8, val: u64) acquires StatList{
-        let stat = make_stat(id, val);
-
-        if (!exists<StatList>(signer::address_of(address))) {
-          move_to(address, StatList { list: vector::empty()});
-        };
-
-        let stat_list = borrow_global_mut<StatList>(signer::address_of(address));
-        vector::push_back(&mut stat_list.list, stat);
-    }
+        public fun get_statRange_max(statRange: &StatRange): u64 {
+            statRange.max
+        }
 
 
-    public entry fun register_stats(address: &signer, ids: vector<u8>, vals: vector<u64>) acquires StatList{
+    //degrades
+        public fun degrade_string_stat_to_stat(statRange: &StatString): Stat {
+            Stat { statID: statRange.statID,  value: statRange.value}
+        }
+        public fun degrade_string_statRange_to_statRange(statRangeString: &StatRangeString): StatRange {
+            StatRange { statID: statRangeString.statID,  min: statRangeString.min, max: statRangeString.max}
+        }
+    //multiples
+        public fun make_multiple_stats(statIDs: vector<u8>, values: vector<u64>): vector<Stat> {
+            assert!(vector::length(&statIDs) == vector::length(&values),5);
+            let len = vector::length(&statIDs);
+            let vect = vector::empty<Stat>();
+            while(len>0){
+                let stat = make_stat(*vector::borrow(&statIDs, len-1), *vector::borrow(&values, len-1),);
+                vector::push_back(&mut vect, stat);
+                len=len-1;
+            };
+            move vect
+        }
+        public fun make_multiple_string_stats(stats: vector<Stat>): vector<StatString> {
+            let len = vector::length(&stats);
+            let vect = vector::empty<StatString>();
+            while(len>0){
+                let stat_string = make_string_stat(vector::borrow(&stats, len-1), );
+                vector::push_back(&mut vect, stat_string);
+                len=len-1;
+            };
+            move vect
+        }
 
-        assert!(vector::length(&ids) == vector::length(&vals), 5);
+        public fun make_multiple_range_stats(statIDs: vector<u8>, mins: vector<u64>, maxs: vector<u64>): vector<StatRange> {
+            assert!(vector::length(&statIDs) == vector::length(&mins) || vector::length(&mins) == vector::length(&maxs),5);
+            let len = vector::length(&statIDs);
+            let vect = vector::empty<StatRange>();
+            while(len>0){
+                let stat_range = make_range_stat(*vector::borrow(&statIDs, len-1), *vector::borrow(&mins, len-1), *vector::borrow(&maxs, len-1));
+                vector::push_back(&mut vect, stat_range);
+                len=len-1;
+            };
+            move vect
+        }
+        public fun make_multiple_string_range_stats(stats: vector<StatRange>): vector<StatRangeString> {
+            let len = vector::length(&stats);
+            let vect = vector::empty<StatRangeString>();
+            while(len>0){
+                let stat_string_range = make_string_stat_range(vector::borrow(&stats, len-1), );
+                vector::push_back(&mut vect, stat_string_range);
+                len=len-1;
+            };
+            move vect
+        }
 
-        let i = vector::length(&ids);
-        while(i > 0){
-            let id = vector::borrow(&ids, i-1);
-            let vals = vector::borrow(&vals, i-1);
-            register_stat(address, *id, *vals);
-            i = i-1;
-        };
 
-    }
-    
 
-    public fun make_stat(id: u8, val: u64): Stat {
-        Stat { statID: id, value: val }
-    }
-    
-    public fun change_stat_amount(stat: &mut Stat, value: u64): Stat {
-        stat.value = value;
-        *stat
-    }
-
-    public fun get_stat_ID(stat: &Stat): u8 {
-        stat.statID
-    }
-
-    public fun get_stat_value(stat: &Stat): u64 {
-        stat.value
-    }
-
-    public fun change_stat_value(stat: &mut Stat, val: u64): StatString {
-        stat.value = val;
-        make_string_stat(&*stat)
-    }
-
-    public fun make_string_stat(stat: &Stat): StatString {
-        StatString { statID: stat.statID, name: convert_statID_to_String(stat.statID), value: stat.value}
-    }
-    public fun degrade_string_stat_to_stat(statRange: &StatString): Stat {
-        Stat { statID: statRange.statID,  value: statRange.value}
-    }
-
-    public fun make_range_stat(id: u8, min: u64, max: u64): StatRange {
-        StatRange { statID: id, min: min, max: max }
-    }
-    public fun get_statRange_ID(statRange: &StatRange): u8 {
-        statRange.statID
-    }
-
-    public fun get_statRange_min(statRange: &StatRange): u64 {
-        statRange.min
-    }
-
-    public fun get_statRange_max(statRange: &StatRange): u64 {
-        statRange.max
-    }
-
-    public fun change_statRange_min(statRange: &mut StatRange, min: u64)  {
-        statRange.min = min
-    }
-
-    public fun change_statRange_max(statRange: &mut StatRange, max: u64) {
-        statRange.max = max
-    }
-
-    public fun make_string_stat_range(stat: &StatRange): StatRangeString {
-        StatRangeString { statID: stat.statID, name: convert_statID_to_String(stat.statID),  min: stat.min, max: stat.max}
-    }
-
-    public fun degrade_string_statRange_to_statRange(statRangeString: &StatRangeString): StatRange {
-        StatRange { statID: statRangeString.statID,  min: statRangeString.min, max: statRangeString.max}
-    }
 
 // Type
-    public fun make_type(name: String, stat_multi: u16): Type {
-        Type { name: name, stat_multi: stat_multi }
-    }
+    //makes
+        public fun make_type(name: String, stat_multi: u16): Type {
+            Type { name: name, stat_multi: stat_multi }
+        }
+    //changes
+        public fun change_type_multi(type: &mut Type, value: u16) {
+            type.stat_multi = value;
+        }
+    //gets
+        public fun get_type_name(type: &Type): String {
+            type.name
+        }
 
-    public fun get_type_name(type: &Type): String {
-        type.name
-    }
+        public fun get_type_multi(type: &Type): u16 {
+            type.stat_multi
+        }
 
-    public fun get_type_multi(type: &Type): u16 {
-        type.stat_multi
-    }
-
-    public fun set_type_multi(type: &mut Type, value: u16) {
-        type.stat_multi = value;
-    }
 
 // Location
-    public fun make_location(name: String, stat_multi: u16): Location {
-        Location { name: name, stat_multi: stat_multi }
-    }
+    //makes
+        public fun make_location(name: String, stat_multi: u16): Location {
+            Location { name: name, stat_multi: stat_multi }
+        }
+    //changes
+        public fun changes_location_multi(type: &mut Location, value: u16) {
+            type.stat_multi = value;
+        }
+    //gets
+        public fun get_location_name(type: &Location): String {
+            type.name
+        }
 
-    public fun get_location_name(type: &Location): String {
-        type.name
-    }
+        public fun get_location_multi(type: &Location): u16 {
+            type.stat_multi
+        }
 
-    public fun get_location_multi(type: &Location): u16 {
-        type.stat_multi
-    }
 
-    public fun set_location_multi(type: &mut Location, value: u16) {
-        type.stat_multi = value;
-    }
 // Expedition
-    public fun make_expedition(id: u8, required_level: u8, costs: vector<Material>, rewards: vector<Material>): Expedition {
-        Expedition { id: id, required_level: required_level, costs: costs, rewards:rewards}
-    }
+    //makes
+        public fun make_expedition(id: u8, required_level: u8, costs: vector<Material>, rewards: vector<Material>): Expedition {
+            Expedition { id: id, required_level: required_level, costs: costs, rewards:rewards}
+        }
 
-    public fun make_string_expedition(expedition: &Expedition): ExpeditionString {
-        ExpeditionString { id: expedition.id, name: convert_expeditionID_to_String(expedition.id), required_level: expedition.required_level, costs: build_materials_with_strings(expedition.costs), rewards:build_materials_with_strings(expedition.rewards) }
-    }
+        public fun make_string_expedition(expedition: &Expedition): ExpeditionString {
+            ExpeditionString { id: expedition.id, name: convert_expeditionID_to_String(expedition.id), required_level: expedition.required_level, costs: build_materials_with_strings(expedition.costs), rewards:build_materials_with_strings(expedition.rewards) }
+        }
 
-    public fun get_expedition_ID(expedition: &Expedition): u8 {
-        expedition.id
-    }
+    //changes
+        public fun change_expedition_required_level(expedition: &mut Expedition, required_level: u8 ): Expedition {
+            expedition.required_level = required_level;
+            *expedition
+        }
 
-    public fun get_expedition_required_level(expedition: &Expedition): u8 {
-        expedition.required_level
-    }
+    //gets
+        public fun get_expedition_ID(expedition: &Expedition): u8 {
+            expedition.id
+        }
 
-    public fun get_expedition_costs(expedition: &Expedition): vector<Material> {
-        expedition.costs
-    }
+        public fun get_expedition_required_level(expedition: &Expedition): u8 {
+            expedition.required_level
+        }
+
+        public fun get_expedition_costs(expedition: &Expedition): vector<Material> {
+            expedition.costs
+        }
+
+        public fun get_expedition_rewards(expedition: &mut Expedition): vector<Material>{
+                expedition.rewards
+            }
 
 
-    public fun change_expedition_costs(address: &signer, expedition: &mut Expedition): Expedition acquires MaterialList{
-        expedition.costs = extract_material_list(address);
-        *expedition
-    }
-
-    public fun get_expedition_rewards(expedition: &mut Expedition): vector<Material>{
-        expedition.rewards
-    }
-
-    public fun change_expedition_rewards(address: &signer, expedition: &mut Expedition): Expedition acquires MaterialList{
-        expedition.rewards = extract_material_list(address);
-        *expedition
-    }
-
-    public fun change_expedition_required_level(expedition: &mut Expedition, required_level: u8 ): Expedition {
-        expedition.required_level = required_level;
-        *expedition
-    }
 // Dungeon
-    public fun make_dungeon(id: u8, bossID: u8, entitiesID: vector<u8>, rewards: vector<Material>): Dungeon {
-        Dungeon { id: id, bossID: bossID, entitiesID: entitiesID, rewards: rewards}
-    }
+    //makes
+        public fun make_dungeon(id: u8, bossID: u8, entitiesID: vector<u8>, rewards: vector<Material>): Dungeon {
+            Dungeon { id: id, bossID: bossID, entitiesID: entitiesID, rewards: rewards}
+        }
+        
+        public fun make_string_dungeon(dungeon: Dungeon, bossName: String, entitiesName: vector<String>): DungeonString {
+            DungeonString { id: dungeon.id, name: convert_dungeonID_to_String(dungeon.id), bossName: bossName, entitiesName: entitiesName, rewards: build_materials_with_strings(dungeon.rewards)}
+        }
 
-    public fun make_string_dungeon(dungeon: Dungeon, bossName: String, entitiesName: vector<String>): DungeonString {
-        DungeonString { id: dungeon.id, name: convert_dungeonID_to_String(dungeon.id), bossName: bossName, entitiesName: entitiesName, rewards: build_materials_with_strings(dungeon.rewards)}
-    }
-
-    public fun get_dungeon_ID(dungeon: &Dungeon): u8 {
-        dungeon.id
-    }
-    
-    public fun get_dungeon_boss(dungeon: &Dungeon): u8 {
-        dungeon.bossID
-    }
-
-    public fun get_dungeon_entities(dungeon: &Dungeon): vector<u8> {
-        dungeon.entitiesID
-    }
-
-    public fun change_dungeon_rewards(address: &signer, dungeon: &mut Dungeon): Dungeon acquires MaterialList{
-        dungeon.rewards = extract_material_list(address);
-        *dungeon
-    }
-
-    public fun get_dungeon_rewards(dungeon: &mut Dungeon): vector<Material>{
-        dungeon.rewards
-    }
+    //gets
+        public fun get_dungeon_ID(dungeon: &Dungeon): u8 {
+            dungeon.id
+        }
+        public fun get_dungeon_boss(dungeon: &Dungeon): u8 {
+            dungeon.bossID
+        }
+        public fun get_dungeon_entities(dungeon: &Dungeon): vector<u8> {
+            dungeon.entitiesID
+        }
+        public fun get_dungeon_rewards(dungeon: &mut Dungeon): vector<Material>{
+            dungeon.rewards
+        }
 
 // Rarity
-
-
-    public fun make_rarity(id: u8, chance: u8, multi: u16, number_of_values: u8): Rarity {
-        Rarity { rarityID: id, chance: chance, multi: multi, number_of_values: number_of_values}
-    }
-
-    public fun get_rarity_id(rarity: Rarity): u8 {
-        rarity.rarityID
-    }
-
-    public fun get_rarity_chance(rarity: Rarity): u8 {
-        rarity.chance
-    }
-    public fun change_rarity_chance(rarity: &mut Rarity, new_chance: u8): Rarity {
-        rarity.chance = new_chance;
-        *rarity
-
-    }
-
-    public fun get_rarity_multi(rarity: Rarity): u16 {
-        rarity.multi
-    }
-    
-    public fun change_rarity_multi(rarity: &mut Rarity, new_multi: u16): Rarity {
-        rarity.multi = new_multi;
-        *rarity
-
-    }
-
-
-    public fun get_rarity_number_of_values(rarity: Rarity): u8 {
-        rarity.number_of_values
-    }
-    
-
-    public fun make_string_rarity(rarity: Rarity): RarityString{
-        RarityString {rarityID: rarity.rarityID, rarityName: convert_rarityID_to_String(rarity.rarityID), chance: rarity.chance, multi: rarity.multi, number_of_values: rarity.number_of_values}
-    }
-
-    public fun degrade_stringRarity_to_rarity(rarityString: RarityString): Rarity{
-        Rarity { rarityID: rarityString.rarityID, chance: rarityString.chance, multi: rarityString.multi, number_of_values: rarityString.number_of_values}
-    }
+    //makes
+        public fun make_rarity(id: u8, chance: u8, multi: u16, number_of_values: u8): Rarity {
+            Rarity { rarityID: id, chance: chance, multi: multi, number_of_values: number_of_values}
+        }
+            public fun make_string_rarity(rarity: Rarity): RarityString{
+            RarityString {rarityID: rarity.rarityID, rarityName: convert_rarityID_to_String(rarity.rarityID), chance: rarity.chance, multi: rarity.multi, number_of_values: rarity.number_of_values}
+        }
+    //gets
+        public fun get_rarity_id(rarity: Rarity): u8 {
+            rarity.rarityID
+        }
+        public fun get_rarity_chance(rarity: Rarity): u8 {
+            rarity.chance
+        }
+        public fun get_rarity_number_of_values(rarity: Rarity): u8 {
+            rarity.number_of_values
+        }
+        public fun get_rarity_multi(rarity: Rarity): u16 {
+            rarity.multi
+        }
+    //changes
+        public fun change_rarity_multi(rarity: &mut Rarity, new_multi: u16): Rarity {
+            rarity.multi = new_multi;
+            *rarity
+        }
+            public fun change_rarity_chance(rarity: &mut Rarity, new_chance: u8): Rarity {
+            rarity.chance = new_chance;
+            *rarity
+        }
+    //degrades
+        public fun degrade_stringRarity_to_rarity(rarityString: RarityString): Rarity{
+            Rarity { rarityID: rarityString.rarityID, chance: rarityString.chance, multi: rarityString.multi, number_of_values: rarityString.number_of_values}
+        }
 // Race
-    public fun make_race(raceID: u8, values: vector<Value>): Race {
-        Race { raceID: raceID, values: values }
-    }
+    //makes
+        public fun make_race(raceID: u8, values: vector<Value>): Race {
+            Race { raceID: raceID, values: values }
+        }
+        public fun make_string_race(race: &Race): RaceString{
+            RaceString { raceID: race.raceID, raceName: get_race_name(race), values: build_values_with_strings(race.values) }
+        }
 
-    public fun get_race_id(race: &Race): u8 {
-        race.raceID
-    }
+    //gets
+        public fun get_race_id(race: &Race): u8 {
+            race.raceID
+        }
 
-    public fun get_race_name(race: &Race): String {
-        convert_raceID_to_String(race.raceID)
-    }
+        public fun get_race_name(race: &Race): String {
+            convert_raceID_to_String(race.raceID)
+        }
 
-    public fun get_race_values(race: &Race): vector<Value> {
-        race.values
-    }
+        public fun get_race_values(race: &Race): vector<Value> {
+            race.values
+        }
 
-    public fun make_string_race(race: &Race): RaceString{
-        RaceString { raceID: race.raceID, raceName: get_race_name(race), values: build_values_with_strings(race.values) }
-    }
+
 // Perk
-    public fun make_perk(perkID: u64, name: String, typeID: u8, stamina: u8, damage: u32, values: vector<Value>): Perk {
-        Perk { perkID: perkID, name: name, typeID: typeID, stamina: stamina, damage:damage, values: values }
-    }
+    //makes
+        public fun make_perk(perkID: u64, name: String, typeID: u8, stamina: u8, damage: u32, values: vector<Value>): Perk {
+            Perk { perkID: perkID, name: name, typeID: typeID, stamina: stamina, damage:damage, values: values }
+        }
+        public fun make_string_perk(perk: &Perk): PerkString{
+            PerkString { perkID: perk.perkID, name: perk.name, typeID: perk.typeID, typeName: convert_perksTypeID_to_String(perk.typeID), stamina: perk.stamina, damage:perk.damage, values: build_values_with_strings(perk.values) }
+        }
 
-    public fun get_perk_id(perk: &Perk): u64 {
-        perk.perkID
-    }
+    //changes
+        public fun change_perk_stamina(perk: &mut Perk, new_stamina: u8) {
+            perk.stamina = new_stamina
+        }
+        public fun change_perk_damage(perk: &mut Perk, new_damage: u32) {
+            perk.damage = new_damage
+        }
 
-    public fun get_perk_name(perk: &Perk): String {
-        perk.name
-    }
-    public fun get_perk_typeID(perk: &Perk): u8 {
-        perk.typeID
-    }
-    public fun get_perk_typeName(perk: &Perk): String {
-        convert_perksTypeID_to_String(perk.typeID)
-    }
-    public fun get_perk_stamina(perk: &Perk): u8 {
-        perk.stamina
-    }
-    public fun change_perk_stamina(perk: &mut Perk, new_stamina: u8) {
-        perk.stamina = new_stamina
-    }
-    public fun get_perk_damage(perk: &Perk): u32 {
-        perk.damage
-    }
-    public fun change_perk_damage(perk: &mut Perk, new_damage: u32) {
-        perk.damage = new_damage
-    }
-    public fun get_perk_values(perk: &Perk): vector<Value> {
-        perk.values
-    }
-    public fun make_string_perk(perk: &Perk): PerkString{
-        PerkString { perkID: perk.perkID, name: perk.name, typeID: perk.typeID, typeName: convert_perksTypeID_to_String(perk.typeID), stamina: perk.stamina, damage:perk.damage, values: build_values_with_strings(perk.values) }
-    }
+    //gets
+        public fun get_perk_id(perk: &Perk): u64 {
+            perk.perkID
+        }
+        public fun get_perk_name(perk: &Perk): String {
+            perk.name
+        }
+        public fun get_perk_typeID(perk: &Perk): u8 {
+            perk.typeID
+        }
+        public fun get_perk_typeName(perk: &Perk): String {
+            convert_perksTypeID_to_String(perk.typeID)
+        }
+        public fun get_perk_stamina(perk: &Perk): u8 {
+            perk.stamina
+        }
+        public fun get_perk_damage(perk: &Perk): u32 {
+            perk.damage
+        }
+        public fun get_perk_values(perk: &Perk): vector<Value> {
+            perk.values
+        }
+
+
+
 // ===  ===  ===  ===  === 
 // ===     CONVERTS    ===
 // ===  ===  ===  ===  ===
@@ -953,8 +874,6 @@ module deployer::testCore22 {
         };
         output
     }
-
-
 
 
     public fun build_rarity_with_strings(rarity: vector<Rarity>): vector<RarityString> {
