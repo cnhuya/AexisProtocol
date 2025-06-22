@@ -1,4 +1,4 @@
-module deployer::testCore21 {
+module deployer::testCore22 {
 
     use std::debug::print;
     use std::string::{String, utf8};
@@ -91,7 +91,7 @@ module deployer::testCore21 {
     }
 // Material
     struct Material has copy, key, store, drop {
-        materialID: u8, amount: u16
+        materialID: u8, amount: u32
     }
 
     struct MaterialList has copy, drop, store, key{
@@ -100,7 +100,7 @@ module deployer::testCore21 {
 
 
     struct MaterialString has copy, key, store, drop {
-        materialID: u8, materialName: String, amount: u16
+        materialID: u8, materialName: String, amount: u32
     }
 
 // Expedition 
@@ -112,17 +112,10 @@ module deployer::testCore21 {
     }    
 // Dungeon
     struct Dungeon has copy, drop, store, key {
-        id: u8, entityID: u8, floors: vector<Floor>, rewards: vector<Material>
+        id: u8, bossID: u8, entitiesID: vector<u8>, rewards: vector<Material>
     }    
     struct DungeonString has copy, drop, store, key {
-        id: u8, entityName: String, name: String, floors: vector<Floor>, rewards: vector<MaterialString>
-    }   
-    // floors arent needed? cuz the entities already have type (eg. titan)? so i can create a function that fetches all titans in certain dung
-    struct FloorList has copy, drop, store, key{
-        list: vector<Floor>
-    }
-    struct Floor has copy, drop, store, key {
-        id: u8, entityName: String,
+        id: u8, name: String, bossName: String, entitiesName: vector<String>, rewards: vector<MaterialString>
     }   
 // Rarity    
     struct Rarity has copy, store, drop, key {
@@ -163,7 +156,7 @@ module deployer::testCore21 {
         extracted_list
     }
 
-    public entry fun register_material(address: &signer, id: u8, val: u16) acquires MaterialList{
+    public entry fun register_material(address: &signer, id: u8, val: u32) acquires MaterialList{
         let material = make_material(id, val);
 
         if (!exists<MaterialList>(signer::address_of(address))) {
@@ -174,13 +167,26 @@ module deployer::testCore21 {
         vector::push_back(&mut material_list.list, material);
     }
 
-    public fun make_material(materialID: u8, amount: u16): Material {
+    public entry fun register_materials(address: &signer, ids: vector<u8>, vals: vector<u32>) acquires MaterialList{
+
+        assert!(vector::length(&ids) == vector::length(&vals),5);
+
+        let i = vector::length(&ids);
+        while(i > 0){
+            let id = vector::borrow(&ids, i-1);
+            let val = vector::borrow(&vals, i-1);
+            register_material(address, *id, *val);
+            i = i-1;
+        };
+
+    }
+    public fun make_material(materialID: u8, amount: u32): Material {
         Material { materialID: materialID, amount: amount}
     }
 
 
 
-    public fun change_material_amount(material: &mut Material, amount: u16): Material {
+    public fun change_material_amount(material: &mut Material, amount: u32): Material {
         material.amount = amount;
         *material
     }
@@ -190,7 +196,7 @@ module deployer::testCore21 {
         material.materialID
     }
 
-    public fun get_material_amount(material: &Material): u16{
+    public fun get_material_amount(material: &Material): u32{
         material.amount
     }
 
@@ -251,6 +257,21 @@ module deployer::testCore21 {
 
         let value_list = borrow_global_mut<ValueList>(signer::address_of(address));
         vector::push_back(&mut value_list.list, value);
+    }
+
+    public entry fun register_values(address: &signer, ids: vector<u8>, isEnemies: vector<bool>, vals: vector<u8>) acquires ValueList{
+
+        assert!(vector::length(&ids) == vector::length(&vals) || vector::length(&ids) == vector::length(&isEnemies), 5);
+
+        let i = vector::length(&ids);
+        while(i > 0){
+            let id = vector::borrow(&ids, i-1);
+            let isEnemy = vector::borrow(&isEnemies, i-1);
+            let val = vector::borrow(&vals, i-1);
+            register_value(address, *id, *isEnemy, *val);
+            i = i-1;
+        };
+
     }
 
     public fun make_value(id: u8, isEnemy: bool, val: u8): Value {
@@ -324,6 +345,21 @@ module deployer::testCore21 {
     }
 
 
+    public entry fun register_stat_ranges(address: &signer, ids: vector<u8>, mins: vector<u64>, maxs: vector<u64>) acquires StatRangeList{
+
+        assert!(vector::length(&ids) == vector::length(&mins) || vector::length(&ids) == vector::length(&maxs), 5);
+
+        let i = vector::length(&ids);
+        while(i > 0){
+            let id = vector::borrow(&ids, i-1);
+            let min = vector::borrow(&mins, i-1);
+            let max = vector::borrow(&maxs, i-1);
+            register_stat_range(address, *id, *min, *max);
+            i = i-1;
+        };
+
+    }
+
     public fun get_stat_list(address: &signer): vector<Stat> acquires StatList {
         let stat_list = borrow_global_mut<StatList>(signer::address_of(address));
         stat_list.list
@@ -346,6 +382,22 @@ module deployer::testCore21 {
         let stat_list = borrow_global_mut<StatList>(signer::address_of(address));
         vector::push_back(&mut stat_list.list, stat);
     }
+
+
+    public entry fun register_stats(address: &signer, ids: vector<u8>, vals: vector<u64>) acquires StatList{
+
+        assert!(vector::length(&ids) == vector::length(&vals), 5);
+
+        let i = vector::length(&ids);
+        while(i > 0){
+            let id = vector::borrow(&ids, i-1);
+            let vals = vector::borrow(&vals, i-1);
+            register_stat(address, *id, *vals);
+            i = i-1;
+        };
+
+    }
+    
 
     public fun make_stat(id: u8, val: u64): Stat {
         Stat { statID: id, value: val }
@@ -481,25 +533,24 @@ module deployer::testCore21 {
         *expedition
     }
 // Dungeon
-    public fun make_dungeon(id: u8, entityID:u8, floor: vector<Floor>, rewards: vector<Material>): Dungeon {
-        Dungeon { id: id, entityID: entityID, floors: floor, rewards:rewards}
+    public fun make_dungeon(id: u8, bossID: u8, entitiesID: vector<u8>, rewards: vector<Material>): Dungeon {
+        Dungeon { id: id, bossID: bossID, entitiesID: entitiesID, rewards: rewards}
     }
 
-    public fun make_string_dungeon(dungeon: Dungeon, entityName:String): DungeonString {
-        DungeonString { id: dungeon.id, entityName: entityName, name: convert_dungeonID_to_String(dungeon.id), floors: dungeon.floors, rewards: build_materials_with_strings(dungeon.rewards)}
+    public fun make_string_dungeon(dungeon: Dungeon, bossName: String, entitiesName: vector<String>): DungeonString {
+        DungeonString { id: dungeon.id, name: convert_dungeonID_to_String(dungeon.id), bossName: bossName, entitiesName: entitiesName, rewards: build_materials_with_strings(dungeon.rewards)}
     }
 
     public fun get_dungeon_ID(dungeon: &Dungeon): u8 {
         dungeon.id
     }
-
-    public fun change_dungeon_floors(address: &signer, dungeon: &mut Dungeon): Dungeon acquires FloorList{
-        dungeon.floors = extract_floor_list(address);
-        *dungeon
+    
+    public fun get_dungeon_boss(dungeon: &Dungeon): u8 {
+        dungeon.bossID
     }
 
-    public fun get_dungeon_floors(dungeon: &Dungeon): vector<Floor> {
-        dungeon.floors
+    public fun get_dungeon_entities(dungeon: &Dungeon): vector<u8> {
+        dungeon.entitiesID
     }
 
     public fun change_dungeon_rewards(address: &signer, dungeon: &mut Dungeon): Dungeon acquires MaterialList{
@@ -511,34 +562,6 @@ module deployer::testCore21 {
         dungeon.rewards
     }
 
-// Floor
-
-    public fun make_floor(id: u8, entityName: String): Floor {
-        Floor { id: id, entityName: entityName}
-    }
-
-
-    public fun get_floor_list(address: &signer): vector<Floor> acquires FloorList{
-        let floor_list = borrow_global_mut<FloorList>(signer::address_of(address));
-        floor_list.list
-    }
-
-    public fun extract_floor_list(address: &signer): vector<Floor> acquires FloorList {
-        let floor_list = borrow_global_mut<FloorList>(signer::address_of(address));
-        let extracted_list = floor_list.list;
-        floor_list.list = vector::empty<Floor>();
-        extracted_list
-    }
-
-    public entry fun register_floor(address: &signer, id: u8, entityName: String) acquires FloorList{
-        if (!exists<FloorList>(signer::address_of(address))) {
-          move_to(address, FloorList { list: vector::empty()});
-        };
-        let floor = make_floor(id, entityName);
-
-        let floor_list = borrow_global_mut<FloorList>(signer::address_of(address));
-        vector::push_back(&mut floor_list.list, floor);
-    }
 // Rarity
 
 
@@ -932,6 +955,8 @@ module deployer::testCore21 {
     }
 
 
+
+
     public fun build_rarity_with_strings(rarity: vector<Rarity>): vector<RarityString> {
         let len = vector::length(&rarity);
         let vec = vector::empty<RarityString>();
@@ -945,17 +970,4 @@ module deployer::testCore21 {
         };
         move vec
     }
-
-  /*  public fun change_material_amount(materials: v    ector<Material>, id:u8, amount: u16): Material {
-        let len = vector::length(&materials);
-        let i = 0;
-        while (i < len) {
-            let material = vector::borrow_mut(&mut materials, i);
-            if(get_material_ID(material) == id){
-                material.amount = amount;
-                return *material
-            }
-        };
-        abort(1)
-    }*/
 }
