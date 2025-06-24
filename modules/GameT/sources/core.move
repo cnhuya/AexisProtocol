@@ -1,4 +1,4 @@
-module deployer::testCore23 {
+module deployer::testCore24 {
 
     use std::debug::print;
     use std::string::{String, utf8};
@@ -74,7 +74,10 @@ module deployer::testCore23 {
     }
 // Entity
     struct Entity has copy,drop,store {
-        entityID: u8, entityStatsMulti: u16, entityName: String, entityType: String, location: String
+        entityID: u8, entityStatsMulti: u16, entityName: String, entityType: String, location: String,entityStats: vector<Stat>
+    }
+    struct EntityString has copy,drop,store {
+        entityID: u8, entityStatsMulti: u16, entityName: String, entityType: String, location: String,entityStats: vector<StatString>
     }
 // Material
     struct Material has copy, key, store, drop {
@@ -178,8 +181,11 @@ module deployer::testCore23 {
 
 // Entity
     //makes
-        public fun make_entity(entityID: u8, entityStatsMulti: u16, entityName: String, entityType: String, entityLocation: String): Entity {
-            Entity { entityID: entityID, entityStatsMulti: entityStatsMulti, entityName: entityName, entityType: entityType, location: entityLocation }
+        public fun make_entity(entityID: u8, entityStatsMulti: u16, entityName: String, entityType: String, entityLocation: String, entityStats: vector<Stat>): Entity {
+            Entity { entityID: entityID, entityStatsMulti: entityStatsMulti, entityName: entityName, entityType: entityType, location: entityLocation, entityStats: entityStats }
+        }
+        public fun make_string_entity(entity: &Entity): EntityString {
+            EntityString { entityID: entity.entityID, entityStatsMulti: entity.entityStatsMulti, entityName: entity.entityName, entityType: entity.entityType, location: entity.location, entityStats: build_stats_with_strings(entity.entityStats) }
         }
     //gets
         public fun get_entity_name(entity: &Entity): String {
@@ -200,6 +206,9 @@ module deployer::testCore23 {
 
         public fun get_entity_location(entity: &Entity): String {
             entity.location
+        }
+        public fun get_entity_stats(entity: &Entity): vector<Stat> {
+            entity.entityStats
         }
 
 
