@@ -74,10 +74,10 @@ module deployer::testCore25 {
     }
 // Entity
     struct Entity has copy,drop,store {
-        entityID: u8, entityStatsMulti: u16, entityName: String, entityType: String, location: String,entityStats: vector<Stat>
+        entityID: u8, entityStatsMulti: u16, entityName: String, entityType: String, location: String,entityRewards: vector<Material>
     }
     struct EntityString has copy,drop,store {
-        entityID: u8, entityStatsMulti: u16, entityName: String, entityType: String, location: String,entityStats: vector<StatString>
+        entityID: u8, entityStatsMulti: u16, entityName: String, entityType: String, location: String,entityRewards: vector<MaterialString>
     }
 // Material
     struct Material has copy, key, store, drop {
@@ -181,11 +181,11 @@ module deployer::testCore25 {
 
 // Entity
     //makes
-        public fun make_entity(entityID: u8, entityStatsMulti: u16, entityName: String, entityType: String, entityLocation: String, entityStats: vector<Stat>): Entity {
-            Entity { entityID: entityID, entityStatsMulti: entityStatsMulti, entityName: entityName, entityType: entityType, location: entityLocation, entityStats: entityStats }
+        public fun make_entity(entityID: u8, entityStatsMulti: u16, entityName: String, entityType: String, entityLocation: String, entityRewards: vector<Material>): Entity {
+            Entity { entityID: entityID, entityStatsMulti: entityStatsMulti, entityName: entityName, entityType: entityType, location: entityLocation, entityRewards: entityRewards }
         }
         public fun make_string_entity(entity: &Entity): EntityString {
-            EntityString { entityID: entity.entityID, entityStatsMulti: entity.entityStatsMulti, entityName: entity.entityName, entityType: entity.entityType, location: entity.location, entityStats: build_stats_with_strings(entity.entityStats) }
+            EntityString { entityID: entity.entityID, entityStatsMulti: entity.entityStatsMulti, entityName: entity.entityName, entityType: entity.entityType, location: entity.location, entityRewards: build_materials_with_strings(entity.entityRewards) }
         }
     //gets
         public fun get_entity_name(entity: &Entity): String {
@@ -208,7 +208,7 @@ module deployer::testCore25 {
             entity.location
         }
         public fun get_entity_stats(entity: &Entity): vector<Stat> {
-            entity.entityStats
+            entity.entityRewards
         }
 
 
