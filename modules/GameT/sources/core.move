@@ -207,7 +207,7 @@ module deployer::testCore25 {
         public fun get_entity_location(entity: &Entity): String {
             entity.location
         }
-        public fun get_entity_stats(entity: &Entity): vector<Stat> {
+        public fun get_entity_stats(entity: &Entity): vector<Material> {
             entity.entityRewards
         }
 
