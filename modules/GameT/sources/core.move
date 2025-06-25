@@ -1,4 +1,4 @@
-module deployer::testCore26 {
+module deployer::testCore27 {
 
     use std::debug::print;
     use std::string::{String, utf8};
@@ -516,6 +516,18 @@ module deployer::testCore26 {
     //degrades
         public fun degrade_stringRarity_to_rarity(rarityString: RarityString): Rarity{
             Rarity { rarityID: rarityString.rarityID, chance: rarityString.chance, multi: rarityString.multi, number_of_values: rarityString.number_of_values}
+        }
+    //multiples
+        public fun make_multiple_rarities(ids: vector<u8>, chances: vector<u8>, multies: vector<u16>): vector<Rarity> {
+            assert!(vector::length(&ids) == vector::length(&chances) || vector::length(&ids) == vector::length(&multies),101);
+            let len = vector::length(&ids);
+            let vect = vector::empty<Rarity>();
+            while(len>0){
+                let rarity = make_rarity(*vector::borrow(&ids, len-1),*vector::borrow(&chances, len-1),*vector::borrow(&multies, len-1),*vector::borrow(&ids, len-1));
+                vector::push_back(&mut vect, rarity);
+                len=len-1;
+            };
+            move vect
         }
 // Race
     //makes
