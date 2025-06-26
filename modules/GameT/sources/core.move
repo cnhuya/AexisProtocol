@@ -1,4 +1,4 @@
-module deployer::testCore28 {
+module deployer::testCore29 {
 
     use std::debug::print;
     use std::string::{String, utf8};
@@ -121,10 +121,10 @@ module deployer::testCore28 {
     }
 // Reward
     struct Reward has copy, drop, key, store{
-        materialIDs: vector<u8>, amounts: vector<u32>, periods: vector<u64>
+        materialID: u8, amount: u32, period: u64
     }
     struct RewardString has copy, drop, key, store{
-        materialNames: vector<String>, amounts: vector<u32>, periods: vector<u64>
+        materialName: String, amount: u32, period: u64
     }    
 // ===  ===  ===  ===  === ===
 // ===  Factory Functions  ===
@@ -600,24 +600,45 @@ module deployer::testCore28 {
         }
 // Reward
      //makes
-        public fun make_reward(materialIDs: vector<u8>, amounts: vector<u32>, periods: vector<u64>): Reward {
-            Reward { materialIDs: materialIDs, amounts: amounts, periods: periods}
+        public fun make_reward(materialID: u8, amount: u32, period: u64): Reward {
+            Reward { materialID: materialID, amount: amount, period: period}
         }
         public fun make_string_reward(reward: &Reward): RewardString{
-            RewardString { materialNames: build_materials_with_strings_from_IDs(reward.materialIDs), amounts: reward.amounts, periods: reward.periods}
+            RewardString { materialName: convert_materialID_to_String(reward.materialID), amount: reward.amount, period: reward.period}
         }
 
     //gets
-        public fun get_reward_ids(reward: &Reward): vector<u8> {
-            reward.materialIDs
+        public fun get_reward_id(reward: &Reward): u8{
+            reward.materialID
         }
-        public fun get_reward_amounts(reward: &Reward): vector<u32> {
-            reward.amounts
+        public fun get_reward_amount(reward: &Reward): u32 {
+            reward.amount
         }
-        public fun get_reward_periods(reward: &Reward): vector<u64> {
-            reward.periods
+        public fun get_reward_period(reward: &Reward): u64 {
+            reward.period
         }
- 
+  //multiples
+        public fun make_multiple_string_rewards(rewards: vector<Reward>): vector<RewardString> {
+            let len = vector::length(&rewards);
+            let vect = vector::empty<RewardString>();
+            while(len>0){
+                let reward = make_string_reward(vector::borrow(&rewards, len-1));
+                vector::push_back(&mut vect, reward);
+                len=len-1;
+            };
+            move vect
+        }
+        public fun make_multiple_rewards(materialIDs: vector<u8>, amounts: vector<u32>,periods: vector<u64>): vector<Reward> {
+            assert!(vector::length(&materialIDs) == vector::length(&amounts),5);
+            let len = vector::length(&materialIDs);
+            let vect = vector::empty<Reward>();
+            while(len>0){
+                let reward = make_reward(*vector::borrow(&materialIDs, len-1), *vector::borrow(&amounts, len-1),*vector::borrow(&periods, len-1));
+                vector::push_back(&mut vect, reward);
+                len=len-1;
+            };
+            move vect
+        }
 
 // ===  ===  ===  ===  === 
 // ===     CONVERTS    ===
