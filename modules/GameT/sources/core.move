@@ -1,4 +1,4 @@
-module deployer::testCore27 {
+module deployer::testCore28 {
 
     use std::debug::print;
     use std::string::{String, utf8};
@@ -85,10 +85,10 @@ module deployer::testCore27 {
     }
 // Expedition 
     struct Expedition has copy, drop, store, key {
-        id: u8, required_level: u8, costs: vector<Material>, rewards: vector<Material>
+        id: u8, required_level: u8, costs: vector<Reward>, rewards: vector<Reward>
     }    
     struct ExpeditionString has copy, drop, store, key {
-        id: u8, name: String, required_level: u8, costs: vector<MaterialString>, rewards: vector<MaterialString>
+        id: u8, name: String, required_level: u8, costs: vector<RewardString>, rewards: vector<RewardString>
     }    
 // Dungeon
     struct Dungeon has copy, drop, store, key {
@@ -434,12 +434,12 @@ module deployer::testCore27 {
 
 // Expedition
     //makes
-        public fun make_expedition(id: u8, required_level: u8, costs: vector<Material>, rewards: vector<Material>): Expedition {
+        public fun make_expedition(id: u8, required_level: u8, costs: vector<Reward>, rewards: vector<Reward>): Expedition {
             Expedition { id: id, required_level: required_level, costs: costs, rewards:rewards}
         }
 
         public fun make_string_expedition(expedition: &Expedition): ExpeditionString {
-            ExpeditionString { id: expedition.id, name: convert_expeditionID_to_String(expedition.id), required_level: expedition.required_level, costs: build_materials_with_strings(expedition.costs), rewards:build_materials_with_strings(expedition.rewards) }
+            ExpeditionString { id: expedition.id, name: convert_expeditionID_to_String(expedition.id), required_level: expedition.required_level, costs: build_rewards_with_strings(expedition.costs), rewards:build_rewards_with_strings(expedition.rewards) }
         }
 
     //changes
@@ -457,11 +457,11 @@ module deployer::testCore27 {
             expedition.required_level
         }
 
-        public fun get_expedition_costs(expedition: &Expedition): vector<Material> {
+        public fun get_expedition_costs(expedition: &Expedition): vector<Reward> {
             expedition.costs
         }
 
-        public fun get_expedition_rewards(expedition: &mut Expedition): vector<Material>{
+        public fun get_expedition_rewards(expedition: &mut Expedition): vector<Reward>{
                 expedition.rewards
             }
 
@@ -924,6 +924,17 @@ module deployer::testCore27 {
         output
     }
 
+    public fun build_rewards_with_strings(rewards: vector<Reward>): vector<RewardString> {
+        let len = vector::length(&rewards);
+        let output = vector::empty<RewardString>();
+        let i = 0;
+        while (i < len) {
+            let reward = vector::borrow(&rewards, i);
+            vector::push_back(&mut output, make_string_reward(reward));
+            i = i + 1;
+        };
+        output
+    }
 
     public fun build_rarity_with_strings(rarity: vector<Rarity>): vector<RarityString> {
         let len = vector::length(&rarity);
