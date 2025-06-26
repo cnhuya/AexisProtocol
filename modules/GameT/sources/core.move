@@ -119,6 +119,13 @@ module deployer::testCore27 {
     struct PerkString has copy, drop, key, store{
         perkID: u64, name: String, typeID: u8, typeName: String, stamina: u8, damage:u32, values: vector<ValueString>
     }
+// Reward
+    struct Reward has copy, drop, key, store{
+        materialIDs: vector<u8>, amounts: vector<u32>, periods: vector<u64>
+    }
+    struct RewardString has copy, drop, key, store{
+        materialNames: vector<String>, amounts: vector<u32>, periods: vector<u64>
+    }    
 // ===  ===  ===  ===  === ===
 // ===  Factory Functions  ===
 // ===  ===  ===  ===  === ===
@@ -591,8 +598,26 @@ module deployer::testCore27 {
         public fun get_perk_values(perk: &Perk): vector<Value> {
             perk.values
         }
+// Reward
+     //makes
+        public fun make_reward(materialIDs: vector<u8>, amounts: vector<u32>, periods: vector<u64>): Reward {
+            Reward { materialIDs: materialIDs, amounts: amounts, periods: periods}
+        }
+        public fun make_string_reward(reward: &Reward): RewardString{
+            RewardString { materialNames: build_materials_with_strings_from_IDs(reward.materialIDs), amounts: reward.amounts, periods: reward.periods}
+        }
 
-
+    //gets
+        public fun get_reward_ids(reward: &Reward): vector<u8> {
+            reward.materialIDs
+        }
+        public fun get_reward_amounts(reward: &Reward): vector<u32> {
+            reward.amounts
+        }
+        public fun get_reward_periods(reward: &Reward): vector<u64> {
+            reward.periods
+        }
+ 
 
 // ===  ===  ===  ===  === 
 // ===     CONVERTS    ===
@@ -882,6 +907,18 @@ module deployer::testCore27 {
         while (i < len) {
             let material = vector::borrow(&materials, i);
             vector::push_back(&mut output, make_material_string(material));
+            i = i + 1;
+        };
+        output
+    }
+
+    public fun build_materials_with_strings_from_IDs(materialIDs: vector<u8>): vector<String> {
+        let len = vector::length(&materialIDs);
+        let output = vector::empty<String>();
+        let i = 0;
+        while (i < len) {
+            let material = vector::borrow(&materialIDs, i);
+            vector::push_back(&mut output, convert_materialID_to_String(*material));
             i = i + 1;
         };
         output
