@@ -1,0 +1,17 @@
+[package]
+name = "RandomTest"
+version = "1.0.0"
+authors = []
+
+[addresses]
+deployer = "0x502ce147368ecf69d640afc81c47169cf0e7bdc6ff2b10d0eb7c2dc25ee87d3f"
+supra_framework = "0x1"
+[dev-addresses]
+
+[dependencies.SupraFramework]
+git = "https://github.com/Entropy-Foundation/aptos-core.git"
+rev = "dev"
+subdir = "aptos-move/framework/supra-framework"
+
+
+[dev-dependencies]
