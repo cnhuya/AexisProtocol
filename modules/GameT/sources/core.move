@@ -1,4 +1,4 @@
-module deployer::testCore29 {
+module deployer::testCore30 {
 
     use std::debug::print;
     use std::string::{String, utf8};
@@ -74,7 +74,7 @@ module deployer::testCore29 {
     }
 // Entity
     struct Entity has copy,drop,store {
-        entityID: u8, entityStatsMulti: u16, entityName: String, entityType: String, location: String
+        entityID: u8, entityName: String, entityType: String, location: String
     }
 // Material
     struct Material has copy, key, store, drop {
@@ -185,16 +185,12 @@ module deployer::testCore29 {
 
 // Entity
     //makes
-        public fun make_entity(entityID: u8, entityStatsMulti: u16, entityName: String, entityType: String, entityLocation: String,): Entity {
-            Entity { entityID: entityID, entityStatsMulti: entityStatsMulti, entityName: entityName, entityType: entityType, location: entityLocation, }
+        public fun make_entity(entityID: u8, entityName: String, entityType: String, entityLocation: String,): Entity {
+            Entity { entityID: entityID, entityName: entityName, entityType: entityType, location: entityLocation, }
         }
     //gets
         public fun get_entity_name(entity: &Entity): String {
             entity.entityName
-        }
-
-        public fun get_entity_statsMulti(entity: &Entity): u16 {
-            entity.entityStatsMulti
         }
 
         public fun get_entity_ID(entity: &Entity): u8 {
@@ -704,7 +700,10 @@ module deployer::testCore29 {
     }
 
     public fun convert_materialID_to_String(materialID: u8): String {
-        if (materialID == 1) {
+        
+        if (materialID == 0) {
+            utf8(b"XP")
+        } else if (materialID == 1) {
             utf8(b"Gold")
         } else if (materialID == 2) {
             utf8(b"Essence")
