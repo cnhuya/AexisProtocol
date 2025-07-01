@@ -15,17 +15,27 @@ module deployer::testCore30 {
     const UNKNOWN_ABILITY_TYPE: u64 = 1;
     const UNKNOWN_CLASS: u64 = 1;
 
-    const VALUE_ID_FIRE: u8 = 1;
-    const VALUE_ID_POISON: u8 = 2;
-    const VALUE_ID_ICE: u8 = 3;
-    const VALUE_ID_LIGHTNING: u8 = 4;
-    const VALUE_ID_DARK_MAGIC: u8 = 5;
-    const VALUE_ID_WATER: u8 = 6;
-    const VALUE_ID_CURSE: u8 = 7;
+    //buffs
+    const VALUE_ID_RAGE: u8 = 1;
+    const VALUE_ID_ENDURANCE: u8 = 2;
+    const VALUE_ID_DOPAMINE: u8 = 3;
+    const VALUE_ID_VITALS: u8 = 4;
+    const VALUE_ID_VAMP: u8 = 5;
+    const VALUE_ID_WISDOM: u8 = 6;
+    const VALUE_ID_BARRIER: u8 = 7;
+    const VALUE_ID_IMMUNE: u8 = 8;
+    //debuffs
+    const VALUE_ID_FIRE: u8 = 101;
+    const VALUE_ID_POISON: u8 = 102;
+    const VALUE_ID_ICE: u8 = 103;
+    const VALUE_ID_LIGHTNING: u8 = 104;
+    const VALUE_ID_DARK_MAGIC: u8 = 105;
+    const VALUE_ID_WATER: u8 = 106;
+    const VALUE_ID_CURSE: u8 = 107;
 
     const STAT_ID_HEALTH: u8 = 1;
-    const STAT_ID_DAMAGE: u8 = 2;
-    const STAT_ID_ARMOR: u8 = 3;
+    const STAT_ID_ARMOR: u8 = 2;
+    const STAT_ID_DAMAGE: u8 = 3;
     const STAT_ID_ATTACK_SPEED: u8 = 4;
 
     const CLASS_ID_WARRIOR: u8 = 1;
@@ -37,6 +47,26 @@ module deployer::testCore30 {
     const ABILITY_TYPE_PASSIVE: u8 = 1;
     const ABILITY_TYPE_ACTIVE: u8 = 2;
     const ABILITY_TYPE_TOGGLE: u8 = 3;
+
+    const MATERIAL_ID_EXP: u8 = 0;
+    const MATERIAL_ID_GOLD: u8 = 1;
+    const MATERIAL_ID_ESSENCE: u8 = 2;
+    const MATERIAL_ID_WOOD: u8 = 3;
+    const MATERIAL_ID_STONE: u8 = 4;
+    const MATERIAL_ID_SAND: u8 = 5;
+    const MATERIAL_ID_ORGANIC: u8 = 6;
+    const MATERIAL_ID_LEATHER: u8 = 7;
+    const MATERIAL_ID_FLINT: u8 = 8;
+    const MATERIAL_ID_BASALT: u8 = 9;
+    const MATERIAL_ID_BONES: u8 = 10;
+    const MATERIAL_ID_COPPER: u8 = 11;
+    const MATERIAL_ID_IRON: u8 = 12;
+    const MATERIAL_ID_OBSIDIAN: u8 = 13;
+    const MATERIAL_ID_DIAMOND: u8 = 14;
+    const MATERIAL_ID_SHUNGITE: u8 = 15;
+    const MATERIAL_ID_TREASURE: u8 = 16;
+    const MATERIAL_ID_GEMDUST: u8 = 17;
+
 
 // ===  ===  ===  ===  ===
 // ===     STRUCTS     ===
@@ -639,25 +669,41 @@ module deployer::testCore30 {
 // ===  ===  ===  ===  === 
 // ===     CONVERTS    ===
 // ===  ===  ===  ===  ===
-    public fun convert_valueID_to_String(valueID: u8): String {
-        if (valueID == VALUE_ID_FIRE) {
-            utf8(b"fire")
-        } else if (valueID == VALUE_ID_POISON) {
-            utf8(b"poison")
-        } else if (valueID == VALUE_ID_ICE) {
-            utf8(b"ice")
-        } else if (valueID == VALUE_ID_LIGHTNING) {
-            utf8(b"lightning")
-        } else if (valueID == VALUE_ID_DARK_MAGIC) {
-            utf8(b"dark magic")
-        } else if (valueID == VALUE_ID_WATER) {
-            utf8(b"water")
-        } else if (valueID == VALUE_ID_CURSE) {
-            utf8(b"curse")
-        } else {
-            abort(UNKNOWN_VALUE)
-        }
+public fun convert_valueID_to_String(valueID: u8): String {
+    if (valueID == VALUE_ID_RAGE) {
+        utf8(b"rage")
+    } else if (valueID == VALUE_ID_ENDURANCE) {
+        utf8(b"endurance")
+    } else if (valueID == VALUE_ID_DOPAMINE) {
+        utf8(b"dopamine")
+    } else if (valueID == VALUE_ID_VITALS) {
+        utf8(b"vitals")
+    } else if (valueID == VALUE_ID_VAMP) {
+        utf8(b"vamp")
+    } else if (valueID == VALUE_ID_WISDOM) {
+        utf8(b"wisdom")
+    } else if (valueID == VALUE_ID_BARRIER) {
+        utf8(b"barrier")
+    } else if (valueID == VALUE_ID_IMMUNE) {
+        utf8(b"immune")
+    } else if (valueID == VALUE_ID_FIRE) {
+        utf8(b"fire")
+    } else if (valueID == VALUE_ID_POISON) {
+        utf8(b"poison")
+    } else if (valueID == VALUE_ID_ICE) {
+        utf8(b"ice")
+    } else if (valueID == VALUE_ID_LIGHTNING) {
+        utf8(b"lightning")
+    } else if (valueID == VALUE_ID_DARK_MAGIC) {
+        utf8(b"dark magic")
+    } else if (valueID == VALUE_ID_WATER) {
+        utf8(b"water")
+    } else if (valueID == VALUE_ID_CURSE) {
+        utf8(b"curse")
+    } else {
+        abort(UNKNOWN_VALUE)
     }
+}
 
     public fun convert_statID_to_String(statID: u8): String {
         if (statID == STAT_ID_HEALTH) {
@@ -700,35 +746,43 @@ module deployer::testCore30 {
     }
 
     public fun convert_materialID_to_String(materialID: u8): String {
-        
-        if (materialID == 0) {
-            utf8(b"XP")
-        } else if (materialID == 1) {
+        if (materialID == MATERIAL_ID_EXP) {
+            utf8(b"Exp")
+        } else if (materialID == MATERIAL_ID_GOLD) {
             utf8(b"Gold")
-        } else if (materialID == 2) {
+        } else if (materialID == MATERIAL_ID_ESSENCE) {
             utf8(b"Essence")
-        } else if (materialID == 3) {
-            utf8(b"Organic")
-        } else if (materialID == 4) {
-            utf8(b"Leather")
-        } else if (materialID == 5) {
+        } else if (materialID == MATERIAL_ID_WOOD) {
+            utf8(b"Wood")
+        } else if (materialID == MATERIAL_ID_STONE) {
             utf8(b"Stone")
-        } else if (materialID == 6) {
+        } else if (materialID == MATERIAL_ID_SAND) {
+            utf8(b"Sand")
+        } else if (materialID == MATERIAL_ID_ORGANIC) {
+            utf8(b"Organic")
+        } else if (materialID == MATERIAL_ID_LEATHER) {
+            utf8(b"Leather")
+        } else if (materialID == MATERIAL_ID_FLINT) {
             utf8(b"Flint")
-        } else if (materialID == 7) {
+        } else if (materialID == MATERIAL_ID_BASALT) {
             utf8(b"Basalt")
-        } else if (materialID == 8) {
+        } else if (materialID == MATERIAL_ID_BONES) {
             utf8(b"Bones")
-        } else if (materialID == 9) {
+        } else if (materialID == MATERIAL_ID_COPPER) {
+            utf8(b"Copper")
+        } else if (materialID == MATERIAL_ID_IRON) {
             utf8(b"Iron")
-        } else if (materialID == 10) {
+        } else if (materialID == MATERIAL_ID_OBSIDIAN) {
             utf8(b"Obsidian")
-        } else if (materialID == 11) {
+        } else if (materialID == MATERIAL_ID_DIAMOND) {
             utf8(b"Diamond")
-        } else if (materialID == 12) {
+        } else if (materialID == MATERIAL_ID_SHUNGITE) {
             utf8(b"Shungite")
-        } 
-        else {
+        } else if (materialID == MATERIAL_ID_TREASURE) {
+            utf8(b"Treasure")
+        } else if (materialID == MATERIAL_ID_GEMDUST) {
+            utf8(b"Gemdust")
+        } else {
             utf8(b"Unknown")
         }
     }
@@ -859,9 +913,9 @@ module deployer::testCore30 {
         } else if (raceID == 3) {
             utf8(b"Elf")
         } else if (raceID == 4) {
-            utf8(b"Celestial")
-        } else if (raceID == 5) {
             utf8(b"Undead")
+        } else if (raceID == 5) {
+            utf8(b"Celestial")
         } else {
             utf8(b"Unknown")
         }
