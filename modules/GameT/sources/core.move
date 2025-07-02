@@ -713,7 +713,7 @@ public fun convert_valueID_to_String(valueID: u8): String {
         } else if (statID == STAT_ID_ARMOR) {
             utf8(b"Armor")
         } else if (statID == STAT_ID_ATTACK_SPEED) {
-            utf8(b"Attack_Speed")
+            utf8(b"Attack Speed")
         } else {
             abort(UNKNOWN_STAT)
         }
