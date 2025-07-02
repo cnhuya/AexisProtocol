@@ -797,29 +797,31 @@ public fun convert_valueID_to_String(valueID: u8): String {
         } else if (typeID == 4) {
             utf8(b"Boots")
         } else if (typeID == 5) {
-            utf8(b"Sword")
-        } else if (typeID == 6) {
-            utf8(b"Shield")
-        } else if (typeID == 7) {
-            utf8(b"Bow")
-        } else if (typeID == 8) {
-            utf8(b"Arrow")
-        } else if (typeID == 9) {
-            utf8(b"Wand")
-        } else if (typeID == 10) {
-            utf8(b"Book")
-        } else if (typeID == 11) {
-            utf8(b"Scyth")
-        } else if (typeID == 12) {
-            utf8(b"Lantern")
-        } else if (typeID == 13) {
             utf8(b"Dagger")
+        } else if (typeID == 6) {
+            utf8(b"Sword")
+        } else if (typeID == 7) {
+            utf8(b"Shield")
+        } else if (typeID == 8) {
+            utf8(b"Bow")
+        } else if (typeID == 9) {
+            utf8(b"Arrow")
+        } else if (typeID == 10) {
+            utf8(b"Wand")
+        } else if (typeID == 11) {
+            utf8(b"Book")
+        } else if (typeID == 12) {
+            utf8(b"Scyth")
+        } else if (typeID == 13) {
+            utf8(b"Lantern")
         } else if (typeID == 14) {
-            utf8(b"Amulet")
+            utf8(b"Cloak")
         } else if (typeID == 15) {
-            utf8(b"Cape")
+            utf8(b"Amulet")
         } else if (typeID == 16) {
             utf8(b"Ring")
+        } else if (typeID == 17) {
+            utf8(b"Bandage")
         } 
         else {
             utf8(b"Unknown")
