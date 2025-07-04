@@ -125,7 +125,7 @@ module deployer::testCore30 {
         id: u8, bossID: u8, entitiesID: vector<u8>, rewards: vector<Material>
     }    
     struct DungeonString has copy, drop, store, key {
-        id: u8, name: String, bossName: String, entitiesName: vector<String>, rewards: vector<MaterialString>
+        name: String, bossName: String, entitiesName: vector<String>, rewards: vector<MaterialString>
     }   
 // Rarity    
     struct Rarity has copy, store, drop, key {
@@ -499,7 +499,7 @@ module deployer::testCore30 {
         }
         
         public fun make_string_dungeon(dungeon: Dungeon, bossName: String, entitiesName: vector<String>): DungeonString {
-            DungeonString { id: dungeon.id, name: convert_dungeonID_to_String(dungeon.id), bossName: bossName, entitiesName: entitiesName, rewards: build_materials_with_strings(dungeon.rewards)}
+            DungeonString { name: convert_dungeonID_to_String(dungeon.id), bossName: bossName, entitiesName: entitiesName, rewards: build_materials_with_strings(dungeon.rewards)}
         }
 
     //gets
