@@ -1,4 +1,4 @@
-module deployer::testEntities11{
+module deployer::testEntities12{
 
     use std::debug::print;
     use std::string::{String,utf8};
@@ -7,7 +7,7 @@ module deployer::testEntities11{
     use std::signer;
     use std::vector;
     use supra_framework::event;
-    use deployer::testCore30::{Self as Core, Entity, Type, Stat, StatString, Location, Material, MaterialString };
+    use deployer::testCore31::{Self as Core, Entity, Type, Stat, StatString, Location, Material, MaterialString };
 
 
     struct FullEntity has copy, drop {entity: Entity, stats: vector<StatString>}
