@@ -1,4 +1,4 @@
-module deployer::testEntities8{
+module deployer::testEntities11{
 
     use std::debug::print;
     use std::string::{String,utf8};
@@ -7,7 +7,7 @@ module deployer::testEntities8{
     use std::signer;
     use std::vector;
     use supra_framework::event;
-    use deployer::testCore29::{Self as Core, Entity, Type, Stat, StatString, Location, Material, MaterialString };
+    use deployer::testCore30::{Self as Core, Entity, Type, Stat, StatString, Location, Material, MaterialString };
 
 
     struct FullEntity has copy, drop {entity: Entity, stats: vector<StatString>}
@@ -58,13 +58,13 @@ module deployer::testEntities8{
           move_to(address, Entity_Database { stats_config: vector::empty(), database: vector::empty()});
         };
 
-        registerEntityDatabase(address,(vector[3u8, 1u8, 2u8]: vector<u8>),(vector[0u64, 1u64, 2u64]: vector<u64>));
+        registerEntityDatabase(address,(vector[1u8, 2u8, 3u8]: vector<u8>),(vector[200u64, 5u64, 1u64]: vector<u64>));
         addType(address, utf8(b"Mob"),1);
-        addType(address, utf8(b"Titan"),3);
-        addType(address, utf8(b"God"),10);
+        addType(address, utf8(b"Titan"),2);
+        addType(address, utf8(b"God"),5);
 
         addLocation(address, utf8(b"Expedition"),1);
-        addLocation(address, utf8(b"Dungeon"),5);
+        addLocation(address, utf8(b"Dungeon"),3);
 
     }
 
@@ -157,7 +157,7 @@ public entry fun addLocation(address: &signer, name: String, stat_multi: u16) ac
     let type = Core::make_location(name, stat_multi);
     vector::push_back(&mut location_db.database, type);
 }
-public entry fun addEntity(address: &signer, entityID: u8, entityStatsMulti: u16, entityName: String, type: String, location: String) acquires Entity_Database, Type_Database, Location_Database {
+public entry fun addEntity(address: &signer, entityID: u8, entityName: String, type: String, location: String) acquires Entity_Database, Type_Database, Location_Database {
     let addr = signer::address_of(address);
     assert!(addr == OWNER, ERROR_NOT_OWNER);
     assert!(entity_type_exists(type) == true, ERROR_ENTITY_TYPE_DOESNT_EXISTS);
@@ -167,7 +167,7 @@ public entry fun addEntity(address: &signer, entityID: u8, entityStatsMulti: u16
     assert!(entity_exists_by_name(entityName) == false, ERROR_ENTITY_WITH_NAME_ALREADY_EXISTS);
     let entity_db = borrow_global_mut<Entity_Database>(OWNER);
 
-    let entity = Core::make_entity(entityID, entityStatsMulti, entityName, type, location);
+    let entity = Core::make_entity(entityID,  entityName, type, location);
     vector::push_back(&mut entity_db.database, entity);
 }
 
@@ -310,6 +310,20 @@ public fun viewEntityStatsByName(name: u8): FullEntity acquires Entity_Database,
     abort(1)
 }
 
+#[view]
+public fun viewEntitiesStats(): vector<FullEntity> acquires Entity_Database,Location_Database,Type_Database {
+    let entity_db = viewEntities();
+
+    let len = vector::length(&entity_db);
+    let vect = vector::empty<FullEntity>();
+    while(len > 1){
+        let entity = viewEntityStatsByName((len as u8));
+        vector::push_back(&mut vect, entity);
+        len=len-1;
+    };
+    move vect
+}
+
 fun get_entityloc(entity: Entity): Location acquires Location_Database{
     let location_db = borrow_global<Location_Database>(OWNER);
     let len = vector::length(&location_db.database);
@@ -342,24 +356,24 @@ fun simulate_entity_stat(entityName: u8): vector<StatString> acquires Entity_Dat
     let entity = viewEntityByID(entityName);
     let location_multi = Core::get_location_multi(&get_entityloc(entity));
     let entity_type_multi = Core::get_type_multi(&get_entitytype(entity));
-
+    let entityID = Core::get_entity_ID(&entity);
     let config = borrow_global<Entity_Database>(OWNER); // Immutable borrow now
     let len = vector::length(&config.stats_config);
     let vec = vector::empty<StatString>();
     let i = 0;
-
     while (i < len) {
         let stat = vector::borrow(&config.stats_config, i); // Immutable reference
         let stat_id = Core::get_stat_ID(stat);
         let stat_name = Core::convert_statID_to_String(stat_id); // Assuming this function exists
         let stat_val = Core::get_stat_value(stat);
-        let entityStatMulti = Core::get_entity_statsMulti(&entity);
         let new_val: u64;
-
+    
         if (Core::convert_statID_to_String(stat_id) == utf8(b"Attack_Speed")) {
             new_val = 1;
         } else {
-            new_val = stat_val * ((location_multi as u64) * (entity_type_multi as u64) * (entityStatMulti as u64)) / 100_000;
+            let entityID_val = (entityID as u64);
+            let growth_factor = ((entityID_val * entityID_val)) * 65 + 1000;
+            new_val = stat_val * ((location_multi as u64) * (entity_type_multi as u64) * growth_factor) / 1500;
         };
 
         let _stat = Core::make_stat(stat_id, new_val); // Custom constructor
@@ -478,19 +492,26 @@ fun convert_entityID_to_string(id: u8): String acquires Entity_Database{
         account::create_account_for_test(source_addr); 
         print(&utf8(b" USER STATS "));
 
-        addType(&owner, utf8(b"Mob"),100);
-        addType(&owner, utf8(b"Titan"),300);
-        addType(&owner, utf8(b"God"),1000);
+        //addType(&owner, utf8(b"Mob"),100);
+        //addType(&owner, utf8(b"Titan"),300);
+        //ddType(&owner, utf8(b"God"),1000);
 
-        addLocation(&owner, utf8(b"Expedition"),100);
-        addLocation(&owner, utf8(b"Dungeon"),150);
+        //addLocation(&owner, utf8(b"Expedition"),100);
+        //addLocation(&owner, utf8(b"Dungeon"),150);
         
         //ntityID: u8, entityName: String, type: String, location: String
-        addEntity(&owner, 1, 101,utf8(b"Zombie"),utf8(b"Mob"), utf8(b"Expedition"));
-        addEntity(&owner, 2, 1012,utf8(b"Zombie"),utf8(b"Mob"), utf8(b"Expedition"));
-        addEntity(&owner, 3, 1013,utf8(b"Zombie"),utf8(b"Mob"), utf8(b"Expedition"));
-        addEntity(&owner, 4, 1014,utf8(b"Zombie"),utf8(b"Mob"), utf8(b"Expedition"));
-        addEntity(&owner, 5, 1015,utf8(b"Zombie"),utf8(b"Mob"), utf8(b"Expedition"));
+        addEntity(&owner, 1, utf8(b"Zombie"),utf8(b"Mob"), utf8(b"Expedition"));
+        addEntity(&owner, 2, utf8(b"Bat"),utf8(b"Mob"), utf8(b"Expedition"));
+        addEntity(&owner, 3, utf8(b"Fish"),utf8(b"Mob"), utf8(b"Dungeon"));
+        addEntity(&owner, 4, utf8(b"Shark"),utf8(b"Titan"), utf8(b"Dungeon"));
+        addEntity(&owner, 5, utf8(b"Wolf"),utf8(b"Titan"), utf8(b"Dungeon"));
+        addEntity(&owner, 6, utf8(b"Snake"),utf8(b"Titan"), utf8(b"Dungeon"));
+        addEntity(&owner, 7, utf8(b"Bee"),utf8(b"God"), utf8(b"Dungeon"));
+        addEntity(&owner, 8, utf8(b"ga"),utf8(b"God"), utf8(b"Dungeon"));
+        addEntity(&owner, 9, utf8(b"Girrafe"),utf8(b"God"), utf8(b"Dungeon"));
+        addEntity(&owner, 10, utf8(b"Lion"),utf8(b"God"), utf8(b"Dungeon"));
+        addEntity(&owner, 11, utf8(b"Bug"),utf8(b"God"), utf8(b"Dungeon"));
+        addEntity(&owner, 12, utf8(b"Vampire"),utf8(b"God"), utf8(b"Dungeon"));
         print(&viewEntityTypes());
         print(&viewLocations());
         print(&viewEntities());
@@ -498,8 +519,11 @@ fun convert_entityID_to_string(id: u8): String acquires Entity_Database{
         print(&viewEntityByName(utf8(b"Zombie")));
         print(&viewEntityConfig());
         print(&viewEntityStatsByName(1));
-        changeEntityStatsConfig(&owner, true,(vector[3u8, 1u8, 2u8]: vector<u8>),(vector[0u64, 1u64, 20u64]: vector<u64>));
+        print(&viewEntityStatsByName(5));
+        print(&viewEntityStatsByName(6));
+        print(&viewEntityStatsByName(7));
+        //changeEntityStatsConfig(&owner, true,(vector[3u8, 1u8, 2u8]: vector<u8>),(vector[0u64, 1u64, 20u64]: vector<u64>));
         print(&viewEntityConfig());
-
+        print(&viewEntitiesStats());
     }
 }   
