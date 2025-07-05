@@ -94,6 +94,13 @@ module deployer::testCore31 {
     struct ValueString has copy,drop,store {
         valueID: u8, name: String, isEnemy: bool, value: u8
     }
+// ValueTime
+    struct ValueTime has copy, drop,store {
+        value: Value, time: u64
+    }
+    struct ValueTimeString has copy,drop,store {
+        value: ValueString, time: u64
+    }   
 // Type
     struct Type has copy, drop,store {
         name: String, stat_multi: u16
@@ -155,7 +162,21 @@ module deployer::testCore31 {
     }
     struct RewardString has copy, drop, key, store{
         materialName: String, amount: u32, period: u64
-    }    
+    }  
+// PassiveAbility 
+    struct PassiveAbility has copy, drop, store, key {
+        abilityName: String, values: vector<ValueTime>
+    }   
+    struct PassiveAbilityString has copy, drop, store, key {
+        abilityName: String, values: vector<ValueTimeString>
+    }  
+// Ability 
+    struct Ability has copy, drop, store, key {
+        abilityName: String, cooldown: u8, stamina: u8, damage: u16, values: vector<Value>
+    }   
+    struct AbilityString has copy, drop, store, key {
+        abilityName: String, cooldown: u8, stamina: u8, damage: u16, values: vector<ValueString>
+    }     
 // ===  ===  ===  ===  === ===
 // ===  Factory Functions  ===
 // ===  ===  ===  ===  === ===
@@ -310,6 +331,56 @@ module deployer::testCore31 {
             };
             move vect
         }
+// ValueTime
+    //makes
+        public fun make_valueTime(value: Value, time: u64): ValueTime {
+            ValueTime { value: value, time: time }
+        }
+
+        public fun make_string_valueTime(value: &ValueTime): ValueTimeString {
+            ValueTimeString { value: make_string_value(&value.value), time: value.time}
+        }
+
+    //changes
+
+        public fun change_valueTime_time(value: &mut ValueTime, time: u64): ValueTime {
+            value.time = time;
+            *value
+        }
+
+    //gets
+
+        public fun get_valueTime_time(value: &ValueTime): u64 {
+            value.time
+        }
+
+    //degrades
+        public fun degrade_string_valueTime_to_valueTime(valueString: &ValueTimeString): ValueTime {
+            ValueTime { value: degrade_string_value_to_value(&valueString.value), time: valueString.time }
+        }
+    //multiples
+        public fun make_multiple_valuesTimes(values: vector<Value>,times: vector<u64>): vector<ValueTime> {
+            assert!(vector::length(&values) == vector::length(&times),5);
+            let len = vector::length(&values);
+            let vect = vector::empty<ValueTime>();
+            while(len>0){
+                let value = make_valueTime(*vector::borrow(&values, len-1), *vector::borrow(&times, len-1));
+                vector::push_back(&mut vect, value);
+                len=len-1;
+            };
+            move vect
+        }
+
+        public fun make_multiple_string_valuesTimes(values: vector<ValueTime>): vector<ValueTimeString> {
+            let len = vector::length(&values);
+            let vect = vector::empty<ValueTimeString>();
+            while(len>0){
+                let value_string = make_string_valueTime(vector::borrow(&values, len-1));
+                vector::push_back(&mut vect, value_string);
+                len=len-1;
+            };
+            move vect
+        }     
 
 // Stat
     //makes
@@ -666,6 +737,103 @@ module deployer::testCore31 {
             move vect
         }
 
+
+
+// PassiveAbility
+     //makes
+        public fun make_passiveAbility(name: String, id: vector<u8>, isEnemy: vector<bool>, val: vector<u8>, time: vector<u64>): PassiveAbility {
+            PassiveAbility {abilityName: name, values: make_multiple_valuesTimes(make_multiple_values(id, isEnemy, val), time)}
+        }
+        public fun make_string_passiveAbility(passiveAbility: &PassiveAbility): PassiveAbilityString{
+            PassiveAbilityString { abilityName: passiveAbility.abilityName, values: build_valuesTimes_with_strings(passiveAbility.values)}
+        }
+
+    //gets
+        public fun get_passiveAbility_name(passiveAbility: &PassiveAbility): String{
+            passiveAbility.abilityName
+        }
+        public fun get_passiveAbility_values(passiveAbility: &PassiveAbility): vector<ValueTime> {
+            passiveAbility.values
+        }
+  //multiples
+        public fun make_multiple_string_passiveAbilities(passiveAbility: vector<PassiveAbility>): vector<PassiveAbilityString> {
+            let len = vector::length(&passiveAbility);
+            let vect = vector::empty<PassiveAbilityString>();
+            while(len>0){
+                let reward = make_string_passiveAbility(vector::borrow(&passiveAbility, len-1));
+                vector::push_back(&mut vect, reward);
+                len=len-1;
+            };
+            move vect
+        }
+        public fun make_multiple_PassiveAbilities(names: vector<String>, ids: vector<vector<u8>>, isEnemies: vector<vector<bool>>, vals: vector<vector<u8>>, times: vector<vector<u64>>): vector<PassiveAbility> {
+            assert!(vector::length(&ids) == vector::length(&isEnemies),5);
+            let len = vector::length(&ids);
+            let vect = vector::empty<PassiveAbility>();
+            while(len>0){
+                let reward = make_passiveAbility(*vector::borrow(&names, len-1),*vector::borrow(&ids, len-1), *vector::borrow(&isEnemies, len-1),*vector::borrow(&vals, len-1),*vector::borrow(&times, len-1));
+                vector::push_back(&mut vect, reward);
+                len=len-1;
+            };
+            move vect
+        }
+// Ability
+     //makes
+        public fun make_Ability(abilityName: String, cooldown: u8, stamina: u8, damage: u16, values: vector<Value>): Ability {
+            Ability {abilityName: abilityName, cooldown: cooldown, stamina: stamina, damage: damage, values: values}
+        }
+        public fun make_string_Ability(ability: &Ability): AbilityString{
+            AbilityString { abilityName: ability.abilityName, cooldown: ability.cooldown, stamina: ability.stamina, damage: ability.damage, values: build_values_with_strings(ability.values)}
+        }
+
+    //gets
+        public fun get_Ability_name(ability: &Ability): String{
+            ability.abilityName
+        }
+        public fun get_Ability_cooldown(ability: &Ability): u8 {
+            ability.cooldown
+        }
+        public fun get_Ability_stamina(ability: &Ability): u8 {
+            ability.stamina
+        }
+        public fun get_Ability_damage(ability: &Ability): u16 {
+            ability.damage
+        }
+        public fun get_Ability_values(ability: &Ability): vector<Value> {
+            ability.values
+        }
+    //change
+        public fun change_Ability_cooldown(ability: &mut Ability, new_cdr: u8) {
+            ability.cooldown = new_cdr
+        }
+        public fun change_Ability_stamina(ability: &mut Ability,new_stamina: u8) {
+            ability.stamina = new_stamina
+        }
+        public fun change_Ability_damage(ability: &mut Ability,new_dmg: u16) {
+            ability.damage = new_dmg
+        }
+  //multiples
+        public fun make_multiple_string_bilities(abilities: vector<Ability>): vector<AbilityString> {
+            let len = vector::length(&abilities);
+            let vect = vector::empty<AbilityString>();
+            while(len>0){
+                let reward = make_string_Ability(vector::borrow(&abilities, len-1));
+                vector::push_back(&mut vect, reward);
+                len=len-1;
+            };
+            move vect
+        }
+        public fun make_multiple_Abilities(names: vector<String>, cooldown: vector<u8>,stamina: vector<u8>,dmg: vector<u16>,ids: vector<vector<u8>>, isEnemies: vector<vector<bool>>, vals: vector<vector<u8>>): vector<Ability> {
+            assert!(vector::length(&cooldown) == vector::length(&stamina),5);
+            let len = vector::length(&cooldown);
+            let vect = vector::empty<Ability>();
+            while(len>0){
+                let reward = make_Ability(*vector::borrow(&names, len-1),*vector::borrow(&cooldown, len-1), *vector::borrow(&stamina, len-1),*vector::borrow(&dmg, len-1),make_multiple_values(*vector::borrow(&ids, len-1), *vector::borrow(&isEnemies, len-1), *vector::borrow(&vals, len-1)));
+                vector::push_back(&mut vect, reward);
+                len=len-1;
+            };
+            move vect
+        }
 // ===  ===  ===  ===  === 
 // ===     CONVERTS    ===
 // ===  ===  ===  ===  ===
@@ -673,33 +841,33 @@ public fun convert_valueID_to_String(valueID: u8): String {
     if (valueID == VALUE_ID_RAGE) {
         utf8(b"rage")
     } else if (valueID == VALUE_ID_ENDURANCE) {
-        utf8(b"endurance")
+        utf8(b"Endurance")
     } else if (valueID == VALUE_ID_DOPAMINE) {
-        utf8(b"dopamine")
+        utf8(b"Dopamine")
     } else if (valueID == VALUE_ID_VITALS) {
-        utf8(b"vitals")
+        utf8(b"Vitals")
     } else if (valueID == VALUE_ID_VAMP) {
-        utf8(b"vamp")
+        utf8(b"Vamp")
     } else if (valueID == VALUE_ID_WISDOM) {
-        utf8(b"wisdom")
+        utf8(b"Wisdom")
     } else if (valueID == VALUE_ID_BARRIER) {
-        utf8(b"barrier")
+        utf8(b"Barrier")
     } else if (valueID == VALUE_ID_IMMUNE) {
-        utf8(b"immune")
+        utf8(b"Immune")
     } else if (valueID == VALUE_ID_FIRE) {
-        utf8(b"fire")
+        utf8(b"Fire")
     } else if (valueID == VALUE_ID_POISON) {
-        utf8(b"poison")
+        utf8(b"Poison")
     } else if (valueID == VALUE_ID_ICE) {
-        utf8(b"ice")
+        utf8(b"Ice")
     } else if (valueID == VALUE_ID_LIGHTNING) {
-        utf8(b"lightning")
+        utf8(b"Lightning")
     } else if (valueID == VALUE_ID_DARK_MAGIC) {
-        utf8(b"dark magic")
+        utf8(b"Dark Magic")
     } else if (valueID == VALUE_ID_WATER) {
-        utf8(b"water")
+        utf8(b"Water")
     } else if (valueID == VALUE_ID_CURSE) {
-        utf8(b"curse")
+        utf8(b"Curse")
     } else {
         abort(UNKNOWN_VALUE)
     }
@@ -946,6 +1114,18 @@ public fun convert_valueID_to_String(valueID: u8): String {
         while (i < len) {
             let value = vector::borrow(&values, i);
             vector::push_back(&mut output, make_string_value(value));
+            i = i + 1;
+        };
+        output
+    }
+
+    public fun build_valuesTimes_with_strings(values: vector<ValueTime>): vector<ValueTimeString> {
+        let len = vector::length(&values);
+        let output = vector::empty<ValueTimeString>();
+        let i = 0;
+        while (i < len) {
+            let value = vector::borrow(&values, i);
+            vector::push_back(&mut output, make_string_valueTime(value));
             i = i + 1;
         };
         output
