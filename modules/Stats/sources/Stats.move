@@ -103,7 +103,7 @@ module deployer::testStats1 {
 // Utils
      fun check_for_snapshot() acquires Snapshot, Stats{
         let snapshot = borrow_global_mut<Snapshot>(OWNER);
-        if(snapshot.lasttime <= (timestamp::now_seconds()+60)){
+        if(snapshot.lasttime+60 >= timestamp::now_seconds()){
             let stats = borrow_global<Stats>(OWNER);
             snapshot.lasttime = timestamp::now_seconds();
             vector::push_back(&mut snapshot.database, *stats);
