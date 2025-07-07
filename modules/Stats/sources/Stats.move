@@ -94,10 +94,16 @@ module deployer::testStats1 {
         let stats = borrow_global<Stats>(OWNER);
         stats.points_given
     }
+
+    #[view]
+    public fun viewSnapshots(): vector<Stats> acquires Snapshot{
+        let snapshot = borrow_global<Snapshot>(OWNER);
+        snapshot.database
+    }
 // Utils
      fun check_for_snapshot() acquires Snapshot, Stats{
         let snapshot = borrow_global_mut<Snapshot>(OWNER);
-        if(snapshot.lasttime >= (timestamp::now_seconds()+86400)){
+        if(snapshot.lasttime >= (timestamp::now_seconds()+60)){
             let stats = borrow_global<Stats>(OWNER);
             vector::push_back(&mut snapshot.database, *stats);
         }
