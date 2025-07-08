@@ -134,6 +134,7 @@ module deployer::testCore31 {
     struct DungeonString has copy, drop, store, key {
         name: String, bossName: String, entitiesName: vector<String>, rewards: vector<MaterialString>
     }   
+
 // Rarity    
     struct Rarity has copy, store, drop, key {
         rarityID: u8, chance: u8, multi: u16, number_of_values:u8
@@ -177,6 +178,14 @@ module deployer::testCore31 {
     struct AbilityString has copy, drop, store, key {
         abilityName: String, cooldown: u8, stamina: u8, damage: u16, values: vector<ValueString>
     }     
+// Item
+    struct Item has copy, drop,store {
+        typeID: u8, materialID: u8, rarityID: u8, rarityStats: vector<Stat>,stats: vector<Stat>
+    }
+  
+    struct ItemString has copy, drop {
+        typeName: String, materialName: String, rarityName: String, rarityStats: vector<StatString>, stats: vector<StatString>
+    }
 // ===  ===  ===  ===  === ===
 // ===  Factory Functions  ===
 // ===  ===  ===  ===  === ===
@@ -568,6 +577,7 @@ module deployer::testCore31 {
         public fun make_dungeon(id: u8, bossID: u8, entitiesID: vector<u8>, rewards: vector<Material>): Dungeon {
             Dungeon { id: id, bossID: bossID, entitiesID: entitiesID, rewards: rewards}
         }
+
         
         public fun make_string_dungeon(dungeon: Dungeon, bossName: String, entitiesName: vector<String>): DungeonString {
             DungeonString { name: convert_dungeonID_to_String(dungeon.id), bossName: bossName, entitiesName: entitiesName, rewards: build_materials_with_strings(dungeon.rewards)}
@@ -586,6 +596,7 @@ module deployer::testCore31 {
         public fun get_dungeon_rewards(dungeon: &mut Dungeon): vector<Material>{
             dungeon.rewards
         }
+
 
 // Rarity
     //makes
@@ -812,7 +823,7 @@ module deployer::testCore31 {
         public fun change_Ability_damage(ability: &mut Ability,new_dmg: u16) {
             ability.damage = new_dmg
         }
-  //multiples
+    //multiples
         public fun make_multiple_string_bilities(abilities: vector<Ability>): vector<AbilityString> {
             let len = vector::length(&abilities);
             let vect = vector::empty<AbilityString>();
@@ -834,6 +845,61 @@ module deployer::testCore31 {
             };
             move vect
         }
+// Item
+     //makes
+        public fun make_Item(typeID: u8, materialID: u8, rarityID: u8, rarityStats: vector<Stat>,stats: vector<Stat>): Item {
+            Item {typeID: typeID, materialID: materialID, rarityID: rarityID, rarityStats: rarityStats, stats: stats}
+        }
+        public fun make_string_item(item: &Item): ItemString {
+            ItemString { typeName: convert_typeID_to_String(item.typeID), materialName: convert_materialID_to_String(item.materialID), rarityName: convert_rarityID_to_String(item.rarityID), rarityStats: build_stats_with_strings(item.rarityStats), stats: build_stats_with_strings(item.stats)}
+        }
+
+    //gets
+        public fun get_Item_typeID(item: &Item): u8{
+            item.typeID
+        }
+        public fun get_Item_materialID(item: &Item): u8{
+            item.materialID
+        }
+        public fun get_Item_rarityID(item: &Item): u8{
+            item.rarityID
+        }
+        public fun get_Item_rarityStats(item: &Item): vector<Stat>{
+            item.rarityStats
+        }
+        public fun get_Item_stats(item: &Item): vector<Stat>{
+            item.stats
+        }
+    //change
+        public fun change_Item_rarity(item: &mut Item, new_rarity: u8) {
+            item.rarityID = new_rarity
+        }
+        public fun change_Item_rarityStats(item: &mut Item, new_rarityStats: vector<Stat>) {
+            item.rarityStats = new_rarityStats
+        }
+    //multiples
+        public fun make_multiple_string_items(items: vector<Item>): vector<ItemString> {
+            let len = vector::length(&items);
+            let vect = vector::empty<ItemString>();
+            while(len>0){
+                let item = make_string_item(vector::borrow(&items, len-1));
+                vector::push_back(&mut vect, item);
+                len=len-1;
+            };
+            move vect
+        }
+        public fun make_multiple_items(typeID: vector<u8>, materialID: vector<u8>, rarityID: vector<u8>, rarityStats: vector<vector<Stat>>,stats: vector<vector<Stat>>): vector<Item> {
+            assert!(vector::length(&typeID) == vector::length(&materialID),5);
+            let len = vector::length(&typeID);
+            let vect = vector::empty<Item>();
+            while(len>0){
+                let item = make_Item(*vector::borrow(&typeID, len-1),*vector::borrow(&materialID, len-1), *vector::borrow(&rarityID, len-1),*vector::borrow(&rarityStats, len-1),(*vector::borrow(&stats, len-1)));
+                vector::push_back(&mut vect, item);
+                len=len-1;
+            };
+            move vect
+        }
+
 // ===  ===  ===  ===  === 
 // ===     CONVERTS    ===
 // ===  ===  ===  ===  ===
