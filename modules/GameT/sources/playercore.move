@@ -26,6 +26,11 @@ module deployer::testPlayerCore {
         end: u64, typeName: String, materialName: String, isFinished: bool
     }
 
+// StatsPlayer
+    struct StatPlayer has copy, drop, store{
+        statName: String, value: u64, bonus: u64
+    } 
+
 // ===  ===  ===  ===  === ===
 // ===  Factory Functions  ===
 // ===  ===  ===  ===  === ===
@@ -66,6 +71,21 @@ module deployer::testPlayerCore {
         public fun get_craftingString_Status(crafting: &CraftingString): bool {
             crafting.isFinished
         }
+// StatsPlayer
+    //makes
+        public fun make_statPlayer(statName: String, value: u64, bonus: u64): StatPlayer {
+            StatPlayer { statName: statName, value: value, bonus: bonus}
+        }
+    //gets
+        public fun get_statPlayer_statName(statPlayer: &StatPlayer): String {
+            statPlayer.statName
+        }
+        public fun get_statPlayer_value(statPlayer: &StatPlayer): u64 {
+            statPlayer.value
+        }
+        public fun get_statPlayer_bonus(statPlayer: &StatPlayer): u64 {
+            statPlayer.bonus
+        }       
 // ===  ===  ===  ===  ===  ===
 // ===   BATCH CONVERTIONS  ===
 // ===  ===  ===  ===  ===  ===
