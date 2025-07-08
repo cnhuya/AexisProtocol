@@ -1,0 +1,26 @@
+[package]
+name = "perksPkg"
+version = "1.0.0"
+authors = []
+
+[addresses]
+deployer = "0x281d0fce12a353b1f6e8bb6d1ae040a6deba248484cf8e9173a5b428a6fb74e7"
+dev = "0x281d0fce12a353b1f6e8bb6d1ae040a6deba248484cf8e9173a5b428a6fb74e7"
+developer ="0x281d0fce12a353b1f6e8bb6d1ae040a6deba248484cf8e9173a5b428a6fb74e7"
+supra_framework = "0x1"
+[dev-addresses]
+
+[dependencies.SupraFramework]
+git = "https://github.com/Entropy-Foundation/aptos-core.git"
+rev = "dev"
+subdir = "aptos-move/framework/supra-framework"
+
+[dependencies.testCore34]
+git = 'https://github.com/cnhuya/test.git'
+rev = 'main'
+subdir = 'modules/Game/sources/Core'
+
+
+
+
+[dev-dependencies]
