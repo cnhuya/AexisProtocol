@@ -7,25 +7,15 @@ module deployer::testPlayerCore {
     use std::signer;
     use std::vector;
     use supra_framework::event;
-    use supra_framework::event;
-
-    friend deployer::testCore31;
 
     use deployer::testCore31 as Core;
 
 // ===  ===  ===  ===  ===
 // ===     STRUCTS     ===
-// ===  ===  ===  ===  ===
-
-    struct Expedition has copy, drop, store, key {
-        id: u8, required_level: u8, costs: vector<Reward>, rewards: vector<Reward>
-    }    
-    struct ExpeditionString has copy, drop, store, key {
-        id: u8, name: String, required_level: u8, costs: vector<RewardString>, rewards: vector<RewardString>
-    }    
+// ===  ===  ===  ===  === 
 // DungeonPlayer
     struct DungeonPlayer has copy, drop, store, key {
-        entityiD: u8, hpleft: u64;
+        entityID: u8, hpleft: u64
     }   
 // CraftingPlayer
     struct Crafting has copy,store,drop,key {
@@ -33,7 +23,7 @@ module deployer::testPlayerCore {
     }
 
     struct CraftingString has copy,store,drop,key {
-        end: u64, typeID: String, materialID: String, isFinished: bool
+        end: u64, typeName: String, materialName: String, isFinished: bool
     }
 
 // ===  ===  ===  ===  === ===
@@ -42,26 +32,26 @@ module deployer::testPlayerCore {
 // DungeonPlayer
     //makes
         public fun make_dungeonPlayer(id: u8, hp: u64): DungeonPlayer {
-            Dungeon { id: id, hpleft: u64}
+            DungeonPlayer { entityID: id, hpleft: hp}
         }
     //changes
-        public fun change_dungeonPlayer_hpleft(dungeon: &DungeonPlayer, u64: new_hpleft) {
+        public fun change_dungeonPlayer_hpleft(dungeon: &mut DungeonPlayer, new_hpleft: u64) {
             dungeon.hpleft = new_hpleft;
         }
     //gets
-        public fun get_dungeonPlayer_id(dungeon: &DungeonPlayer): u8 {
-            dungeon.id
+        public fun get_dungeonPlayer_entityID(dungeon: &DungeonPlayer): u8 {
+            dungeon.entityID
         }
         public fun get_dungeonPlayer_hpleft(dungeon: &DungeonPlayer): u64{
             dungeon.hpleft
         }
 // CraftingPlayer
     //makes
-        public fun make_crafting(start: u64, typeID: u8, materialID: u8): Crafting {
-            Crafting { start: start, typeID: typeID,materialID: materialID}
+        public fun make_crafting(end: u64, typeID: u8, materialID: u8): Crafting {
+            Crafting { end: end, typeID: typeID,materialID: materialID}
         }
         public fun make_crafting_string(crafting: &Crafting, status: bool): CraftingString {
-            CraftingString { start: crafting.start, typeID: Core::convert_typeID_to_String(crafting.typeID), materialName: convert_materialID_to_String(crafting.materialID), isFinished: status}
+            CraftingString { end: crafting.end, typeName: Core::convert_typeID_to_String(crafting.typeID), materialName: Core::convert_materialID_to_String(crafting.materialID), isFinished: status}
         }
     //gets
         public fun get_crafting_end(crafting: &Crafting): u64 {
