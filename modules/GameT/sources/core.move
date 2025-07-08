@@ -242,7 +242,16 @@ module deployer::testCore31 {
         public fun degrade_string_materialString_to_material(materialString: &MaterialString): Material {
             Material { materialID: materialString.materialID, amount: materialString.amount}
         }
-
+        public fun degrade_multiple_materialsString(materialStrings: vector<MaterialString>): vector<Material> {
+            let len = vector::length(&materialStrings);
+            let vect = vector::empty<Material>();
+            while(len>0){
+                let material = degrade_string_materialString_to_material(vector::borrow(&materialStrings, len-1));
+                vector::push_back(&mut vect, material);
+                len=len-1;
+            };
+            move vect
+        } 
 // Entity
     //makes
         public fun make_entity(entityID: u8, entityName: String, entityType: String, entityLocation: String,): Entity {
