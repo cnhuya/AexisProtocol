@@ -31,6 +31,15 @@ module deployer::testPlayerCore2 {
         statName: String, value: u64, bonus: u64
     } 
 
+// Examine
+    struct Examine has copy, drop, store{
+        start: u64, value: u64, type: u8
+    }     
+
+    struct ExamineString has copy, drop, store{
+        start: u64, value: u64, type: String
+    }     
+
 // ===  ===  ===  ===  === ===
 // ===  Factory Functions  ===
 // ===  ===  ===  ===  === ===
@@ -85,9 +94,45 @@ module deployer::testPlayerCore2 {
         }
         public fun get_statPlayer_bonus(statPlayer: &StatPlayer): u64 {
             statPlayer.bonus
-        }       
+        }   
+// Examine
+    //makes
+        public fun make_examine(start: u64, value: u64, type: u8): Examine {
+            Examine { start: start, value: value, type: type}
+        }
+        public fun make_examineString(examine: &Examine): ExamineString {
+            ExamineString { start: examine.start, value: examine.value, type: convert_examineType_to_String(examine.type)}
+        }
+    //gets
+        public fun get_examine_start(examine: &Examine): u64 {
+            examine.start
+        }
+        public fun get_examine_value(examine: &Examine): u64 {
+            examine.value
+        }
+        public fun get_examine_type(examine: &Examine): u8 {
+            examine.type
+        } 
+    //change
+        public fun change_examine_value(examine: &mut Examine, new_value: u64){
+            examine.value = new_value;
+        }      
 // ===  ===  ===  ===  ===  ===
 // ===   BATCH CONVERTIONS  ===
 // ===  ===  ===  ===  ===  ===
 
+// ===  ===  ===  ===  === 
+// ===     CONVERTS    ===
+// ===  ===  ===  ===  ===
+    public fun convert_examineType_to_String(examineType: u8): String {
+        if (examineType == 1) {
+            utf8(b"Slow")
+        } else if (examineType == 2) {
+            utf8(b"Medium")
+        } else if (examineType == 3) {
+            utf8(b"Fast")
+        } else {
+            abort(000)
+        }
+    }
 }
