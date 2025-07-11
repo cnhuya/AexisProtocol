@@ -1,4 +1,4 @@
-module deployer::testCore38 {
+module deployer::testCore39 {
 
     use std::debug::print;
     use std::string::{String, utf8};
@@ -156,10 +156,10 @@ module deployer::testCore38 {
     }    
 // Perk
     struct Perk has copy, drop, key, store{
-        perkID: u64, name: String, typeID: u8, cost: u8, cooldown:u8, values: vector<Value>
+        perkID: u8, name: String, typeID: u8, cost: u8, cooldown:u8, values: vector<Value>
     }
     struct PerkString has copy, drop, key, store{
-        perkID: u64, name: String, typeID: u8, typeName: String, cost: u8, cooldown:u8, values: vector<ValueString>
+        perkID: u8, name: String, typeID: u8, typeName: String, cost: u8, cooldown:u8, values: vector<ValueString>
     }
 // Reward
     struct Reward has copy, drop, key, store{
@@ -675,7 +675,7 @@ module deployer::testCore38 {
 
 // Perk
     //makes
-        public fun make_perk(perkID: u64, name: String, typeID: u8, cost: u8, cooldown: u8, values: vector<Value>): Perk {
+        public fun make_perk(perkID: u8, name: String, typeID: u8, cost: u8, cooldown: u8, values: vector<Value>): Perk {
             Perk { perkID: perkID, name: name, typeID: typeID, cost: cost, cooldown:cooldown, values: values }
         }
         public fun make_string_perk(perk: &Perk): PerkString{
@@ -691,7 +691,7 @@ module deployer::testCore38 {
         }
 
     //gets
-        public fun get_perk_id(perk: &Perk): u64 {
+        public fun get_perk_id(perk: &Perk): u8 {
             perk.perkID
         }
         public fun get_perk_name(perk: &Perk): String {
