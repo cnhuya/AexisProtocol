@@ -1,4 +1,4 @@
-module deployer::testCore34 {
+module deployer::testCore38 {
 
     use std::debug::print;
     use std::string::{String, utf8};
@@ -32,6 +32,10 @@ module deployer::testCore34 {
     const VALUE_ID_DARK_MAGIC: u8 = 105;
     const VALUE_ID_WATER: u8 = 106;
     const VALUE_ID_CURSE: u8 = 107;
+
+    const VALUE_ID_DMG: u8 = 201;
+    const VALUE_ID_HEAL: u8 = 202;
+    const VALUE_ID_STAMINA: u8 = 203;
 
     const STAT_ID_HEALTH: u8 = 1;
     const STAT_ID_ARMOR: u8 = 2;
@@ -89,10 +93,10 @@ module deployer::testCore34 {
     
 // Value
     struct Value has copy, drop,store {
-        valueID: u8, isEnemy: bool, value: u8
+        valueID: u8, isEnemy: bool, value: u16
     }
     struct ValueString has copy,drop,store {
-        valueID: u8, name: String, isEnemy: bool, value: u8
+        valueID: u8, name: String, isEnemy: bool, value: u16
     }
 // ValueTime
     struct ValueTime has copy, drop,store {
@@ -152,10 +156,10 @@ module deployer::testCore34 {
     }    
 // Perk
     struct Perk has copy, drop, key, store{
-        perkID: u64, name: String, typeID: u8, stamina: u8, damage:u32, values: vector<Value>
+        perkID: u64, name: String, typeID: u8, cost: u8, cooldown:u8, values: vector<Value>
     }
     struct PerkString has copy, drop, key, store{
-        perkID: u64, name: String, typeID: u8, typeName: String, stamina: u8, damage:u32, values: vector<ValueString>
+        perkID: u64, name: String, typeID: u8, typeName: String, cost: u8, cooldown:u8, values: vector<ValueString>
     }
 // Reward
     struct Reward has copy, drop, key, store{
@@ -164,19 +168,12 @@ module deployer::testCore34 {
     struct RewardString has copy, drop, key, store{
         materialName: String, amount: u32, period: u64
     }  
-// PassiveAbility 
-    struct PassiveAbility has copy, drop, store, key {
-        abilityName: String, values: vector<ValueTime>
-    }   
-    struct PassiveAbilityString has copy, drop, store, key {
-        abilityName: String, values: vector<ValueTimeString>
-    }  
 // Ability 
     struct Ability has copy, drop, store, key {
-        abilityName: String, cooldown: u8, stamina: u8, damage: u16, values: vector<Value>
+        abilityName: String, required_chakra: u32, values: vector<Value>
     }   
     struct AbilityString has copy, drop, store, key {
-        abilityName: String, cooldown: u8, stamina: u8, damage: u16, values: vector<ValueString>
+        abilityName: String, required_chakra: u32, values: vector<ValueString>
     }     
 // Item
     struct Item has copy, drop,store {
@@ -277,7 +274,7 @@ module deployer::testCore34 {
 
 // Value
     //makes
-        public fun make_value(id: u8, isEnemy: bool, val: u8): Value {
+        public fun make_value(id: u8, isEnemy: bool, val: u16): Value {
             Value { valueID: id, isEnemy: isEnemy, value: val }
         }
 
@@ -286,12 +283,12 @@ module deployer::testCore34 {
         }
 
     //changes
-        public fun change_value_amount(value: &mut Value, amount: u8): Value {
+        public fun change_value_amount(value: &mut Value, amount: u16): Value {
             value.value = amount;
             *value
         }
         
-        public fun change_value_value(value: &mut Value, val: u8): ValueString {
+        public fun change_value_value(value: &mut Value, val: u16): ValueString {
             value.value = val;
             make_string_value(&*value)
         }
@@ -305,7 +302,7 @@ module deployer::testCore34 {
             value.isEnemy
         }
 
-        public fun get_value_value(value: &Value): u8 {
+        public fun get_value_value(value: &Value): u16 {
             value.value
         }
 
@@ -327,7 +324,7 @@ module deployer::testCore34 {
         }
 
     //multiples
-        public fun make_multiple_values(valueIDs: vector<u8>, isEnemy: vector<bool>, values: vector<u8>): vector<Value> {
+        public fun make_multiple_values(valueIDs: vector<u8>, isEnemy: vector<bool>, values: vector<u16>): vector<Value> {
             assert!(vector::length(&valueIDs) == vector::length(&values),5);
             let len = vector::length(&valueIDs);
             let vect = vector::empty<Value>();
@@ -678,19 +675,19 @@ module deployer::testCore34 {
 
 // Perk
     //makes
-        public fun make_perk(perkID: u64, name: String, typeID: u8, stamina: u8, damage: u32, values: vector<Value>): Perk {
-            Perk { perkID: perkID, name: name, typeID: typeID, stamina: stamina, damage:damage, values: values }
+        public fun make_perk(perkID: u64, name: String, typeID: u8, cost: u8, cooldown: u8, values: vector<Value>): Perk {
+            Perk { perkID: perkID, name: name, typeID: typeID, cost: cost, cooldown:cooldown, values: values }
         }
         public fun make_string_perk(perk: &Perk): PerkString{
-            PerkString { perkID: perk.perkID, name: perk.name, typeID: perk.typeID, typeName: convert_perksTypeID_to_String(perk.typeID), stamina: perk.stamina, damage:perk.damage, values: build_values_with_strings(perk.values) }
+            PerkString { perkID: perk.perkID, name: perk.name, typeID: perk.typeID, typeName: convert_perksTypeID_to_String(perk.typeID), cost: perk.cost, cooldown:perk.cooldown, values: build_values_with_strings(perk.values) }
         }
 
     //changes
-        public fun change_perk_stamina(perk: &mut Perk, new_stamina: u8) {
-            perk.stamina = new_stamina
+        public fun change_perk_cost(perk: &mut Perk, new_cost: u8) {
+            perk.cost = new_cost
         }
-        public fun change_perk_damage(perk: &mut Perk, new_damage: u32) {
-            perk.damage = new_damage
+        public fun change_perk_cooldowm(perk: &mut Perk, new_cdr: u8) {
+            perk.cooldown = new_cdr
         }
 
     //gets
@@ -707,10 +704,10 @@ module deployer::testCore34 {
             convert_perksTypeID_to_String(perk.typeID)
         }
         public fun get_perk_stamina(perk: &Perk): u8 {
-            perk.stamina
+            perk.cost
         }
-        public fun get_perk_damage(perk: &Perk): u32 {
-            perk.damage
+        public fun get_perk_damage(perk: &Perk): u8 {
+            perk.cooldown
         }
         public fun get_perk_values(perk: &Perk): vector<Value> {
             perk.values
@@ -759,78 +756,25 @@ module deployer::testCore34 {
 
 
 
-// PassiveAbility
-     //makes
-        public fun make_passiveAbility(name: String, id: vector<u8>, isEnemy: vector<bool>, val: vector<u8>, time: vector<u64>): PassiveAbility {
-            PassiveAbility {abilityName: name, values: make_multiple_valuesTimes(make_multiple_values(id, isEnemy, val), time)}
-        }
-        public fun make_string_passiveAbility(passiveAbility: &PassiveAbility): PassiveAbilityString{
-            PassiveAbilityString { abilityName: passiveAbility.abilityName, values: build_valuesTimes_with_strings(passiveAbility.values)}
-        }
-
-    //gets
-        public fun get_passiveAbility_name(passiveAbility: &PassiveAbility): String{
-            passiveAbility.abilityName
-        }
-        public fun get_passiveAbility_values(passiveAbility: &PassiveAbility): vector<ValueTime> {
-            passiveAbility.values
-        }
-  //multiples
-        public fun make_multiple_string_passiveAbilities(passiveAbility: vector<PassiveAbility>): vector<PassiveAbilityString> {
-            let len = vector::length(&passiveAbility);
-            let vect = vector::empty<PassiveAbilityString>();
-            while(len>0){
-                let reward = make_string_passiveAbility(vector::borrow(&passiveAbility, len-1));
-                vector::push_back(&mut vect, reward);
-                len=len-1;
-            };
-            move vect
-        }
-        public fun make_multiple_PassiveAbilities(names: vector<String>, ids: vector<vector<u8>>, isEnemies: vector<vector<bool>>, vals: vector<vector<u8>>, times: vector<vector<u64>>): vector<PassiveAbility> {
-            assert!(vector::length(&ids) == vector::length(&isEnemies),5);
-            let len = vector::length(&ids);
-            let vect = vector::empty<PassiveAbility>();
-            while(len>0){
-                let reward = make_passiveAbility(*vector::borrow(&names, len-1),*vector::borrow(&ids, len-1), *vector::borrow(&isEnemies, len-1),*vector::borrow(&vals, len-1),*vector::borrow(&times, len-1));
-                vector::push_back(&mut vect, reward);
-                len=len-1;
-            };
-            move vect
-        }
 // Ability
      //makes
-        public fun make_Ability(abilityName: String, cooldown: u8, stamina: u8, damage: u16, values: vector<Value>): Ability {
-            Ability {abilityName: abilityName, cooldown: cooldown, stamina: stamina, damage: damage, values: values}
+        public fun make_Ability(abilityName: String, required_chakra: u32, values: vector<Value>): Ability {
+            Ability {abilityName: abilityName, required_chakra: required_chakra, values: values}
         }
         public fun make_string_Ability(ability: &Ability): AbilityString{
-            AbilityString { abilityName: ability.abilityName, cooldown: ability.cooldown, stamina: ability.stamina, damage: ability.damage, values: build_values_with_strings(ability.values)}
+            AbilityString { abilityName: ability.abilityName, required_chakra: ability.required_chakra, values: build_values_with_strings(ability.values)}
         }
 
     //gets
         public fun get_Ability_name(ability: &Ability): String{
             ability.abilityName
         }
-        public fun get_Ability_cooldown(ability: &Ability): u8 {
-            ability.cooldown
-        }
-        public fun get_Ability_stamina(ability: &Ability): u8 {
-            ability.stamina
-        }
-        public fun get_Ability_damage(ability: &Ability): u16 {
-            ability.damage
-        }
-        public fun get_Ability_values(ability: &Ability): vector<Value> {
-            ability.values
+        public fun get_Ability_required_chakra(ability: &Ability): u32 {
+            ability.required_chakra
         }
     //change
-        public fun change_Ability_cooldown(ability: &mut Ability, new_cdr: u8) {
-            ability.cooldown = new_cdr
-        }
-        public fun change_Ability_stamina(ability: &mut Ability,new_stamina: u8) {
-            ability.stamina = new_stamina
-        }
-        public fun change_Ability_damage(ability: &mut Ability,new_dmg: u16) {
-            ability.damage = new_dmg
+        public fun change_Ability_required_chakra(ability: &mut Ability,new_chakra: u32) {
+            ability.required_chakra = new_chakra
         }
     //multiples
         public fun make_multiple_string_bilities(abilities: vector<Ability>): vector<AbilityString> {
@@ -843,12 +787,12 @@ module deployer::testCore34 {
             };
             move vect
         }
-        public fun make_multiple_Abilities(names: vector<String>, cooldown: vector<u8>,stamina: vector<u8>,dmg: vector<u16>,ids: vector<vector<u8>>, isEnemies: vector<vector<bool>>, vals: vector<vector<u8>>): vector<Ability> {
-            assert!(vector::length(&cooldown) == vector::length(&stamina),5);
-            let len = vector::length(&cooldown);
+        public fun make_multiple_Abilities(names: vector<String>, required_chakra: vector<u32>,ids: vector<vector<u8>>, isEnemies: vector<vector<bool>>, vals: vector<vector<u16>>): vector<Ability> {
+            assert!(vector::length(&names) == vector::length(&required_chakra),5);
+            let len = vector::length(&names);
             let vect = vector::empty<Ability>();
             while(len>0){
-                let reward = make_Ability(*vector::borrow(&names, len-1),*vector::borrow(&cooldown, len-1), *vector::borrow(&stamina, len-1),*vector::borrow(&dmg, len-1),make_multiple_values(*vector::borrow(&ids, len-1), *vector::borrow(&isEnemies, len-1), *vector::borrow(&vals, len-1)));
+                let reward = make_Ability(*vector::borrow(&names, len-1),*vector::borrow(&required_chakra, len-1),make_multiple_values(*vector::borrow(&ids, len-1), *vector::borrow(&isEnemies, len-1), *vector::borrow(&vals, len-1)));
                 vector::push_back(&mut vect, reward);
                 len=len-1;
             };
@@ -943,6 +887,12 @@ public fun convert_valueID_to_String(valueID: u8): String {
         utf8(b"Water")
     } else if (valueID == VALUE_ID_CURSE) {
         utf8(b"Curse")
+    } else if (valueID == VALUE_ID_HEAL) {
+        utf8(b"Heal")
+    } else if (valueID == VALUE_ID_DMG) {
+        utf8(b"Damage")
+    } else if (valueID == VALUE_ID_STAMINA) {
+        utf8(b"Stamina")
     } else {
         abort(UNKNOWN_VALUE)
     }
