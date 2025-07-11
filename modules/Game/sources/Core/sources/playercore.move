@@ -1,4 +1,4 @@
-module deployer::testPlayerCore2 {
+module deployer::testPlayerCore3 {
 
     use std::debug::print;
     use std::string::{String, utf8};
@@ -8,7 +8,7 @@ module deployer::testPlayerCore2 {
     use std::vector;
     use supra_framework::event;
 
-    use deployer::testCore34 as Core;
+    use deployer::testCore37 as Core;
 
 // ===  ===  ===  ===  ===
 // ===     STRUCTS     ===
@@ -33,11 +33,11 @@ module deployer::testPlayerCore2 {
 
 // Examine
     struct Examine has copy, drop, store{
-        start: u64, value: u64, type: u8
+        start: u64, value: u64, type: u8, speed_type: u8
     }     
 
     struct ExamineString has copy, drop, store{
-        start: u64, value: u64, type: String
+        start: u64, value: u64, type: String, speed_type: String, isFinished: bool
     }     
 
 // ===  ===  ===  ===  === ===
@@ -97,11 +97,11 @@ module deployer::testPlayerCore2 {
         }   
 // Examine
     //makes
-        public fun make_examine(start: u64, value: u64, type: u8): Examine {
-            Examine { start: start, value: value, type: type}
+        public fun make_examine(start: u64, value: u64, type: u8, speed_type: u8): Examine {
+            Examine { start: start, value: value, type: type, speed_type: speed_type}
         }
-        public fun make_examineString(examine: &Examine): ExamineString {
-            ExamineString { start: examine.start, value: examine.value, type: convert_examineType_to_String(examine.type)}
+        public fun make_examineString(examine: &Examine,status: bool): ExamineString {
+            ExamineString { start: examine.start, value: examine.value, type: convert_examineType_to_String(examine.type), speed_type: convert_examineSpeedType_to_String(examine.speed_type), isFinished: status}
         }
     //gets
         public fun get_examine_start(examine: &Examine): u64 {
@@ -112,6 +112,9 @@ module deployer::testPlayerCore2 {
         }
         public fun get_examine_type(examine: &Examine): u8 {
             examine.type
+        } 
+        public fun get_examine_speed_type(examine: &Examine): u8 {
+            examine.speed_type
         } 
     //change
         public fun change_examine_value(examine: &mut Examine, new_value: u64){
@@ -124,13 +127,23 @@ module deployer::testPlayerCore2 {
 // ===  ===  ===  ===  === 
 // ===     CONVERTS    ===
 // ===  ===  ===  ===  ===
-    public fun convert_examineType_to_String(examineType: u8): String {
+    public fun convert_examineSpeedType_to_String(examineType: u8): String {
         if (examineType == 1) {
             utf8(b"Slow")
         } else if (examineType == 2) {
             utf8(b"Medium")
         } else if (examineType == 3) {
             utf8(b"Fast")
+        } else {
+            abort(000)
+        }
+    }
+
+    public fun convert_examineType_to_String(examineType: u8): String {
+        if (examineType == 1) {
+            utf8(b"Stone Examination")
+        } else if (examineType == 2) {
+            utf8(b"Gem Dust Making")
         } else {
             abort(000)
         }
