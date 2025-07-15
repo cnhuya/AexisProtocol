@@ -1,4 +1,4 @@
-module deployer::testCore39 {
+module deployer::testCore40 {
 
     use std::debug::print;
     use std::string::{String, utf8};
@@ -159,7 +159,7 @@ module deployer::testCore39 {
         perkID: u8, name: String, typeID: u8, cost: u8, cooldown:u8, values: vector<Value>
     }
     struct PerkString has copy, drop, key, store{
-        perkID: u8, name: String, typeID: u8, typeName: String, cost: u8, cooldown:u8, values: vector<ValueString>
+        perkID: u8, name: String, typeID: u8, typeName: String, required: u8, cost: u8, cooldown:u8, values: vector<ValueString>
     }
 // Reward
     struct Reward has copy, drop, key, store{
@@ -317,6 +317,17 @@ module deployer::testCore39 {
             abort(1)
         }
 
+        public fun get_value_by_name(vect: vector<ValueString>, valueName: String): ValueString {
+            let len = vector::length(&vect);
+            while(len > 0){
+                let value = vector::borrow(&mut vect, len-1);
+                if(value.name == valueName){
+                    return *value
+                };
+            };
+            abort(1)
+        }
+
 
     //degrades
         public fun degrade_string_value_to_value(valueString: &ValueString): Value {
@@ -450,6 +461,17 @@ module deployer::testCore39 {
             statRange.max
         }
 
+
+        public fun get_stat_by_name(vect: vector<StatString>, statName: String): StatString {
+            let len = vector::length(&vect);
+            while(len > 0){
+                let stat = vector::borrow(&mut vect, len-1);
+                if(stat.name == statName){
+                    return *stat
+                };
+            };
+            abort(1)
+        }
 
     //degrades
         public fun degrade_string_stat_to_stat(statRange: &StatString): Stat {
@@ -678,8 +700,8 @@ module deployer::testCore39 {
         public fun make_perk(perkID: u8, name: String, typeID: u8, cost: u8, cooldown: u8, values: vector<Value>): Perk {
             Perk { perkID: perkID, name: name, typeID: typeID, cost: cost, cooldown:cooldown, values: values }
         }
-        public fun make_string_perk(perk: &Perk): PerkString{
-            PerkString { perkID: perk.perkID, name: perk.name, typeID: perk.typeID, typeName: convert_perksTypeID_to_String(perk.typeID), cost: perk.cost, cooldown:perk.cooldown, values: build_values_with_strings(perk.values) }
+        public fun make_string_perk(perk: &Perk, required: u8): PerkString{
+            PerkString { perkID: perk.perkID, name: perk.name, typeID: perk.typeID, typeName: convert_perksTypeID_to_String(perk.typeID), required: required, cost: perk.cost, cooldown:perk.cooldown, values: build_values_with_strings(perk.values) }
         }
 
     //changes
@@ -706,11 +728,15 @@ module deployer::testCore39 {
         public fun get_perk_stamina(perk: &Perk): u8 {
             perk.cost
         }
-        public fun get_perk_damage(perk: &Perk): u8 {
+        public fun get_perk_cooldown(perk: &Perk): u8 {
             perk.cooldown
         }
         public fun get_perk_values(perk: &Perk): vector<Value> {
             perk.values
+        }
+
+        public fun get_perkString_required(perk: &PerkString): u8 {
+            perk.required
         }
 // Reward
      //makes
@@ -777,7 +803,7 @@ module deployer::testCore39 {
             ability.required_chakra = new_chakra
         }
     //multiples
-        public fun make_multiple_string_bilities(abilities: vector<Ability>): vector<AbilityString> {
+        public fun make_multiple_string_Abilities(abilities: vector<Ability>): vector<AbilityString> {
             let len = vector::length(&abilities);
             let vect = vector::empty<AbilityString>();
             while(len>0){
@@ -906,7 +932,7 @@ public fun convert_valueID_to_String(valueID: u8): String {
         } else if (statID == STAT_ID_ARMOR) {
             utf8(b"Armor")
         } else if (statID == STAT_ID_ATTACK_SPEED) {
-            utf8(b"Attack Speed")
+            utf8(b"Chakra Absorbtion")
         } else {
             abort(UNKNOWN_STAT)
         }
@@ -1118,11 +1144,11 @@ public fun convert_valueID_to_String(valueID: u8): String {
 
     public fun convert_perksTypeID_to_String(perkTypeID: u8): String {
         if (perkTypeID == 1) {
-            utf8(b"Offensive")
+            utf8(b"Nature")
         } else if (perkTypeID == 2) {
-            utf8(b"Defensive")
+            utf8(b"Aura")
         } else if (perkTypeID == 3) {
-            utf8(b"Utility")
+            utf8(b"Arcane")
         } else {
             utf8(b"Unknown")
         }
