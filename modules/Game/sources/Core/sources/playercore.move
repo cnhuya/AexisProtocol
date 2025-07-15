@@ -1,4 +1,4 @@
-module deployer::testPlayerCore6 {
+module deployer::testPlayerCore7 {
 
     use std::debug::print;
     use std::string::{String, utf8};
@@ -8,7 +8,7 @@ module deployer::testPlayerCore6 {
     use std::vector;
     use supra_framework::event;
 
-    use deployer::testCore40 as Core;
+    use deployer::testCore41 as Core;
 
 // ===  ===  ===  ===  ===
 // ===     STRUCTS     ===
