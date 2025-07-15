@@ -1,4 +1,4 @@
-module deployer::testPlayerCore5 {
+module deployer::testPlayerCore6 {
 
     use std::debug::print;
     use std::string::{String, utf8};
@@ -8,7 +8,7 @@ module deployer::testPlayerCore5 {
     use std::vector;
     use supra_framework::event;
 
-    use deployer::testCore39 as Core;
+    use deployer::testCore40 as Core;
 
 // ===  ===  ===  ===  ===
 // ===     STRUCTS     ===
@@ -39,7 +39,10 @@ module deployer::testPlayerCore5 {
     struct ExamineString has copy, drop, store{
         start: u64, value: u64, type: String, speed_type: String, isFinished: bool
     }     
-
+// Oponent
+    struct Oponent has copy, drop, store{
+        address: address, name: String
+    }  
 // ===  ===  ===  ===  === ===
 // ===  Factory Functions  ===
 // ===  ===  ===  ===  === ===
@@ -119,7 +122,22 @@ module deployer::testPlayerCore5 {
     //change
         public fun change_examine_value(examine: &mut Examine, new_value: u64){
             examine.value = new_value;
-        }      
+        }    
+// Oponent
+    //makes
+        public fun make_oponent(address: address, name: String): Oponent {
+            Oponent { address: address, name: name}
+        }
+        public fun make_empty_oponent(): Oponent {
+            Oponent { address: @0x0, name: utf8(b"null")}
+        }
+    //gets
+        public fun get_oponent_address(oponent: &Oponent): address {
+            oponent.address
+        }
+        public fun get_oponent_name(oponent: &Oponent): String {
+            oponent.name
+        }
 // ===  ===  ===  ===  ===  ===
 // ===   BATCH CONVERTIONS  ===
 // ===  ===  ===  ===  ===  ===
