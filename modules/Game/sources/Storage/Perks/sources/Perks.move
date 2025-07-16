@@ -1,4 +1,4 @@
-module deployer::testPerksV4{
+module deployer::testPerksV8{
 
     use std::debug::print;
     use std::string::{String,utf8};
@@ -48,7 +48,7 @@ public entry fun addPerk(address: &signer, perkID: u8, typeID: u8,name: String, 
 
         while (i < length) {
             let perk_ref = vector::borrow(&perk_list.database, i);
-            vector::push_back(&mut vect, Core::make_string_perk(perk_ref));
+            vector::push_back(&mut vect, Core::make_string_perk(perk_ref, calculate_required_perk(perk_ref)));
             i = i + 1;
         };
 
@@ -64,7 +64,7 @@ public entry fun addPerk(address: &signer, perkID: u8, typeID: u8,name: String, 
         while (i < length) {
             let perk_ref = vector::borrow(&perk_list.database, i);
             if (Core::get_perk_id(perk_ref) == id) {
-                return Core::make_string_perk(perk_ref, calculate_required_perk(perk))
+                return Core::make_string_perk(perk_ref, calculate_required_perk(perk_ref))
             };
             i = i + 1;
         };
@@ -82,8 +82,9 @@ public entry fun addPerk(address: &signer, perkID: u8, typeID: u8,name: String, 
         let vect = vector::empty<PerkString>();
         while(len > 0){
             let perk = vector::borrow_mut(&mut list, len-1);
+            let _prk = calculate_required_perk(perk);
             if(Core::get_perk_typeID(perk) == typeID){
-                vector::push_back(&mut vect, Core::make_string_perk(perk,calculate_required_perk(perk)));
+                vector::push_back(&mut vect, Core::make_string_perk(perk,_prk));
             };
             len = len-1;
         };
@@ -105,9 +106,9 @@ public entry fun addPerk(address: &signer, perkID: u8, typeID: u8,name: String, 
 
     fun calculate_required_perk(perk: &Perk): u8{
         if((Core::get_perk_stamina(perk) + Core::get_perk_cooldown(perk)) < 5){
-            return 1;
+            return 1
         } else {
-            return ((Core::get_perk_stamina(perk) + Core:.get_perk_cooldown(perk)) / 5);
+            return ((Core::get_perk_stamina(perk) + Core::get_perk_cooldown(perk)) / 5)
         }
     }
 
