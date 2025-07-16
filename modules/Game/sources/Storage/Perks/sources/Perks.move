@@ -1,4 +1,4 @@
-module deployer::testPerksV1{
+module deployer::testPerksV4{
 
     use std::debug::print;
     use std::string::{String,utf8};
@@ -7,38 +7,12 @@ module deployer::testPerksV1{
     use std::signer;
     use std::vector;
     use supra_framework::event;
-    use deployer::testCore34::{Self as Core, Value, ValueString, Perk, PerkString };
+    use deployer::testCore42::{Self as Core, Value, ValueString, Perk, PerkString };
 
-    /*
-    element | id
-
-    fire = 1
-    poison = 2
-    ice = 3
-    lightning = 4 
-    dark magic = 5
-    water = 6
-    curse = 7
-
-
-
-
-    */
 
     struct Perk_Database has copy, drop, key, store {database: vector<Perk>}
 
 
-
-
-
-    #[event]
-    struct ValueChange has drop, store {address: address, name: String, valueName: String, isBuff: bool, from: u8, to: u8}
-
-    #[event]
-    struct DamageChange has drop, store {address: address, name: String, isBuff: bool, from: u32, to: u32}
-
-    #[event]
-    struct StaminaChange has drop, store {address: address, name: String, isBuff: bool, from: u8, to: u8}
 
     const ERROR_NOT_OWNER: u64 = 1;
     const ERROR_VAR_NOT_INNITIALIZED: u64 = 2;
@@ -56,205 +30,86 @@ module deployer::testPerksV1{
 
     }
 
-
-public entry fun change_Perk_Stamina(address: &signer, name: String, new_value: u8) acquires Perk_Database{
+public entry fun addPerk(address: &signer, perkID: u8, typeID: u8,name: String, cost: u8, cooldown: u8, valueIDs: vector<u8>, valueIsEnemy: vector<bool>, valueAmount: vector<u16>) acquires Perk_Database {
     let addr = signer::address_of(address);
     assert!(addr == OWNER, ERROR_NOT_OWNER);
-
-    let perk_list = borrow_global_mut<Perk_Database>(OWNER);
-    let list = &mut perk_list.database;
-    let length = vector::length(list);
-    let i = 0;
-    let from = 0;
-    let to = 0;
-    let isBuff;
-        while (i < length) {
-        let perk = vector::borrow_mut(list, i);
-        if (Core::get_perk_name(perk) == name) {
-            from = Core::get_perk_stamina(perk);
-            Core::change_perk_stamina(perk, new_value);
-
-            if(new_value > from){
-                isBuff = true;
-            }   else{
-                isBuff = false;
-            };
-
-            event::emit(StaminaChange {
-                address: signer::address_of(address),
-                name: name,
-                isBuff: isBuff,
-                from: from,
-                to: new_value,
-            });
-        };
-        i = i + 1;
-    };
-}
-
-public entry fun change_Perk_Damage(address: &signer, name: String, new_value: u32) acquires Perk_Database {
-    let addr = signer::address_of(address);
-    assert!(addr == OWNER, ERROR_NOT_OWNER);
-
-    let perk_list = borrow_global_mut<Perk_Database>(OWNER);
-    let list = &mut perk_list.database;
-    let length = vector::length(list);
-    let i = 0;
-    let from = 0;
-    let to = 0;
-    let isBuff;
-        while (i < length) {
-        let perk = vector::borrow_mut(list, i);
-        if (Core::get_perk_name(perk) == name) {
-            from = Core::get_perk_damage(perk);
-            Core::change_perk_damage(perk, new_value);
-            if(new_value > from){
-                isBuff = true;
-            }   else{
-                isBuff = false;
-            };
-
-            event::emit(DamageChange {
-                address: signer::address_of(address),
-                name: name,
-                isBuff: isBuff,
-                from: from,
-                to: new_value,
-            });
-
-        };
-        i = i + 1;
-    };
-}
-
-
-public entry fun change_Perks_Values(address: &signer, name: String, valueID: u8, new_value: u8) acquires Perk_Database {
-    let addr = signer::address_of(address);
-    assert!(addr == OWNER, ERROR_NOT_OWNER);
-
-    let perk_list = borrow_global_mut<Perk_Database>(OWNER);
-    let list = perk_list.database;
-    let length = vector::length(&list);
-    let i = 0;
-    let from = 0;
-    let to = 0;
-    let isBuff;
-        while (i < length) {
-        let perk = vector::borrow_mut(&mut list, i);
-        if (Core::get_perk_name(perk) == name){
-            let values = Core::get_perk_values(perk);
-            let values_len = vector::length(&values);
-            while (values_len > 0){
-                let value = vector::borrow_mut(&mut values, values_len-1);
-                if(Core::get_value_ID(value) == valueID){
-                    from = Core::get_value_value(value);
-                    Core::change_value_amount(value, new_value);
-                };
-                values_len = values_len-1;
-            };
-
-            if(new_value > from){
-                isBuff = true;
-            }   else{
-                isBuff = false;
-            };
-            event::emit(ValueChange {
-                address: signer::address_of(address),
-                name: name,
-                valueName: Core::convert_valueID_to_String(valueID),
-                isBuff: isBuff,
-                from: from,
-                to: new_value,
-            });
-        };
-        i = i + 1;
-    };
-}
-
-public entry fun addPerk(address: &signer, typeID: u8,name: String, stamina: u8, damage: u32) acquires Perk_Database {
-    let addr = signer::address_of(address);
-    assert!(addr == OWNER, ERROR_NOT_OWNER);
-    let perk_list = borrow_global_mut<Perk_Database>(OWNER);
-    let list = perk_list.database;
-    let perk_length = vector::length(&list);
-    //let perk = Core::make_perk(perk_length, name, typeID, stamina, damage, Core::extract_value_list(address));
-    //vector::push_back(&mut list, perk);
+    does_perk_exists(perkID);
+    let perk_db = borrow_global_mut<Perk_Database>(OWNER);
+    let perk = Core::make_perk(perkID, name, typeID, cost, cooldown, Core::make_multiple_values(valueIDs, valueIsEnemy, valueAmount));
+    vector::push_back(&mut perk_db.database, perk);
 }
 
     #[view]
     public fun viewPerks(): vector<PerkString> acquires Perk_Database {
         let perk_list = borrow_global<Perk_Database>(OWNER);
-        let list = perk_list.database;
-        let length = vector::length(&list);
+        let length = vector::length(&perk_list.database);
         let i = 0;  
         let vect = vector::empty<PerkString>();
 
         while (i < length) {
-            let perk_ref = viewPerkByID(length-1);
-            vector::push_back(&mut vect, perk_ref);
+            let perk_ref = vector::borrow(&perk_list.database, i);
+            vector::push_back(&mut vect, Core::make_string_perk(perk_ref));
             i = i + 1;
         };
 
         move vect
     }
 
-#[view]
-public fun viewPerkByID(id: u64): PerkString acquires Perk_Database {
-    let perk_list = borrow_global<Perk_Database>(OWNER);
-    let list = perk_list.database;
-    let length = vector::length(&list);
-    let i = 0;
+    #[view]
+    public fun viewPerkByID(id: u8): PerkString acquires Perk_Database {
+        let perk_list = borrow_global<Perk_Database>(OWNER);
+        let length = vector::length(&perk_list.database);
+        let i = 0;
 
-    while (i < length) {
-        let perk_ref = vector::borrow(&list, i);
-        if (Core::get_perk_id(perk_ref) == id) {
-            let perk = viewPerkByName(Core::get_perk_name(perk_ref));
-            return perk
+        while (i < length) {
+            let perk_ref = vector::borrow(&perk_list.database, i);
+            if (Core::get_perk_id(perk_ref) == id) {
+                return Core::make_string_perk(perk_ref, calculate_required_perk(perk))
+            };
+            i = i + 1;
         };
-        i = i + 1;
-    };
 
-    // You might want to abort or return a default if not found
-    abort(1) // or define a specific error code
-}
-
-
-#[view]
-public fun viewPerkByName(name: String): PerkString acquires Perk_Database {
-    let perk_list = borrow_global<Perk_Database>(OWNER);
-    let list = perk_list.database;
-    let length = vector::length(&list);
-    let i = 0;
-
-    while (i < length) {
-        let perk_ref = vector::borrow(&list, i);
-        if (Core::get_perk_name(perk_ref)== name) {
-        let _perk = Core::make_string_perk(perk_ref);
-        return _perk
-        };
-        i = i + 1;
-    };
-    abort(1) 
-}
+        // You might want to abort or return a default if not found
+        abort(1) // or define a specific error code
+    }
 
     #[view]
-    public fun viewPerksByType(typeID: u8): vector<Perk> acquires Perk_Database {
+    public fun viewPerksByType(typeID: u8): vector<PerkString> acquires Perk_Database {
         let perk_list = borrow_global<Perk_Database>(OWNER);
         let list = perk_list.database;
         let len = vector::length(&list);
 
-        let vect = vector::empty<Perk>();
+        let vect = vector::empty<PerkString>();
         while(len > 0){
             let perk = vector::borrow_mut(&mut list, len-1);
             if(Core::get_perk_typeID(perk) == typeID){
-                vector::push_back(&mut vect, *perk);
+                vector::push_back(&mut vect, Core::make_string_perk(perk,calculate_required_perk(perk)));
             };
             len = len-1;
         };
 
-        move list
+        move vect
+    }
+    fun does_perk_exists(_perk: u8) acquires Perk_Database {
+        let perk_list = borrow_global<Perk_Database>(OWNER);
+        let list = perk_list.database;
+        let len = vector::length(&list);
+        while(len > 0){
+            let perk = vector::borrow_mut(&mut list, len-1);
+            if(Core::get_perk_id(perk) == _perk){
+                abort(000)
+            };
+            len = len-1;
+        };
     }
 
+    fun calculate_required_perk(perk: &Perk): u8{
+        if((Core::get_perk_stamina(perk) + Core::get_perk_cooldown(perk)) < 5){
+            return 1;
+        } else {
+            return ((Core::get_perk_stamina(perk) + Core:.get_perk_cooldown(perk)) / 5);
+        }
+    }
 
  #[test(account = @0x1, owner = @0x281d0fce12a353b1f6e8bb6d1ae040a6deba248484cf8e9173a5b428a6fb74e7)]
      public entry fun test(account: signer, owner: signer) acquires Perk_Database{
