@@ -1,4 +1,4 @@
-module deployer::testItemsV1{
+module deployer::testItemsV2{
 
     use std::debug::print;
     use std::string::{String,utf8};
@@ -8,7 +8,7 @@ module deployer::testItemsV1{
     use std::vector;
     use supra_framework::event;
     use dev::randomv1;
-    use deployer::testCore34::{Self as Core, Material, MaterialString, Stat, StatString, StatRange, StatRangeString, Rarity, RarityString, Item, ItemString };
+    use deployer::testCore42::{Self as Core, Material, MaterialString, Stat, StatString, StatRange, StatRangeString, Rarity, RarityString, Item, ItemString };
 
     struct Simulated_Item has copy, drop{typeID: u8, typeName: String, crafting_multi: u8, materialID: u8, materialName: String, rarityID: u8, rarityName: String, rarity_bonus_stats: vector<StatString>, stats: vector<StatString>}
     struct FullItem has copy, drop {typeID: u8, typeName: String, crafting_multi: u8, materialID: u8, materialName: String, rarityID: u8, rarityName: String,  stats: vector<StatRangeString>, crafting: vector<MaterialString>}
