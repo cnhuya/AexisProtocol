@@ -1,4 +1,4 @@
-module deployer::testPlayerCore7 {
+module deployer::testPlayerCore8 {
 
     use std::debug::print;
     use std::string::{String, utf8};
@@ -8,7 +8,7 @@ module deployer::testPlayerCore7 {
     use std::vector;
     use supra_framework::event;
 
-    use deployer::testCore41 as Core;
+    use deployer::testCore42 as Core;
 
 // ===  ===  ===  ===  ===
 // ===     STRUCTS     ===
@@ -96,6 +96,10 @@ module deployer::testPlayerCore7 {
             statPlayer.value
         }
         public fun get_statPlayer_bonus(statPlayer: &StatPlayer): u64 {
+            statPlayer.bonus
+        }   
+    //multiples    
+        public fun multiple_statPlayer_to_Stat(statPlayer: &StatPlayer): u64 {
             statPlayer.bonus
         }   
 // Examine
