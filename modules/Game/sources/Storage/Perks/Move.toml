@@ -1,5 +1,5 @@
 [package]
-name = "perksPkg"
+name = "perksPkg8"
 version = "1.0.0"
 authors = []
 
@@ -15,12 +15,12 @@ git = "https://github.com/Entropy-Foundation/aptos-core.git"
 rev = "dev"
 subdir = "aptos-move/framework/supra-framework"
 
-[dependencies.testCore34]
+[dependencies.testCore42]
 git = 'https://github.com/cnhuya/test.git'
 rev = 'main'
 subdir = 'modules/Game/sources/Core'
 
-
+a
 
 
 [dev-dependencies]
