@@ -1,4 +1,4 @@
-module deployer::testCore41 {
+module deployer::testCore42 {
 
     use std::debug::print;
     use std::string::{String, utf8};
@@ -41,6 +41,7 @@ module deployer::testCore41 {
     const STAT_ID_ARMOR: u8 = 2;
     const STAT_ID_DAMAGE: u8 = 3;
     const STAT_ID_ATTACK_SPEED: u8 = 4;
+    const STAT_ID_STAMINA: u8 = 5;
 
     const CLASS_ID_WARRIOR: u8 = 1;
     const CLASS_ID_ARCHER: u8 = 2;
@@ -936,6 +937,8 @@ public fun convert_valueID_to_String(valueID: u8): String {
             utf8(b"Armor")
         } else if (statID == STAT_ID_ATTACK_SPEED) {
             utf8(b"Chakra Absorbtion")
+        }  else if (statID == STAT_ID_STAMINA) {
+            utf8(b"Stamina")
         } else {
             abort(UNKNOWN_STAT)
         }
