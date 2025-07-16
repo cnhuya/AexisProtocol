@@ -1,4 +1,4 @@
-module deployer::testRacesV1{
+module deployer::testRacesV2{
 
     use std::debug::print;
     use std::string::{String,utf8};
@@ -7,7 +7,7 @@ module deployer::testRacesV1{
     use std::signer;
     use std::vector;
     use supra_framework::event;
-    use deployer::testCore34::{Self as Core, Value, ValueString, Race, RaceString };
+    use deployer::testCore42::{Self as Core, Value, ValueString, Race, RaceString };
 
     struct Race_Database has copy,drop,store,key {database: vector<Race>}
 
@@ -29,7 +29,7 @@ module deployer::testRacesV1{
     }
 
 
-public entry fun addRace(address: &signer, raceID: u8, valueIDs: vector<u8>, valueIsEnemies: vector<bool>, valueValues: vector<u8>) acquires Race_Database, {
+public entry fun addRace(address: &signer, raceID: u8, valueIDs: vector<u8>, valueIsEnemies: vector<bool>, valueValues: vector<u16>) acquires Race_Database, {
     let addr = signer::address_of(address);
     assert!(addr == OWNER, ERROR_NOT_OWNER);
     assertRaceDoesntExists(raceID);
