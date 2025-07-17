@@ -1,4 +1,4 @@
-module deployer::testClassV5{
+module deployer::testClassV6{
 
     use std::debug::print;
     use std::string::{String,utf8};
@@ -7,7 +7,7 @@ module deployer::testClassV5{
     use std::signer;
     use std::vector;
     use supra_framework::event;
-    use deployer::testCore42::{Self as Core, Ability, AbilityString, Value};
+    use deployer::testCore43::{Self as Core, Ability, AbilityString, Value};
 
     struct Ability_Database has copy, store, drop ,key {database: vector<Ability>}
 
@@ -29,15 +29,21 @@ module deployer::testClassV5{
         };
 
     }
-    public entry fun createAbility(address: &signer, classID: u8, passive_Name: String, required_chakra: u32, passive_valueIDs: vector<u8>, passive_valueIsEnemies: vector<bool>, passive_valueValues: vector<u16>) acquires Ability_Database {
+    public entry fun createAbilitiesForClass(address: &signer, classID: u8, passive_Name: vector<String>, required_chakra: vector<u32>, passive_valueIDs: vector<vector<u8>>, passive_valueIsEnemies: vector<vector<bool>>, passive_valueValues: vector<vector<u16>>) acquires Ability_Database {
         let spell_db = borrow_global_mut<Ability_Database>(OWNER);
        
         let addr = signer::address_of(address);
         assert!(addr == OWNER, ERROR_NOT_OWNER);
-        
-        let value = Core::make_multiple_values(passive_valueIDs, passive_valueIsEnemies, passive_valueValues);
-        let spell = Core::make_Ability(classID, passive_Name, required_chakra, value);
-        vector::push_back(&mut spell_db.database, spell);
+        let len = vector::length(&passive_valueIDs);
+
+        let abilities = Core::make_multiple_Abilities(classID, passive_Name, required_chakra, passive_valueIDs, passive_valueIsEnemies, passive_valueValues);
+        let len = vector::length(&abilities);
+
+        while(len>0){
+            let ability = vector::borrow(&abilities, len-1);
+            vector::push_back(&mut spell_db.database, *ability);
+            len=len-1;
+        };
     }
 
 
