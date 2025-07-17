@@ -7,7 +7,7 @@ module deployer::testExpeditionsV2{
     use std::signer;
     use std::vector;
     use supra_framework::event;
-    use deployer::testCore42::{Self as Core, Stat, Material, Item,Expedition, ExpeditionString};
+    use deployer::testCore43::{Self as Core, Stat, Material, Item,Expedition, ExpeditionString};
 
 // Structs
 
