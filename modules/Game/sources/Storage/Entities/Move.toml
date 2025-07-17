@@ -1,5 +1,5 @@
 [package]
-name = "entitiesPkg2"
+name = "entitiesPkg3"
 version = "1.0.0"
 authors = []
 
@@ -15,7 +15,7 @@ git = "https://github.com/Entropy-Foundation/aptos-core.git"
 rev = "dev"
 subdir = "aptos-move/framework/supra-framework"
 
-[dependencies.testCore42]
+[dependencies.testCore44]
 git = 'https://github.com/cnhuya/test.git'
 rev = 'main'
 subdir = 'modules/Game/sources/Core'
