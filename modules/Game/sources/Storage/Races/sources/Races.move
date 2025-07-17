@@ -1,4 +1,4 @@
-module deployer::testRacesV2{
+module deployer::testRacesV3{
 
     use std::debug::print;
     use std::string::{String,utf8};
@@ -7,7 +7,7 @@ module deployer::testRacesV2{
     use std::signer;
     use std::vector;
     use supra_framework::event;
-    use deployer::testCore42::{Self as Core, Value, ValueString, Race, RaceString };
+    use deployer::testCore44::{Self as Core, Value, ValueString, Race, RaceString };
 
     struct Race_Database has copy,drop,store,key {database: vector<Race>}
 
