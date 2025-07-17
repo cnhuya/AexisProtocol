@@ -1,4 +1,4 @@
-module deployer::testExpeditionsV2{
+module deployer::testExpeditionsV4{
 
     use std::debug::print;
     use std::string::{String,utf8};
@@ -7,7 +7,7 @@ module deployer::testExpeditionsV2{
     use std::signer;
     use std::vector;
     use supra_framework::event;
-    use deployer::testCore43::{Self as Core, Stat, Material, Item,Expedition, ExpeditionString};
+    use deployer::testCore44::{Self as Core, Stat, Material, Item,Expedition, ExpeditionString};
 
 // Structs
 
@@ -112,7 +112,7 @@ module deployer::testExpeditionsV2{
     }
 
 // Util Functions
-    fun expedition_exists(id: u8): bool acquires Expedition_Database{
+    public fun expedition_exists(id: u8): bool acquires Expedition_Database{
         let expedition_db = borrow_global_mut<Expedition_Database>(OWNER);
         let len = vector::length(&expedition_db.database);
         let exists:bool = false;
@@ -126,7 +126,7 @@ module deployer::testExpeditionsV2{
         exists
     }
 
-    fun distribute_exped_rewards(id: u8,time_on_exped: u64): vector<Material> acquires Expedition_Database{
+    public fun distribute_exped_rewards(id: u8,time_on_exped: u64): vector<Material> acquires Expedition_Database{
         let exped = viewExpeditionByID_raw(id);
         let len = vector::length(&Core::get_expedition_rewards(&exped));
         let vect = vector::empty<Material>();
@@ -143,7 +143,7 @@ module deployer::testExpeditionsV2{
     }
 
     
-    fun distribute_exped_costs(id: u8,time_on_exped: u64): vector<Material> acquires Expedition_Database{
+    public fun distribute_exped_costs(id: u8,time_on_exped: u64): vector<Material> acquires Expedition_Database{
         let exped = viewExpeditionByID_raw(id);
         let len = vector::length(&Core::get_expedition_costs(&exped));
         let vect = vector::empty<Material>();
