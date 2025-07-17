@@ -1,4 +1,4 @@
-module deployer::testDungeonsV2{
+module deployer::testDungeonsV3{
 
     use std::debug::print;
     use std::string::{String,utf8};
@@ -7,8 +7,8 @@ module deployer::testDungeonsV2{
     use std::signer;
     use std::vector;
     use supra_framework::event;
-    use deployer::testCore42::{Self as Core, Dungeon,DungeonString, Material, MaterialString };
-    use deployer::testEntitiesV3::{Self as Entities};
+    use deployer::testCore44::{Self as Core, Dungeon,DungeonString, Material, MaterialString };
+    use deployer::testEntitiesV4::{Self as Entities};
 
     struct DungeonString_Config has copy, drop, store,key {period: u64, cost: vector<MaterialString>}
     struct Dungeon_Config has copy, drop, store,key {period: u64, cost: vector<Material>}
