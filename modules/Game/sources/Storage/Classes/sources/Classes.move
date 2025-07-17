@@ -1,4 +1,4 @@
-module deployer::testClassV4{
+module deployer::testClassV5{
 
     use std::debug::print;
     use std::string::{String,utf8};
@@ -7,7 +7,7 @@ module deployer::testClassV4{
     use std::signer;
     use std::vector;
     use supra_framework::event;
-    use deployer::testCore41::{Self as Core, Ability, AbilityString, Value};
+    use deployer::testCore42::{Self as Core, Ability, AbilityString, Value};
 
     struct Ability_Database has copy, store, drop ,key {database: vector<Ability>}
 
