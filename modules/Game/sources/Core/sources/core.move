@@ -1,4 +1,4 @@
-module deployer::testCore42 {
+module deployer::testCore43 {
 
     use std::debug::print;
     use std::string::{String, utf8};
@@ -817,12 +817,12 @@ module deployer::testCore42 {
             };
             move vect
         }
-        public fun make_multiple_Abilities(classID: vector<u8>, names: vector<String>, required_chakra: vector<u32>,ids: vector<vector<u8>>, isEnemies: vector<vector<bool>>, vals: vector<vector<u16>>): vector<Ability> {
+        public fun make_multiple_Abilities(classID: u8, names: vector<String>, required_chakra: vector<u32>,ids: vector<vector<u8>>, isEnemies: vector<vector<bool>>, vals: vector<vector<u16>>): vector<Ability> {
             assert!(vector::length(&names) == vector::length(&required_chakra),5);
             let len = vector::length(&names);
             let vect = vector::empty<Ability>();
             while(len>0){
-                let reward = make_Ability(*vector::borrow(&classID, len-1),*vector::borrow(&names, len-1),*vector::borrow(&required_chakra, len-1),make_multiple_values(*vector::borrow(&ids, len-1), *vector::borrow(&isEnemies, len-1), *vector::borrow(&vals, len-1)));
+                let reward = make_Ability(classID,*vector::borrow(&names, len-1),*vector::borrow(&required_chakra, len-1),make_multiple_values(*vector::borrow(&ids, len-1), *vector::borrow(&isEnemies, len-1), *vector::borrow(&vals, len-1)));
                 vector::push_back(&mut vect, reward);
                 len=len-1;
             };
