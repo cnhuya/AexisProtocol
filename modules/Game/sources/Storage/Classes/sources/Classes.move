@@ -1,4 +1,4 @@
-module deployer::testClassV6{
+module deployer::testClassV7{
 
     use std::debug::print;
     use std::string::{String,utf8};
@@ -58,16 +58,16 @@ module deployer::testClassV6{
             let ability = vector::borrow(&ability_db.database, len-1);
             if(Core::get_Ability_classID(ability) == classID){
                 vector::push_back(&mut vect, *ability);
-                let _class = ClassString {
-                    className: Core::convert_classID_to_String(classID),
-                    spells: Core::make_multiple_string_Abilities(vect),
-                };
-                return _class
             };
-            print(&len);
             len=len-1;
         };
-        abort(99)
+
+        let _class = ClassString {
+            className: Core::convert_classID_to_String(classID),
+            spells: Core::make_multiple_string_Abilities(vect),
+        };
+        return _class
+
     }
 
     #[view]
