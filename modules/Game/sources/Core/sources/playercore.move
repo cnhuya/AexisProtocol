@@ -1,4 +1,4 @@
-module deployer::testPlayerCore9 {
+module deployer::testPlayerCore10 {
 
     use std::debug::print;
     use std::string::{String, utf8};
@@ -8,7 +8,7 @@ module deployer::testPlayerCore9 {
     use std::vector;
     use supra_framework::event;
 
-    use deployer::testCore43 as Core;
+    use deployer::testCore44 as Core;
 
 // ===  ===  ===  ===  ===
 // ===     STRUCTS     ===
@@ -30,6 +30,15 @@ module deployer::testPlayerCore9 {
     struct StatPlayer has copy, drop, store{
         statName: String, value: u64, bonus: u64
     } 
+
+// ExpeditionPlayer
+    struct ExpeditionPlayer has copy, drop, store{
+        id: u8, entry_time: u64,
+    } 
+
+    struct ExpeditionPlayerString has copy, drop, store{
+        name: String, entry_time: u64,
+    }  
 
 // Examine
     struct Examine has copy, drop, store{
@@ -141,6 +150,24 @@ module deployer::testPlayerCore9 {
         }
         public fun get_oponent_name(oponent: &Oponent): String {
             oponent.name
+        }
+// ExpeditionPlayer
+    //makes
+        public fun make_expeditionPlayer(id: u8, entry_time: u64): ExpeditionPlayer {
+            ExpeditionPlayer { id: id, entry_time: entry_time}
+        }
+        public fun make_empty_expeditionPlayer(): ExpeditionPlayer {
+            ExpeditionPlayer { id: 1, entry_time: 0}
+        }
+        public fun make_expeditionPlayerString(expeditionPlayer: &ExpeditionPlayer): ExpeditionPlayerString {
+            ExpeditionPlayerString { name: Core::convert_expeditionID_to_String(expeditionPlayer.id), entry_time: expeditionPlayer.entry_time}
+        }
+    //gets
+        public fun get_expeditionPlayer_id(expeditionPlayer: &ExpeditionPlayer): u8 {
+            expeditionPlayer.id
+        }
+        public fun get_expeditionPlayer_entry_time(expeditionPlayer: &ExpeditionPlayer): u64 {
+            expeditionPlayer.entry_time
         }
 // ===  ===  ===  ===  ===  ===
 // ===   BATCH CONVERTIONS  ===
