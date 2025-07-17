@@ -1,4 +1,4 @@
-module deployer::testCore43 {
+module deployer::testCore44 {
 
     use std::debug::print;
     use std::string::{String, utf8};
@@ -171,17 +171,17 @@ module deployer::testCore43 {
     }  
 // Ability 
     struct Ability has copy, drop, store, key {
-        classID: u8, abilityName: String, required_chakra: u32, values: vector<Value>
+        abilityID: u8, classID: u8, abilityName: String, required_chakra: u32, values: vector<Value>
     }   
     struct AbilityString has copy, drop, store, key {
-        className: String, abilityName: String, required_chakra: u32, values: vector<ValueString>
+        abilityID: u8, className: String, abilityName: String, required_chakra: u32, values: vector<ValueString>
     }     
 // Item
     struct Item has copy, drop,store {
         typeID: u8, materialID: u8, rarityID: u8, rarityStats: vector<Stat>,stats: vector<Stat>
     }
   
-    struct ItemString has copy, drop {
+    struct ItemString has copy, drop, store {
         typeName: String, materialName: String, rarityName: String, rarityStats: vector<StatString>, stats: vector<StatString>
     }
 // ===  ===  ===  ===  === ===
@@ -785,14 +785,17 @@ module deployer::testCore43 {
 
 // Ability
      //makes
-        public fun make_Ability(classID: u8, abilityName: String, required_chakra: u32, values: vector<Value>): Ability {
-            Ability {classID: classID, abilityName: abilityName, required_chakra: required_chakra, values: values}
+        public fun make_Ability(abilityID: u8, classID: u8, abilityName: String, required_chakra: u32, values: vector<Value>): Ability {
+            Ability {abilityID: abilityID, classID: classID, abilityName: abilityName, required_chakra: required_chakra, values: values}
         }
         public fun make_string_Ability(ability: &Ability): AbilityString{
-            AbilityString { className: convert_classID_to_String(ability.classID), abilityName: ability.abilityName, required_chakra: ability.required_chakra, values: build_values_with_strings(ability.values)}
+            AbilityString { abilityID: ability.abilityID, className: convert_classID_to_String(ability.classID), abilityName: ability.abilityName, required_chakra: ability.required_chakra, values: build_values_with_strings(ability.values)}
         }
 
     //gets
+        public fun get_Ability_abilityID(ability: &Ability): u8{
+            ability.abilityID
+        }
         public fun get_Ability_classID(ability: &Ability): u8{
             ability.classID
         }
@@ -801,6 +804,9 @@ module deployer::testCore43 {
         }
         public fun get_Ability_required_chakra(ability: &Ability): u32 {
             ability.required_chakra
+        }
+        public fun get_Ability_values(ability: &Ability): vector<Value> {
+            ability.values
         }
     //change
         public fun change_Ability_required_chakra(ability: &mut Ability,new_chakra: u32) {
@@ -817,12 +823,12 @@ module deployer::testCore43 {
             };
             move vect
         }
-        public fun make_multiple_Abilities(classID: u8, names: vector<String>, required_chakra: vector<u32>,ids: vector<vector<u8>>, isEnemies: vector<vector<bool>>, vals: vector<vector<u16>>): vector<Ability> {
+        public fun make_multiple_Abilities(idss: vector<u8>, classID: u8, names: vector<String>, required_chakra: vector<u32>,ids: vector<vector<u8>>, isEnemies: vector<vector<bool>>, vals: vector<vector<u16>>): vector<Ability> {
             assert!(vector::length(&names) == vector::length(&required_chakra),5);
             let len = vector::length(&names);
             let vect = vector::empty<Ability>();
             while(len>0){
-                let reward = make_Ability(classID,*vector::borrow(&names, len-1),*vector::borrow(&required_chakra, len-1),make_multiple_values(*vector::borrow(&ids, len-1), *vector::borrow(&isEnemies, len-1), *vector::borrow(&vals, len-1)));
+                let reward = make_Ability(*vector::borrow(&idss, len-1),classID,*vector::borrow(&names, len-1),*vector::borrow(&required_chakra, len-1),make_multiple_values(*vector::borrow(&ids, len-1), *vector::borrow(&isEnemies, len-1), *vector::borrow(&vals, len-1)));
                 vector::push_back(&mut vect, reward);
                 len=len-1;
             };
