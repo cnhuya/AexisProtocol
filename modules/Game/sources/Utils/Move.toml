@@ -15,10 +15,6 @@ git = "https://github.com/Entropy-Foundation/aptos-core.git"
 rev = "dev"
 subdir = "aptos-move/framework/supra-framework"
 
-[dependencies.testCore31]
-git = 'https://github.com/cnhuya/test.git'
-rev = 'main'
-subdir = 'modules/Game/sources/Core'
 
 [dependencies.randomv1]
 git = 'https://github.com/cnhuya/test.git'
