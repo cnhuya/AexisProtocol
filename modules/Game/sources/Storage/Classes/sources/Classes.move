@@ -1,4 +1,4 @@
-module deployer::testClassV8{
+module deployer::testClassV9{
 
     use std::debug::print;
     use std::string::{String,utf8};
@@ -71,12 +71,12 @@ module deployer::testClassV8{
     }
 
     #[view]
-    public fun viewClassSpell(classID: u8, spellName: String): AbilityString acquires Ability_Database {
+    public fun viewClassSpell(id: u8,): AbilityString acquires Ability_Database {
         let ability_db = borrow_global<Ability_Database>(OWNER);
         let len = vector::length(&ability_db.database);
         while(len>0){
             let ability = vector::borrow(&ability_db.database, len-1);
-            if(Core::get_Ability_classID(ability) == classID && Core::get_Ability_name(ability) == spellName){
+            if(Core::get_Ability_classID(ability) == id){
                 return Core::make_string_Ability(ability);
             };
             len=len-1;
@@ -85,12 +85,12 @@ module deployer::testClassV8{
     }
 
     #[view]
-    public fun viewClassSpell_raw(classID: u8, spellName: String): Ability acquires Ability_Database {
+    public fun viewClassSpell_raw(id: u8): Ability acquires Ability_Database {
         let ability_db = borrow_global<Ability_Database>(OWNER);
         let len = vector::length(&ability_db.database);
         while(len>0){
             let ability = vector::borrow(&ability_db.database, len-1);
-            if(Core::get_Ability_classID(ability) == classID && Core::get_Ability_name(ability) == spellName){
+            if(Core::get_Ability_abilityID(ability) == id){
                 return *ability
             };
             len=len-1;
