@@ -57,6 +57,11 @@ module deployer::testItemsV4{
     addMultipleRaritiesToConfig(address,(vector[1u8, 2u8, 3u8, 4u8, 5u8]: vector<u8>),(vector[30u8, 25u8, 20u8, 15u8, 10u8]: vector<u8>),(vector[110u16, 120u16, 130u16,140u16,150u16]: vector<u16>) );
     }
 
+
+    public fun get_item_crafting(item: &FullItem): vector<MaterialString>{
+        item.crafting
+    }
+
 public entry fun addItemTypeToConfig(address: &signer, typeIDs: u8, crafting_multies: u8, stat_ids: vector<u8>, stat_mins: vector<u64>, stat_maxs: vector<u64>) acquires Item_Type_Config {
     let addr = signer::address_of(address);
     assert!(addr == OWNER, ERROR_NOT_OWNER);
@@ -242,6 +247,8 @@ public entry fun addMultipleItemMaterialTypesToConfig(address: &signer, material
         };
          abort(1)
     }
+
+
     #[view]
     public fun viewItem(typeID: u8, materialID: u8, rarityID: u8): FullItem acquires Item_Type_Config, Item_Material_Config {
         let item_list = borrow_global<Item_Type_Config>(OWNER);
@@ -367,6 +374,7 @@ public entry fun addMultipleItemMaterialTypesToConfig(address: &signer, material
         };
         abort(999)
     }
+    
 
     public fun generateRandomRarity(hash: u64): u8 acquires Rarity_Config {
         let rarity_config = borrow_global<Rarity_Config>(OWNER);
