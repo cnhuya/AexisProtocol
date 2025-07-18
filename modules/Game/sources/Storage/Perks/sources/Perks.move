@@ -73,6 +73,26 @@ public entry fun addPerk(address: &signer, perkID: u8, typeID: u8,name: String, 
         abort(1) // or define a specific error code
     }
 
+
+    #[view]
+    public fun viewPerkByID_raw(id: u8): Perk acquires Perk_Database {
+        let perk_list = borrow_global<Perk_Database>(OWNER);
+        let length = vector::length(&perk_list.database);
+        let i = 0;
+
+        while (i < length) {
+            let perk_ref = vector::borrow(&perk_list.database, i);
+            if (Core::get_perk_id(perk_ref) == id) {
+                return *perk_ref
+            };
+            i = i + 1;
+        };
+
+        // You might want to abort or return a default if not found
+        abort(1) // or define a specific error code
+    }
+
+
     #[view]
     public fun viewPerksByType(typeID: u8): vector<PerkString> acquires Perk_Database {
         let perk_list = borrow_global<Perk_Database>(OWNER);
