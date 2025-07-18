@@ -85,6 +85,20 @@ module deployer::testClassV8{
     }
 
     #[view]
+    public fun viewClassSpell_raw(classID: u8, spellName: String): Ability acquires Ability_Database {
+        let ability_db = borrow_global<Ability_Database>(OWNER);
+        let len = vector::length(&ability_db.database);
+        while(len>0){
+            let ability = vector::borrow(&ability_db.database, len-1);
+            if(Core::get_Ability_classID(ability) == classID && Core::get_Ability_name(ability) == spellName){
+                return *ability
+            };
+            len=len-1;
+        };
+        abort(99)
+    }
+
+    #[view]
     public fun viewClasses(): vector<ClassString> acquires Ability_Database {
         let vect = vector::empty<ClassString>();
         let max_classes = get_safe_class_count();
