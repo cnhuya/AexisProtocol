@@ -1,4 +1,4 @@
-module deployer::testCore44 {
+module deployer::testCore45 {
 
     use std::debug::print;
     use std::string::{String, utf8};
@@ -178,11 +178,11 @@ module deployer::testCore44 {
     }     
 // Item
     struct Item has copy, drop,store {
-        typeID: u8, materialID: u8, rarityID: u8, rarityStats: vector<Stat>,stats: vector<Stat>
+        itemID: u64, typeID: u8, materialID: u8, rarityID: u8, rarityStats: vector<Stat>,stats: vector<Stat>
     }
   
     struct ItemString has copy, drop, store {
-        typeName: String, materialName: String, rarityName: String, rarityStats: vector<StatString>, stats: vector<StatString>
+        itemID: u64, typeName: String, materialName: String, rarityName: String, rarityStats: vector<StatString>, stats: vector<StatString>
     }
 // ===  ===  ===  ===  === ===
 // ===  Factory Functions  ===
@@ -836,14 +836,17 @@ module deployer::testCore44 {
         }
 // Item
      //makes
-        public fun make_Item(typeID: u8, materialID: u8, rarityID: u8, rarityStats: vector<Stat>,stats: vector<Stat>): Item {
-            Item {typeID: typeID, materialID: materialID, rarityID: rarityID, rarityStats: rarityStats, stats: stats}
+        public fun make_Item(itemID: u64, typeID: u8, materialID: u8, rarityID: u8, rarityStats: vector<Stat>,stats: vector<Stat>): Item {
+            Item {itemID: itemID, typeID: typeID, materialID: materialID, rarityID: rarityID, rarityStats: rarityStats, stats: stats}
         }
         public fun make_string_item(item: &Item): ItemString {
-            ItemString { typeName: convert_typeID_to_String(item.typeID), materialName: convert_materialID_to_String(item.materialID), rarityName: convert_rarityID_to_String(item.rarityID), rarityStats: build_stats_with_strings(item.rarityStats), stats: build_stats_with_strings(item.stats)}
+            ItemString { itemID: item.itemID, typeName: convert_typeID_to_String(item.typeID), materialName: convert_materialID_to_String(item.materialID), rarityName: convert_rarityID_to_String(item.rarityID), rarityStats: build_stats_with_strings(item.rarityStats), stats: build_stats_with_strings(item.stats)}
         }
 
     //gets
+        public fun get_Item_itemID(item: &Item): u64{
+            item.itemID
+        }
         public fun get_Item_typeID(item: &Item): u8{
             item.typeID
         }
@@ -877,12 +880,12 @@ module deployer::testCore44 {
             };
             move vect
         }
-        public fun make_multiple_items(typeID: vector<u8>, materialID: vector<u8>, rarityID: vector<u8>, rarityStats: vector<vector<Stat>>,stats: vector<vector<Stat>>): vector<Item> {
+        public fun make_multiple_items(itemID: vector<u64>, typeID: vector<u8>, materialID: vector<u8>, rarityID: vector<u8>, rarityStats: vector<vector<Stat>>,stats: vector<vector<Stat>>): vector<Item> {
             assert!(vector::length(&typeID) == vector::length(&materialID),5);
             let len = vector::length(&typeID);
             let vect = vector::empty<Item>();
             while(len>0){
-                let item = make_Item(*vector::borrow(&typeID, len-1),*vector::borrow(&materialID, len-1), *vector::borrow(&rarityID, len-1),*vector::borrow(&rarityStats, len-1),(*vector::borrow(&stats, len-1)));
+                let item = make_Item(*vector::borrow(&itemID, len-1),*vector::borrow(&typeID, len-1),*vector::borrow(&materialID, len-1), *vector::borrow(&rarityID, len-1),*vector::borrow(&rarityStats, len-1),(*vector::borrow(&stats, len-1)));
                 vector::push_back(&mut vect, item);
                 len=len-1;
             };
