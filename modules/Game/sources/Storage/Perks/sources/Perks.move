@@ -1,4 +1,4 @@
-module deployer::testPerksV9{
+module deployer::testPerksV10{
 
     use std::debug::print;
     use std::string::{String,utf8};
@@ -7,7 +7,7 @@ module deployer::testPerksV9{
     use std::signer;
     use std::vector;
     use supra_framework::event;
-    use deployer::testCore44::{Self as Core, Value, ValueString, Perk, PerkString };
+    use deployer::testCore45::{Self as Core, Value, ValueString, Perk, PerkString };
 
 
     struct Perk_Database has copy, drop, key, store {database: vector<Perk>}
