@@ -1,4 +1,4 @@
-module deployer::testExpeditionsV4{
+module deployer::testExpeditionsV5{
 
     use std::debug::print;
     use std::string::{String,utf8};
@@ -7,7 +7,7 @@ module deployer::testExpeditionsV4{
     use std::signer;
     use std::vector;
     use supra_framework::event;
-    use deployer::testCore44::{Self as Core, Stat, Material, Item,Expedition, ExpeditionString};
+    use deployer::testCore45::{Self as Core, Stat, Material, Item,Expedition, ExpeditionString};
 
 // Structs
 
