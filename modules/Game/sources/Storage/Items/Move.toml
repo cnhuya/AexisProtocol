@@ -1,5 +1,5 @@
 [package]
-name = "itemsPkg3"
+name = "itemsPkg4"
 version = "1.0.0"
 authors = []
 
@@ -15,7 +15,7 @@ git = "https://github.com/Entropy-Foundation/aptos-core.git"
 rev = "dev"
 subdir = "aptos-move/framework/supra-framework"
 
-[dependencies.testCore44]
+[dependencies.testCore45]
 git = 'https://github.com/cnhuya/test.git'
 rev = 'main'
 subdir = 'modules/Game/sources/Core'
