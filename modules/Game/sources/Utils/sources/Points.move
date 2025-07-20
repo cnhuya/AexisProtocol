@@ -1,4 +1,4 @@
-module deployer::testPoints3 {
+module deployer::testPoints4 {
     use std::debug::print;
     use std::string::{String, utf8};
     use std::signer;
@@ -6,7 +6,7 @@ module deployer::testPoints3 {
     use std::vector;
     use supra_framework::coin::{Self};
     use supra_framework::supra_coin::{Self, SupraCoin};
-    use deployer::testStats1::{Self as Stats};
+    use deployer::testStats2::{Self as Stats};
 
 // Structs
     struct Points has copy, key, drop, store {amount: u64}
