@@ -1,4 +1,4 @@
-module deployer::testClassV9{
+module deployer::testClassV10{
 
     use std::debug::print;
     use std::string::{String,utf8};
@@ -7,7 +7,7 @@ module deployer::testClassV9{
     use std::signer;
     use std::vector;
     use supra_framework::event;
-    use deployer::testCore44::{Self as Core, Ability, AbilityString, Value};
+    use deployer::testCore45::{Self as Core, Ability, AbilityString, Value};
 
     struct Ability_Database has copy, store, drop ,key {database: vector<Ability>}
 
@@ -77,7 +77,7 @@ module deployer::testClassV9{
         while(len>0){
             let ability = vector::borrow(&ability_db.database, len-1);
             if(Core::get_Ability_classID(ability) == id){
-                return Core::make_string_Ability(ability);
+                return Core::make_string_Ability(ability)
             };
             len=len-1;
         };
