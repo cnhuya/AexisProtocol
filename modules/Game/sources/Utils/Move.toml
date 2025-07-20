@@ -1,5 +1,5 @@
 [package]
-name = "testUtils1"
+name = "testUtils2"
 version = "2.1.1"
 authors = []
 
@@ -14,7 +14,6 @@ supra_framework = "0x1"
 git = "https://github.com/Entropy-Foundation/aptos-core.git"
 rev = "dev"
 subdir = "aptos-move/framework/supra-framework"
-
 
 [dependencies.randomv1]
 git = 'https://github.com/cnhuya/test.git'
