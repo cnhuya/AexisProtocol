@@ -1,4 +1,4 @@
-module deployer::testItemsV4{
+module deployer::testItemsV5{
 
     use std::debug::print;
     use std::string::{String,utf8};
@@ -8,12 +8,12 @@ module deployer::testItemsV4{
     use std::vector;
     use supra_framework::event;
     use dev::randomv1;
-    use deployer::testCore44::{Self as Core, Material, MaterialString, Stat, StatString, StatRange, StatRangeString, Rarity, RarityString, Item, ItemString };
+    use deployer::testCore45::{Self as Core, Material, MaterialString, Stat, StatString, StatRange, StatRangeString, Rarity, RarityString, Item, ItemString };
 
-    struct Simulated_Item has copy, drop{typeID: u8, typeName: String, crafting_multi: u8, materialID: u8, materialName: String, rarityID: u8, rarityName: String, rarity_bonus_stats: vector<StatString>, stats: vector<StatString>}
-    struct FullItem has copy, drop {typeID: u8, typeName: String, crafting_multi: u8, materialID: u8, materialName: String, rarityID: u8, rarityName: String,  stats: vector<StatRangeString>, crafting: vector<MaterialString>}
+    struct Simulated_Item has copy, drop{itemID: u64, typeID: u8, typeName: String, crafting_multi: u8, materialID: u8, materialName: String, rarityID: u8, rarityName: String, rarity_bonus_stats: vector<StatString>, stats: vector<StatString>}
+    struct FullItem has copy, drop {itemID: u64, typeID: u8, typeName: String, crafting_multi: u8, materialID: u8, materialName: String, rarityID: u8, rarityName: String,  stats: vector<StatRangeString>, crafting: vector<MaterialString>}
 
-    struct DisplayItem has copy, drop {typeName: String, materialName: String, stats: vector<StatRangeString>, crafting: vector<MaterialString>}
+    struct DisplayItem has copy, drop {itemID: u64, typeName: String, materialName: String, stats: vector<StatRangeString>, crafting: vector<MaterialString>}
 
     // 1 = 0,01%
     // 10000 = 100%
@@ -32,6 +32,7 @@ module deployer::testItemsV4{
     struct Item_Type has copy, drop, store, key {typeID: u8, crafting_multi: u8, stats: vector<StatRange>}
     struct Item_Type_With_String has copy, drop, store, key {typeID: u8, typeName: String, crafting_multi: u8, stats: vector<StatRangeString>}
 
+    struct Item_Counter has copy, store, drop, key {count: u64}
 
 
 
@@ -48,6 +49,9 @@ module deployer::testItemsV4{
         if (!exists<Item_Type_Config>(deploy_addr)) {
           move_to(address, Item_Type_Config { config: vector::empty()});
         };
+        if (!exists<Item_Counter>(deploy_addr)) {
+          move_to(address, Item_Counter { count: 0});
+        };
         if (!exists<Item_Material_Config>(deploy_addr)) {
           move_to(address, Item_Material_Config { config: vector::empty()});
         };
@@ -58,8 +62,18 @@ module deployer::testItemsV4{
     }
 
 
+    public fun add_count_item() acquires Item_Counter{
+        let counter = borrow_global_mut<Item_Counter>(OWNER);
+        counter.count = counter.count + 1;
+    }
+
     public fun get_item_crafting(item: &FullItem): vector<MaterialString>{
         item.crafting
+    }
+
+    public fun get_count_item(): u64 acquires Item_Counter{
+        let counter = borrow_global_mut<Item_Counter>(OWNER);
+        counter.count
     }
 
 public entry fun addItemTypeToConfig(address: &signer, typeIDs: u8, crafting_multies: u8, stat_ids: vector<u8>, stat_mins: vector<u64>, stat_maxs: vector<u64>) acquires Item_Type_Config {
@@ -250,13 +264,14 @@ public entry fun addMultipleItemMaterialTypesToConfig(address: &signer, material
 
 
     #[view]
-    public fun viewItem(typeID: u8, materialID: u8, rarityID: u8): FullItem acquires Item_Type_Config, Item_Material_Config {
+    public fun viewItem(typeID: u8, materialID: u8, rarityID: u8): FullItem acquires Item_Type_Config, Item_Material_Config, Item_Counter {
         let item_list = borrow_global<Item_Type_Config>(OWNER);
         
         let stats = viewItemTypeConfigById(typeID);
         let crafting = viewItemMaterialConfigById(materialID);
 
         let _item = FullItem{
+            itemID: get_count_item(),
             typeID: typeID,
             typeName: Core::convert_typeID_to_String(typeID),
             crafting_multi: stats.crafting_multi,
@@ -274,20 +289,21 @@ public entry fun addMultipleItemMaterialTypesToConfig(address: &signer, material
 
 
     #[view]
-    public fun viewFinalizedItem(typeID: u8, materialID: u8, rarityID: u8, user_level: u8, hash:u64): Item acquires Item_Type_Config, Item_Material_Config, Rarity_Config {
+    public fun viewFinalizedItem(typeID: u8, materialID: u8, rarityID: u8, user_level: u8, hash:u64): Item acquires Item_Type_Config, Item_Material_Config, Rarity_Config, Item_Counter {
         let fake_item = viewItem(typeID, materialID, rarityID);
         
-         Core::make_Item(typeID,materialID,rarityID,rarity_simulation_test(rarityID, user_level, hash),item_simulation_test(fake_item.stats, user_level, hash))
+         Core::make_Item(get_count_item(), typeID,materialID,rarityID,rarity_simulation_test(rarityID, user_level, hash),item_simulation_test(fake_item.stats, user_level, hash))
          }
 
     #[view]
-    public fun viewItemSet(materialID: u8, rarityID: u8): vector<DisplayItem> acquires Item_Type_Config, Item_Material_Config {
+    public fun viewItemSet(materialID: u8, rarityID: u8): vector<DisplayItem> acquires Item_Type_Config, Item_Material_Config, Item_Counter {
         
         let item_count = 16;
         let vect = vector::empty<DisplayItem>();
         while(item_count>0){
             let fake_item = viewItem(item_count, materialID, rarityID);
             let item = DisplayItem{
+                itemID: get_count_item(),
                 typeName: Core::convert_typeID_to_String(item_count),
                 materialName: Core::convert_materialID_to_String(materialID),
                 stats: fake_item.stats,
