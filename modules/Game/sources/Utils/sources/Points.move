@@ -92,4 +92,22 @@ module deployer::testPoints4 {
             }
         }
 
+ #[test(account = @0x1, owner = @0x281d0fce12a353b1f6e8bb6d1ae040a6deba248484cf8e9173a5b428a6fb74e7)]
+     public entry fun test(account: signer, owner: signer){
+        print(&utf8(b" ACCOUNT ADDRESS "));
+        print(&account);
+
+
+        print(&utf8(b" OWNER ADDRESS "));
+        print(&owner);
+
+
+        let source_addr = signer::address_of(&account);
+        
+        init_module(&owner);
+
+    }
+
+
 }
+
