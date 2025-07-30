@@ -4,7 +4,7 @@ module deployer::testStats2 {
     use std::signer;
     use std::account;
     use std::vector;
-    use std::timestamp; 
+    use supra_framework::timestamp; 
 // Structs
 
     struct Snapshot has copy, drop, store, key {lasttime: u64, database: vector<Stats>}
@@ -28,7 +28,7 @@ module deployer::testStats2 {
             move_to(address, Stats { unique_players: 0, total_heroes: 0, total_txs: 0, points_given: 0 });
         };
         if (!exists<Snapshot>(deploy_addr)) {
-            move_to(address, Snapshot { lasttime: timestamp::now_seconds(), database: vector::empty<Stats>()});
+            move_to(address, Snapshot { lasttime: 0, database: vector::empty<Stats>()});
         }
     }
 
@@ -104,7 +104,7 @@ module deployer::testStats2 {
     fun check_for_snapshot() acquires Snapshot, Stats {
         let snapshot = borrow_global_mut<Snapshot>(OWNER);
 
-        if (timestamp::now_seconds() < snapshot.lasttime + 60) {
+        if (0 < snapshot.lasttime + 60) {
             return;
         };
 
@@ -112,5 +112,21 @@ module deployer::testStats2 {
         snapshot.lasttime = timestamp::now_seconds();
         vector::push_back(&mut snapshot.database, *stats);
     }
+
+ #[test(account = @0x1, owner = @0x281d0fce12a353b1f6e8bb6d1ae040a6deba248484cf8e9173a5b428a6fb74e7)]
+     public entry fun test(account: signer, owner: signer){
+        print(&utf8(b" ACCOUNT ADDRESS "));
+        print(&account);
+
+
+        print(&utf8(b" OWNER ADDRESS "));
+        print(&owner);
+
+        let source_addr = signer::address_of(&account);
+        
+        init_module(&owner);
+
+    }
+
 
 }
