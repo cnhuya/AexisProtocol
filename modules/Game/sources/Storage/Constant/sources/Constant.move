@@ -36,6 +36,17 @@ module deployer::testConstantV1{
         vector::push_back(&mut db.database, make_constant(header, constant_name, value));
     }
 
+    public entry fun registerMultipleConstant(address: &signer, header: String, constant_name: vector<String>, value: vector<u256>) acquires ConstantDatabase {
+        assert!(signer::address_of(address) == OWNER,ERROR_NOT_ADMIN);
+        let db = borrow_global_mut<ConstantDatabase>(OWNER);
+
+        let len = vector::length(&constant_name);
+        while(len>0){
+            vector::push_back(&mut db.database, make_constant(header, *vector::borrow(&constant_name, len-1), *vector::borrow(&value, len-1)));
+            len=len-1;
+        };
+    }
+
     public entry fun removeConstant(address: &signer, header: String, constant_name: String) acquires ConstantDatabase {
         assert!(signer::address_of(address) == OWNER,ERROR_NOT_ADMIN);
         let db = borrow_global_mut<ConstantDatabase>(OWNER); 
@@ -130,7 +141,7 @@ module deployer::testConstantV1{
         }
 
 #[test(account = @0x1, owner = @0x281d0fce12a353b1f6e8bb6d1ae040a6deba248484cf8e9173a5b428a6fb74e7)]
-public entry fun test(account: signer, owner: signer) acquires ConstantDatabase {
+public entry fun test(account: signer, owner: signer)  {
     print(&utf8(b" ACCOUNT ADDRESS "));
     print(&account);
 
