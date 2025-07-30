@@ -41,6 +41,24 @@ module deployer::testConstantV4{
 
 // Entry Functions
 
+    public fun get_constant_header(constant: &Constant): String{
+        constant.header
+    }
+
+        public fun get_constant_name(constant: &Constant): String{
+        constant.name
+    }
+
+        public fun get_constant_value(constant: &Constant): u128{
+        constant.value
+    }
+
+        public fun get_constant_editable(constant: &Constant): bool{
+        constant.editable
+    }
+
+    
+
     public entry fun registerHeader(address: &signer, header: String) acquires Headers {
         assert!(signer::address_of(address) == OWNER,ERROR_NOT_ADMIN);
         let db = borrow_global_mut<Headers>(OWNER);
