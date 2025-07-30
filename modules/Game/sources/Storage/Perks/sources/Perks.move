@@ -147,33 +147,21 @@ public entry fun addPerk(address: &signer, perkID: u8, typeID: u8,name: String, 
         init_module(&owner);
 
     //typeID: u8, elementID: u8,name: vector<u8>, stamina: u8, damage: u32, desc: String)
-
         let desc = b"Necromancer can active his special ability which allows him to slowly  <span class=\"notice\">drain enemy</span> soul...";
         let clean = utf8(desc);
         account::create_account_for_test(source_addr); 
         print(&utf8(b" USER STATS "));
-        addValue(&owner, 3, true, 47);
-        addValue(&owner, 5, false, 3);
-        addValue(&owner, 1, true, 10);
-addPerk(
-    &owner,
-    1,
-    utf8(b"testperk"),
-    5,
-    0,
-);
+    addPerk(
+        &owner,
+        1,
+        2,
+        utf8(b"testperk"),
+        5,
+        15,
+        vector::empty<u8>(),        // valueIDs
+        vector::empty<bool>(),      // valueIsEnemy
+        vector::empty<u16>()        // valueAmount
+    );
         print(&viewPerks());
-        print(&viewPerksByType(1));
-        print(&viewPerkByID(0));
-        print(&viewPerkByName(utf8(b"testperk")));
-        print(&get_perks_ID_list());
-        print(&get_perks_values(utf8(b"testperk")));
-        change_Perks_Values(&owner, utf8(b"testperk"),1,100);
-        print(&get_perks_values(utf8(b"testperk")));
-        change_Perk_Damage(&owner, utf8(b"testperk",),15);
-        print(&viewPerkByName(utf8(b"testperk")));
-        change_Perk_Stamina(&owner, utf8(b"testperk",),3);
-        print(&viewPerkByName(utf8(b"testperk")));
-        print(&get_perks_ID_list());
   }
 }   
