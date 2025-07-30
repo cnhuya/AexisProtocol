@@ -150,31 +150,30 @@ public entry fun test(account: signer, owner: signer) acquires Ability_Database 
 
     print(&utf8(b" USER STATS "));
 
-    // Sample passive data
-    let passive_name = vector[utf8(b"passive1"), utf8(b"passive2")];
-    let passive_valueIDs = vector[1u32,5u32];
-    let passive_valueIDs = vector[vector[1u8], vector[2u8]];
-    let passive_valueIsEnemies = vector[vector[true], vector[false]];
-    let passive_valueValues = vector[vector[10u8], vector[20u8]];
+// Sample passive data
+let passive_name = vector[utf8(b"passive1"), utf8(b"passive2")];
+let required_chakra = vector[1u32, 5u32]; // missing argument added
+let passive_valueIDs = vector[vector[1u8], vector[2u8]];
+let passive_valueIsEnemies = vector[vector[true], vector[false]];
+let passive_valueValues = vector[vector[10u16], vector[20u16]];
+
+// ability ids
+let ability_ids = vector[1u8, 2u8];
+
+// createAbilitiesForClass
+//(address: &signer, abilityids: vector<u8> ,classID: u8, passive_Name: vector<String>, required_chakra: vector<u32>, passive_valueIDs: vector<vector<u8>>, passive_valueIsEnemies: vector<vector<bool>>, passive_valueValues: vector<vector<u16>>) acquires Ability_Database {
+createAbilitiesForClass(
+    &owner,
+    ability_ids,          // abilityids
+    1,                    // classID
+    passive_name,         // passive_Name
+    required_chakra,      // required_chakra
+    passive_valueIDs,     // passive_valueIDs
+    passive_valueIsEnemies, // passive_valueIsEnemies
+    passive_valueValues   // passive_valueValues
+);
 
 
-    createClass(
-        &owner,
-        1, // classID
-        passive_name,
-        passive_valueIDs,
-        passive_valueIsEnemies,
-        passive_valueValues,
-    );
-
-        createClass(
-        &owner,
-        2, // classID
-        passive_name,
-        passive_valueIDs,
-        passive_valueIsEnemies,
-        passive_valueValues,
-    );
     print(&viewClass(1));
     print(&viewClass(2));
     print(&viewClasses());
