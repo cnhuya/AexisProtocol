@@ -102,7 +102,7 @@ public fun viewRace(raceName: String): RaceString acquires Race_Database {
         let clean = utf8(desc);
         account::create_account_for_test(source_addr); 
         print(&utf8(b" USER STATS "));
-        addRace(&owner, 1,(vector[3u8, 1u8, 2u8]: vector<u8>),(vector[true, true, false]: vector<bool>),(vector[3u8, 1u8, 2u8]: vector<u8>));
+        addRace(&owner, 1,(vector[3u8, 1u8, 2u8]: vector<u8>),(vector[true, true, false]: vector<bool>),(vector[3u16, 1u16, 2u16]: vector<u16>));
         print(&viewRaces());
         print(&viewRace(utf8(b"Human")));
     }
