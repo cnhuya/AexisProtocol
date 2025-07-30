@@ -387,6 +387,7 @@ public entry fun addMultipleItemMaterialTypesToConfig(address: &signer, material
             if(Core::get_rarity_id(*rarity) == id){
                 return Core::get_rarity_chance(*rarity)
             };
+            len=len-1;
         };
         abort(999)
     }
@@ -471,7 +472,7 @@ public entry fun addMultipleItemMaterialTypesToConfig(address: &signer, material
 
 // Test
  #[test(account = @0x1, owner = @0x281d0fce12a353b1f6e8bb6d1ae040a6deba248484cf8e9173a5b428a6fb74e7)]
-     public entry fun test(account: signer, owner: signer) acquires Item_Material_Config, Item_Type_Config, Rarity_Config{
+     public entry fun test(account: signer, owner: signer) acquires Item_Material_Config, Item_Type_Config, Rarity_Config, Item_Counter{
         print(&utf8(b" ACCOUNT ADDRESS "));
         print(&account);
 
@@ -532,15 +533,13 @@ addMultipleItemMaterialTypesToConfig(
        // createRarityConfig(&owner);
         print(&viewRarityConfig());
         //changeRarityMulti(&owner, 3, 100);
-        print(&viewRarityConfig());
        // print(&generateRandomRarity());
-        print(&get_rarity_chance(1));
         print(&get_rarity_chance(2));
+        print(&get_rarity_chance(3));
         //changeRarityStats(&owner, 1,500,1000);
         print(&viewRarityConfig());
         print(&viewItemsMaterialConfig());
-        let item = &viewItem(1,2,2);
-        print(&viewFinalizedItem(1,6,1,1,1));
+       // print(&viewFinalizedItem(1,2,1,1,1));
         //print(&generateRandomRarity());
          //print(&viewSimulatedRarityBonusStats(1,5));
   }
