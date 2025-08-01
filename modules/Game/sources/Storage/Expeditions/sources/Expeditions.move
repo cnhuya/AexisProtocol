@@ -1,4 +1,4 @@
-module deployer::testExpeditionsV5{
+module deployer::testExpeditionsV6{
 
     use std::debug::print;
     use std::string::{String,utf8};
@@ -69,16 +69,16 @@ module deployer::testExpeditionsV5{
 
     #[view]
     public fun viewExpeditionByID_raw(id: u8): Expedition acquires Expedition_Database {
-        let expedition_db = borrow_global_mut<Expedition_Database>(OWNER);
-        let len = vector::length(&expedition_db.database);
-        while(len < 0){
-            let expedition = vector::borrow(&expedition_db.database, len-1);
+        let expeditions = viewExpeditions();
+        let len = vector::length(&expeditions);
+        while(len > 0){
+            let expedition = vector::borrow(&expeditions, len-1);
             if(Core::get_expedition_ID(expedition) == id){
                 return *expedition
             };
             len=len-1;
         };
-        abort(000)
+        abort(087)
     }
 
     #[view]
@@ -125,7 +125,7 @@ module deployer::testExpeditionsV5{
         };
         exists
     }
-
+    #[view]
     public fun distribute_exped_rewards(id: u8,time_on_exped: u64): vector<Material> acquires Expedition_Database{
         let exped = viewExpeditionByID_raw(id);
         let len = vector::length(&Core::get_expedition_rewards(&exped));
@@ -142,7 +142,7 @@ module deployer::testExpeditionsV5{
 
     }
 
-    
+    #[view]
     public fun distribute_exped_costs(id: u8,time_on_exped: u64): vector<Material> acquires Expedition_Database{
         let exped = viewExpeditionByID_raw(id);
         let len = vector::length(&Core::get_expedition_costs(&exped));
@@ -160,18 +160,41 @@ module deployer::testExpeditionsV5{
 
 
 #[test(account = @0x1, owner = @0x281d0fce12a353b1f6e8bb6d1ae040a6deba248484cf8e9173a5b428a6fb74e7)]
-public entry fun test(account: signer, owner: signer){
+public entry fun test(account: signer, owner: signer) acquires Expedition_Database {
+    // Print addresses
     print(&utf8(b" ACCOUNT ADDRESS "));
-    print(&account);
+    print(&signer::address_of(&account));
 
     print(&utf8(b" OWNER ADDRESS "));
-    print(&owner);
+    print(&signer::address_of(&owner));
 
     let source_addr = signer::address_of(&account);
+
+    // Initialize module for owner
     init_module(&owner);
+
+    // Create account for testing
     account::create_account_for_test(source_addr);
 
     print(&utf8(b" USER STATS "));
 
-}}
+    // Call registerExpedition with valid arguments
+    registerExpedition(
+        &owner,
+        1,                      // expeditionID
+        1,                      // required_level
+        vector[1u8],            // costMaterialIDs
+        vector[1u32],           // costMaterialAmount
+        vector[100u64],         // costMaterialPeriod
+        vector[2u8],            // rewardMaterialIDs
+        vector[10u32],          // rewardMaterialAmounts
+        vector[200u64]          // rewardMaterialPeriod
+    );
+
+    // Print expedition data
+    print(&viewExpeditions());
+    print(&viewExpeditionByID_raw(1));
+    print(&distribute_exped_rewards(1, 99999));
+}
+}
 
