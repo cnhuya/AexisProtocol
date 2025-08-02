@@ -1,4 +1,4 @@
-module deployer::testPerksV11{
+module deployer::testPerksV12{
 
     use std::debug::print;
     use std::string::{String,utf8};
@@ -144,14 +144,14 @@ public entry fun addPerk(address: &signer, perkID: u8, typeID: u8,name: String, 
     }
 
     
-public fun calculate_perk_usage(perksID: vector<u8>, level: u8): PerksUsage acquires Perk_Database {
+public fun calculate_perk_usage(perksID: vector<u16>, level: u8): PerksUsage acquires Perk_Database {
     let i = vector::length(&perksID);
     let total = 0;
     
     while (i > 0) {
         i = i - 1;
         let perkID = vector::borrow(&perksID, i);
-        let perk = viewPerkByID_raw(*perkID);
+        let perk = viewPerkByID_raw((*perkID as u8));
         let required = calculate_required_perk(&perk);
         total = total + required;
     };
@@ -194,4 +194,3 @@ public fun calculate_perk_usage(perksID: vector<u8>, level: u8): PerksUsage acqu
         print(&viewPerks());
   }
 }   
-
