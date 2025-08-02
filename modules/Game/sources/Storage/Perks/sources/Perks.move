@@ -1,4 +1,4 @@
-module deployer::testPerksV10{
+module deployer::testPerksV11{
 
     use std::debug::print;
     use std::string::{String,utf8};
@@ -194,3 +194,4 @@ public fun calculate_perk_usage(perksID: vector<u8>, level: u8): PerksUsage acqu
         print(&viewPerks());
   }
 }   
+
