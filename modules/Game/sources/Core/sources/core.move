@@ -196,6 +196,15 @@ module deployer::testCore45 {
             MaterialString { materialID: material.materialID, materialName: convert_materialID_to_String(material.materialID), amount: material.amount}
         }
 
+    //convert
+        public fun convert_material(material: &mut Material): Material {
+            let amt = get_material_amount(material);
+            if (amt > 0) {
+                change_material_amount(material, amt / 10);
+            };
+            *material
+        }
+
 
     //changes
         public fun change_material_amount(material: &mut Material, amount: u32): Material {
