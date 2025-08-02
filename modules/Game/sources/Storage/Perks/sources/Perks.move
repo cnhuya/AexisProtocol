@@ -8,6 +8,7 @@ module deployer::testPerksV10{
     use std::vector;
     use supra_framework::event;
     use deployer::testCore45::{Self as Core, Value, ValueString, Perk, PerkString };
+    use deployer::testPlayerCore11::{Self as PlayerCore , PerksUsage };
 
 
     struct Perk_Database has copy, drop, key, store {database: vector<Perk>}
@@ -124,13 +125,41 @@ public entry fun addPerk(address: &signer, perkID: u8, typeID: u8,name: String, 
         };
     }
 
-    fun calculate_required_perk(perk: &Perk): u8{
-        if((Core::get_perk_stamina(perk) + Core::get_perk_cooldown(perk)) < 5){
-            return 1
+    fun calculate_required_perk(perk: &Perk): u8 {
+        let total = Core::get_perk_stamina(perk) + Core::get_perk_cooldown(perk);
+
+        if (total < 10) {
+            1
+        } else if (total < 25) {
+            2
+        } else if (total < 50) {
+            3
+        } else if (total < 100) {
+            4
+        } else if (total < 200) {
+            5
         } else {
-            return ((Core::get_perk_stamina(perk) + Core::get_perk_cooldown(perk)) / 5)
+            6 // default for very high values
         }
     }
+
+    
+public fun calculate_perk_usage(perksID: vector<u8>, level: u8): PerksUsage acquires Perk_Database {
+    let i = vector::length(&perksID);
+    let total = 0;
+    
+    while (i > 0) {
+        i = i - 1;
+        let perkID = vector::borrow(&perksID, i);
+        let perk = viewPerkByID_raw(*perkID);
+        let required = calculate_required_perk(&perk);
+        total = total + required;
+    };
+
+    let free = if (level > total) { level - total } else { 0 }; // prevent underflow
+    PlayerCore::make_perkUsage(total, free)
+}
+
 
  #[test(account = @0x1, owner = @0x281d0fce12a353b1f6e8bb6d1ae040a6deba248484cf8e9173a5b428a6fb74e7)]
      public entry fun test(account: signer, owner: signer) acquires Perk_Database{
