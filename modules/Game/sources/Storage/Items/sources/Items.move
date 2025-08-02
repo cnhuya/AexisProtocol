@@ -251,7 +251,7 @@ public entry fun addMultipleItemMaterialTypesToConfig(address: &signer, material
 
                 let _item_material = Item_Type_With_String{
                     typeID: item_material.typeID,
-                    typeName: Core::convert_materialID_to_String(item_material.typeID),
+                    typeName: Core::convert_typeID_to_String(item_material.typeID),
                     crafting_multi: item_material.crafting_multi,
                     stats: Core::build_statsRange_with_strings(item_material.stats),
                 };
