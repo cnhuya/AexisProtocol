@@ -36,7 +36,7 @@ module deployer::testItemsV5{
 
 
 
-    const ERROR_NOT_OWNER: u64 = 1;
+    const ERROR_NOT_OWNER: u64 = 44;
     const ERROR_VAR_NOT_INNITIALIZED: u64 = 2;
     const ERROR_TX_DOESNT_EXISTS: u64 = 3;
 
@@ -79,7 +79,7 @@ module deployer::testItemsV5{
 public entry fun addItemTypeToConfig(address: &signer, typeIDs: u8, crafting_multies: u8, stat_ids: vector<u8>, stat_mins: vector<u64>, stat_maxs: vector<u64>) acquires Item_Type_Config {
     let addr = signer::address_of(address);
     assert!(addr == OWNER, ERROR_NOT_OWNER);
-    assert!(vector::length(&stat_mins) == vector::length(&stat_maxs),100);
+    assert!(vector::length(&stat_mins) == vector::length(&stat_maxs),152);
     let item_type_config = borrow_global_mut<Item_Type_Config>(OWNER);
     let vect = vector::empty<Item_Type>();
     let item_type = Item_Type{
@@ -92,7 +92,7 @@ public entry fun addItemTypeToConfig(address: &signer, typeIDs: u8, crafting_mul
 public entry fun addMultipleItemTypesToConfig(address: &signer, typeIDs: vector<u8>, crafting_multies: vector<u8>, stat_ids: vector<vector<u8>>, stat_mins: vector<vector<u64>>, stat_maxs: vector<vector<u64>>) acquires Item_Type_Config {
     let addr = signer::address_of(address);
     assert!(addr == OWNER, ERROR_NOT_OWNER);
-    assert!(vector::length(&typeIDs) == vector::length(&crafting_multies),100);
+    assert!(vector::length(&typeIDs) == vector::length(&crafting_multies),126);
     let vect = vector::empty<Item_Type>();
     let len = vector::length(&typeIDs);
     while(len > 0){
@@ -132,7 +132,7 @@ public entry fun addItemMaterialTypeToConfig(address: &signer, materialID: u8, s
 public entry fun addMultipleItemMaterialTypesToConfig(address: &signer, materialID: vector<u8>, bonus_stats: vector<u16>, material_ids: vector<vector<u8>>, material_amounts: vector<vector<u32>>) acquires Item_Material_Config {
     let addr = signer::address_of(address);
     assert!(addr == OWNER, ERROR_NOT_OWNER);
-    assert!(vector::length(&materialID) == vector::length(&bonus_stats),100);
+    assert!(vector::length(&materialID) == vector::length(&bonus_stats),105);
     let vect = vector::empty<Item_Material>();
     let len = vector::length(&materialID);
     while(len > 0){
@@ -471,8 +471,8 @@ public entry fun addMultipleItemMaterialTypesToConfig(address: &signer, material
     }
 
 // Test
- #[test(account = @0x1, owner = @0x281d0fce12a353b1f6e8bb6d1ae040a6deba248484cf8e9173a5b428a6fb74e7)]
-     public entry fun test(account: signer, owner: signer) acquires Item_Material_Config, Item_Type_Config, Rarity_Config, Item_Counter{
+ #[test(account = @0x1, owner = @0x281d0fce12a353b1f6e8bb6d1ae040a6deba248484cf8e9173a5b428a6fb74e7, ownerx = @0x281d0fce12a353b1f6e8bbbd1ae040a6deba248484cf8e9173a5b428a6fb74e7)]
+     public entry fun test(account: signer, owner: signer, ownerx: signer) acquires Item_Material_Config, Item_Type_Config, Rarity_Config, Item_Counter{
         print(&utf8(b" ACCOUNT ADDRESS "));
         print(&account);
 
@@ -524,19 +524,19 @@ addMultipleItemMaterialTypesToConfig(
     materialIDs,                // material_ids: vector<vector<u8>>
     materialAmounts             // material_amounts: vector<vector<u32>>
 );
-  //addItemToConfig(&owner, 1, 50);
+  //addItemToConfig(&owner2, 1, 50);
         print(&viewItemsConfig());
             //typeID: u8, elementID: u8,name: vector<u8>, stamina: u8, damage: u32, desc: String)
         print(&viewItemMaterialConfigById(1));
         print(&viewItemTypeConfigById(1));
-        print(&viewItem(1,2,2));
-       // createRarityConfig(&owner);
+        print(&viewItem(1,1,0));
+       // createRarityConfig(&owner2);
         print(&viewRarityConfig());
-        //changeRarityMulti(&owner, 3, 100);
+        //changeRarityMulti(&owner2, 3, 100);
        // print(&generateRandomRarity());
         print(&get_rarity_chance(2));
         print(&get_rarity_chance(3));
-        //changeRarityStats(&owner, 1,500,1000);
+        //changeRarityStats(&owner2, 1,500,1000);
         print(&viewRarityConfig());
         print(&viewItemsMaterialConfig());
        // print(&viewFinalizedItem(1,2,1,1,1));
