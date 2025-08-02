@@ -40,6 +40,13 @@ module deployer::testPlayerCore11 {
         name: String, entry_time: u64,
     }  
 
+// PerksUsage
+    struct PerksUsage has copy, drop, store{
+        used: u8, free_to_use: u8,
+    } 
+
+
+
 // Examine
     struct Examine has copy, drop, store{
         start: u64, value: u64, type: u8, speed_type: u8
@@ -157,7 +164,7 @@ module deployer::testPlayerCore11 {
             ExpeditionPlayer { id: id, entry_time: entry_time}
         }
         public fun make_empty_expeditionPlayer(): ExpeditionPlayer {
-            ExpeditionPlayer { id: 1, entry_time: 0}
+            ExpeditionPlayer { id: 0, entry_time: 0}
         }
         public fun make_expeditionPlayerString(expeditionPlayer: &ExpeditionPlayer): ExpeditionPlayerString {
             ExpeditionPlayerString { name: Core::convert_expeditionID_to_String(expeditionPlayer.id), entry_time: expeditionPlayer.entry_time}
@@ -168,6 +175,19 @@ module deployer::testPlayerCore11 {
         }
         public fun get_expeditionPlayer_entry_time(expeditionPlayer: &ExpeditionPlayer): u64 {
             expeditionPlayer.entry_time
+        }
+
+// PerksUsage
+    //makes
+        public fun make_perkUsage(used: u8, free_to_use: u8): PerksUsage {
+            PerksUsage { used: used, free_to_use: free_to_use}
+        }
+    //gets
+        public fun get_perkUsage_used(perkusage: &PerksUsage): u8 {
+            perkusage.used
+        }
+        public fun get_perkUsage_free_to_use(perkusage: &PerksUsage): u8 {
+            perkusage.free_to_use
         }
 // ===  ===  ===  ===  ===  ===
 // ===   BATCH CONVERTIONS  ===
