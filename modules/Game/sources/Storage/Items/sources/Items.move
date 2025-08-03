@@ -291,8 +291,11 @@ public entry fun addMultipleItemMaterialTypesToConfig(address: &signer, material
     #[view]
     public fun viewFinalizedItem(typeID: u8, materialID: u8, rarityID: u8, user_level: u8, hash:u64): Item acquires Item_Type_Config, Item_Material_Config, Rarity_Config, Item_Counter {
         let fake_item = viewItem(typeID, materialID, rarityID);
-        
-         Core::make_Item(get_count_item(), typeID,materialID,rarityID,rarity_simulation_test(rarityID, user_level, hash),item_simulation_test(fake_item.stats, user_level, hash))
+            if(rarityID == 0){
+                Core::make_Item(get_count_item(), typeID,materialID,rarityID,rarity_simulation_test(rarityID, user_level, hash),item_simulation_test(fake_item.stats, user_level, hash))
+            } else{
+                Core::make_Item(get_count_item(), typeID,materialID,rarityID,vector::empty<Stat>(),item_simulation_test(fake_item.stats, user_level, hash))
+            }
          }
 
     #[view]
