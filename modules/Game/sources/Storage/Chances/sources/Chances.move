@@ -27,6 +27,22 @@ module deployer::testChancesV2{
         TreasureChance {rounds:rounds, types: types, items: items, materials: materials}
     }
 
+    public fun get_treasureChance_items(treasure: &TreasureChance): vector<Item>{
+        treasure.items
+    }
+
+    public fun get_treasureChance_materials(treasure: &TreasureChance): vector<Material>{
+        treasure.materials
+    }
+
+        public fun get_treasureChance_rounds(treasure: &TreasureChance): u8{
+        treasure.rounds
+    }
+
+        public fun get_treasureChance_types(treasure: &TreasureChance): vector<u8>{
+        treasure.types
+    }
+
     #[view]
     public fun buildTreasureRandom(chance: u64, _hash: u128, level: u8): TreasureChance {
         let original_rounds = chanceTreasure_rounds(chance);
