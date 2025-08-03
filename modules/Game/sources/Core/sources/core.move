@@ -184,6 +184,10 @@ module deployer::testCore45 {
     struct ItemString has copy, drop, store {
         itemID: u64, typeName: String, materialName: String, rarityName: String, rarityStats: vector<StatString>, stats: vector<StatString>
     }
+// Cosmetic
+    struct Cosmetic has copy, drop,store {
+        cosmeticID: u64, thematic: String, name: String
+    }
 // ===  ===  ===  ===  === ===
 // ===  Factory Functions  ===
 // ===  ===  ===  ===  === ===
@@ -900,6 +904,35 @@ module deployer::testCore45 {
             };
             move vect
         }
+// Cosmetic
+     //makes
+        public fun make_Cosmetic(cosmeticID: u64, thematic: String, name: String): Cosmetic {
+            Cosmetic {cosmeticID: cosmeticID, thematic: thematic, name: name}
+        }
+
+    //gets
+        public fun get_Cosmetic_ID(cosmetic: &Cosmetic): u64{
+            cosmetic.cosmeticID
+        }
+        public fun get_Cosmetic_thematic(cosmetic: &Cosmetic): String{
+            cosmetic.thematic
+        }
+        public fun get_Cosmetic_name(cosmetic: &Cosmetic): String{
+            cosmetic.name
+        }
+
+    //multiples
+        public fun make_multiple_Cosmetic(cosmeticIDs: vector<u64>, thematic: String, names: vector<String>): vector<Cosmetic> {
+            assert!(vector::length(&cosmeticIDs) == vector::length(&names),5);
+            let len = vector::length(&cosmeticIDs);
+            let vect = vector::empty<Cosmetic>();
+            while(len>0){
+                let cosmetic = make_Cosmetic(*vector::borrow(&cosmeticIDs, len-1),thematic,*vector::borrow(&names, len-1));
+                vector::push_back(&mut vect, cosmetic);
+                len=len-1;
+            };
+            move vect
+        }
 
 // ===  ===  ===  ===  === 
 // ===     CONVERTS    ===
@@ -1073,7 +1106,9 @@ public fun convert_valueID_to_String(valueID: u8): String {
     }
 
     public fun convert_rarityID_to_String(rarityID: u8): String {
-        if (rarityID == 1) {
+        if (rarityID == 0) {
+            utf8(b"None")
+        } else if (rarityID == 1) {
             utf8(b"Common")
         } else if (rarityID == 2) {
             utf8(b"Uncommon")
