@@ -149,21 +149,28 @@ public entry fun addMultipleItemMaterialTypesToConfig(address: &signer, material
 }
 
 // View Functions
-    #[view]
-    public fun viewRarityStatIncrease(rarityID: u8): u16 acquires Rarity_Config {
-        let rarity_config = borrow_global<Rarity_Config>(OWNER);
-        let len = vector::length(&rarity_config.config);
+#[view]
+public fun viewRarityStatIncrease(rarityID: u8): u16 acquires Rarity_Config {
+    let rarity_config = borrow_global<Rarity_Config>(OWNER);
+    let len = vector::length(&rarity_config.config);
 
-        while(len > 0){
-            let rarity = vector::borrow(&rarity_config.config, len-1);
+    if (rarityID != 0) {
+        let i = len;
+        while (i > 0) {
+            i = i - 1;
+            let rarity = vector::borrow(&rarity_config.config, i);
 
-            if(Core::get_rarity_id(*rarity)== rarityID){
-                return Core::get_rarity_multi(*rarity)
+            if (Core::get_rarity_id(*rarity) == rarityID) {
+                return Core::get_rarity_multi(*rarity);
             };
-            len = len-1;
         };
-        abort(1)
-    }
+    } else {
+        return 0
+    };
+
+    abort(1)
+}
+
     // config: vector<Rarity_With_String>, stats_range: vector<Stat_With_String>, number_precision: u8
     #[view]
     public fun viewRarityConfig(): Rarity_Config_With_String acquires Rarity_Config {
