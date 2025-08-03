@@ -69,10 +69,13 @@ module deployer::testConstantV4{
         assert!(signer::address_of(address) == OWNER,ERROR_NOT_ADMIN);
         let db = borrow_global_mut<ConstantDatabase>(OWNER);
         let db_headers = borrow_global_mut<Headers>(OWNER);
-        let contain = vector::contains(&db_headers.database, &header);
-        print(&contain);
         assert!(vector::contains(&db_headers.database, &header),ERROR_HEADER_IS_NOT_INNITIALIZED);
-        vector::push_back(&mut db.database, make_constant(header, constant_name, value, editable));
+        let constant = make_constant(header, constant_name, value, editable);
+        if(vector::contains(&db.database, &constant)){
+            change_constant(address, header, constant_name, value);
+        } else{
+            vector::push_back(&mut db.database, constant);
+        };
 
     }
 
@@ -108,8 +111,7 @@ module deployer::testConstantV4{
         let i = 0;
         while (i < len) {
             let constant_ref = vector::borrow_mut(&mut db.database, i);
-            if (constant_ref.name == name || constant_ref.header == header) {
-                assert!(constant_ref.editable == true,ERROR_CONSTANT_CANT_BE_EDITED);
+            if (constant_ref.name == name || constant_ref.header == header || constant_ref.editable == true) {
                 let old_constant: Constant = *constant_ref;
                 constant_ref.value = new_value;
                 event::emit(ConstantChange {
