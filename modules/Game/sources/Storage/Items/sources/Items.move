@@ -1,4 +1,4 @@
-module deployer::testItemsV5{
+module deployer::testItemsV6{
 
     use std::debug::print;
     use std::string::{String,utf8};
@@ -298,7 +298,7 @@ public fun viewRarityStatIncrease(rarityID: u8): u16 acquires Rarity_Config {
     #[view]
     public fun viewFinalizedItem(typeID: u8, materialID: u8, rarityID: u8, user_level: u8, hash:u64): Item acquires Item_Type_Config, Item_Material_Config, Rarity_Config, Item_Counter {
         let fake_item = viewItem(typeID, materialID, rarityID);
-            if(rarityID == 0){
+            if(rarityID != 0){
                 Core::make_Item(get_count_item(), typeID,materialID,rarityID,rarity_simulation_test(rarityID, user_level, hash),item_simulation_test(fake_item.stats, user_level, hash))
             } else{
                 Core::make_Item(get_count_item(), typeID,materialID,rarityID,vector::empty<Stat>(),item_simulation_test(fake_item.stats, user_level, hash))
@@ -374,8 +374,8 @@ public fun viewRarityStatIncrease(rarityID: u8): u16 acquires Rarity_Config {
         let statID_array = randomv1::generateRangeArray((vector[1u32, 2u32, 3u32, 4u32, 5u32,6u32,7u32,8u32,9u32,10u32,11u32,12u32,13u32,14u32,15u32]: vector<u32>), 101, 499, 11);
         while (rarityID > 0){
             let statID = *(vector::borrow(&statID_array,(rarityID as u64)))/100;
-            let min = 25+((user_level as u64)*3)+((increase as u64)*5);
-            let max = 35+(((user_level as u64))*4)+((increase as u64)*6);
+            let min = 20+((user_level as u64)*3)+((increase as u64)*5);
+            let max = 30+(((user_level as u64))*4)+((increase as u64)*6);
             let value_array = randomv1::generateRangeArray((vector[1u32, 2u32, 3u32, 4u32, 5u32,6u32,7u32,8u32,9u32,10u32,11u32,12u32,13u32,14u32,15u32]: vector<u32>), min, max,11);
             let value = *(vector::borrow(&value_array,(rarityID as u64)));
             let hashed_stat_id = ((statID as u64) + hash) % 4;
