@@ -1084,6 +1084,8 @@ public fun convert_materialID_to_String(materialID: u8): String {
         utf8(b"Diamond")
     } else if (materialID == MATERIAL_ID_SHUNGITE) {
         utf8(b"Shungite")
+    } else if (materialID == MATERIAL_ID_TREASURE) {
+        utf8(b"Treasure")
     } else if (materialID == MATERIAL_ID_BAG_ITEMS) {
         utf8(b"Items Bag")
     } else if (materialID == MATERIAL_ID_BAG_MATERIALS) {
