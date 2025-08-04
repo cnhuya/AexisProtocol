@@ -1,4 +1,4 @@
-module deployer::testChancesV2{
+module deployer::testChancesV3{
 
     use std::debug::print;
     use std::string::{String,utf8};
@@ -7,12 +7,13 @@ module deployer::testChancesV2{
     use std::signer;
     use std::vector;
     use supra_framework::event;
-    use deployer::testCore45::{Self as Core, Material, Item };
+    use deployer::testCore45::{Self as Core, Material, Item, ItemString, MaterialString };
     use deployer::randomv1::{Self as Random};
     use deployer::testConstantV4::{Self as Constant};
     use deployer::testItemsV5::{Self as Items};
 
     struct TreasureChance has copy,drop,store,key {rounds: u8, types: vector<u8>, items: vector<Item>, materials: vector<Material>}
+    struct TreasureChanceString has copy,drop,store,key {rounds: u8, types: vector<String>, items: vector<ItemString>, materials: vector<MaterialString>}
 
 
    // const ERROR_NOT_OWNER: u64 = 1;
@@ -22,9 +23,12 @@ module deployer::testChancesV2{
    fun init_module(address: &signer) {
 
     }
-
     public fun make_treasureChance(rounds: u8, types: vector<u8>, items: vector<Item>, materials: vector<Material>): TreasureChance{
         TreasureChance {rounds:rounds, types: types, items: items, materials: materials}
+    }
+
+    public fun make_treasureChanceString(treasureChance: &TreasureChance): TreasureChanceString{
+        TreasureChanceString {rounds:treasureChance.rounds, types: Core::build_treasureChance_with_strings_from_Ids(treasureChance.types), items: Core::make_multiple_string_items(treasureChance.items), materials: Core::build_materials_with_strings(treasureChance.materials)}
     }
 
     public fun get_treasureChance_items(treasure: &TreasureChance): vector<Item>{
@@ -41,6 +45,27 @@ module deployer::testChancesV2{
 
         public fun get_treasureChance_types(treasure: &TreasureChance): vector<u8>{
         treasure.types
+    }
+
+
+    public fun build_Treasure_Strings(treasures: vector<TreasureChance>): vector<TreasureChanceString> {
+        let vect = vector::empty<TreasureChanceString>();
+        let len = vector::length(&treasures);
+        while(len>0){
+            let treasure = vector::borrow(&treasures, len-1);
+            let treasure_string = make_treasureChanceString(treasure);
+            vector::push_back(&mut vect, treasure_string);
+            len=len-1;
+        };
+
+        vect
+    }
+
+    #[view]
+    public fun simulate_Treasure(chance: u64, _hash: u128, level: u8): TreasureChanceString {
+        let treasurechancestring = buildTreasureRandom(chance, _hash, level);
+        let str = make_treasureChanceString(&treasurechancestring);
+        str
     }
 
     #[view]
@@ -79,10 +104,9 @@ module deployer::testChancesV2{
             } else if (treasure_type == 1){
                 let material = chanceMaterials(((hash-1) * (chance*742)) % 10001, level, hash);
                 vector::push_back(&mut materials, material);
-            } else{
-                vector::push_back(&mut types, treasure_type);
             };
 
+            vector::push_back(&mut types, treasure_type);
             rounds = rounds - 1;
         };
 
