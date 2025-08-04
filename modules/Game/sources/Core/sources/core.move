@@ -61,16 +61,25 @@ module deployer::testCore45 {
     const MATERIAL_ID_SAND: u8 = 5;
     const MATERIAL_ID_ORGANIC: u8 = 6;
     const MATERIAL_ID_LEATHER: u8 = 7;
-    const MATERIAL_ID_FLINT: u8 = 8;
-    const MATERIAL_ID_BASALT: u8 = 9;
-    const MATERIAL_ID_BONES: u8 = 10;
-    const MATERIAL_ID_COPPER: u8 = 11;
-    const MATERIAL_ID_IRON: u8 = 12;
-    const MATERIAL_ID_OBSIDIAN: u8 = 13;
-    const MATERIAL_ID_DIAMOND: u8 = 14;
-    const MATERIAL_ID_SHUNGITE: u8 = 15;
-    const MATERIAL_ID_TREASURE: u8 = 16;
-    const MATERIAL_ID_GEMDUST: u8 = 17;
+    const MATERIAL_ID_BONES: u8 = 8;
+
+    const MATERIAL_ID_FLINT: u8 = 101;
+    const MATERIAL_ID_BASALT: u8 = 102;
+    const MATERIAL_ID_COPPER: u8 = 103;
+    const MATERIAL_ID_IRON: u8 = 104;
+    const MATERIAL_ID_OBSIDIAN: u8 = 105;
+    const MATERIAL_ID_DIAMOND: u8 = 106;
+    const MATERIAL_ID_SHUNGITE: u8 = 107;
+    const MATERIAL_ID_GEMDUST: u8 = 108;
+
+    const MATERIAL_ID_TREASURE: u8 = 201;
+    const MATERIAL_ID_BAG_ITEMS: u8 = 202;
+    const MATERIAL_ID_BAG_MATERIALS: u8 = 203;
+    const MATERIAL_ID_BAG_MINERALS: u8 = 204;
+    const MATERIAL_ID_BAG_AEXIS_BATTLE_PASS: u8 = 205;
+    const MATERIAL_ID_BAG_SUPRA_TOKENS: u8 = 206;
+    const MATERIAL_ID_BAG_COSMETICS: u8 = 207;
+
 
 
 // ===  ===  ===  ===  ===
@@ -1021,29 +1030,12 @@ public fun convert_valueID_to_String(valueID: u8): String {
         }
     }
 
-    public fun convert_materialID_to_String(materialID: u8): String {
-        if (materialID == MATERIAL_ID_EXP) {
-            utf8(b"Exp")
-        } else if (materialID == MATERIAL_ID_GOLD) {
-            utf8(b"Gold")
-        } else if (materialID == MATERIAL_ID_ESSENCE) {
-            utf8(b"Essence")
-        } else if (materialID == MATERIAL_ID_WOOD) {
-            utf8(b"Wood")
-        } else if (materialID == MATERIAL_ID_STONE) {
-            utf8(b"Stone")
-        } else if (materialID == MATERIAL_ID_SAND) {
-            utf8(b"Sand")
-        } else if (materialID == MATERIAL_ID_ORGANIC) {
-            utf8(b"Organic")
-        } else if (materialID == MATERIAL_ID_LEATHER) {
-            utf8(b"Leather")
-        } else if (materialID == MATERIAL_ID_FLINT) {
+#[deprecated]
+    public fun convert_materialMineralID_to_String(materialID: u8): String {
+        if (materialID == MATERIAL_ID_FLINT) {
             utf8(b"Flint")
         } else if (materialID == MATERIAL_ID_BASALT) {
             utf8(b"Basalt")
-        } else if (materialID == MATERIAL_ID_BONES) {
-            utf8(b"Bones")
         } else if (materialID == MATERIAL_ID_COPPER) {
             utf8(b"Copper")
         } else if (materialID == MATERIAL_ID_IRON) {
@@ -1054,14 +1046,81 @@ public fun convert_valueID_to_String(valueID: u8): String {
             utf8(b"Diamond")
         } else if (materialID == MATERIAL_ID_SHUNGITE) {
             utf8(b"Shungite")
-        } else if (materialID == MATERIAL_ID_TREASURE) {
-            utf8(b"Treasure")
-        } else if (materialID == MATERIAL_ID_GEMDUST) {
-            utf8(b"Gemdust")
         } else {
             utf8(b"Unknown")
         }
     }
+#[deprecated]
+    public fun convert_materialBagsID_to_String(materialID: u8): String {
+        if (materialID == MATERIAL_ID_BAG_ITEMS) {
+            utf8(b"Items Bag")
+        } else if (materialID == MATERIAL_ID_BAG_MATERIALS) {
+            utf8(b"Materials Bag")
+        } else if (materialID == MATERIAL_ID_BAG_MINERALS) {
+            utf8(b"Minerals Bag")
+        } else if (materialID == MATERIAL_ID_BAG_AEXIS_BATTLE_PASS) {
+            utf8(b"Aexis Pass XP Bag")
+        } else if (materialID == MATERIAL_ID_BAG_SUPRA_TOKENS) {
+            utf8(b"Supra Tokens Bag")
+        } else if (materialID == MATERIAL_ID_BAG_COSMETICS) {
+            utf8(b"Cosmetics Bag")
+        } else {
+            utf8(b"Unknown")
+        }
+    }
+
+public fun convert_materialID_to_String(materialID: u8): String {
+    if (materialID == MATERIAL_ID_FLINT) {
+        utf8(b"Flint")
+    } else if (materialID == MATERIAL_ID_BASALT) {
+        utf8(b"Basalt")
+    } else if (materialID == MATERIAL_ID_COPPER) {
+        utf8(b"Copper")
+    } else if (materialID == MATERIAL_ID_IRON) {
+        utf8(b"Iron")
+    } else if (materialID == MATERIAL_ID_OBSIDIAN) {
+        utf8(b"Obsidian")
+    } else if (materialID == MATERIAL_ID_DIAMOND) {
+        utf8(b"Diamond")
+    } else if (materialID == MATERIAL_ID_SHUNGITE) {
+        utf8(b"Shungite")
+    } else if (materialID == MATERIAL_ID_BAG_ITEMS) {
+        utf8(b"Items Bag")
+    } else if (materialID == MATERIAL_ID_BAG_MATERIALS) {
+        utf8(b"Materials Bag")
+    } else if (materialID == MATERIAL_ID_BAG_MINERALS) {
+        utf8(b"Minerals Bag")
+    } else if (materialID == MATERIAL_ID_BAG_AEXIS_BATTLE_PASS) {
+        utf8(b"Aexis Pass XP Bag")
+    } else if (materialID == MATERIAL_ID_BAG_SUPRA_TOKENS) {
+        utf8(b"Supra Tokens Bag")
+    } else if (materialID == MATERIAL_ID_BAG_COSMETICS) {
+        utf8(b"Cosmetics Bag")
+    } else if (materialID == MATERIAL_ID_EXP) {
+        utf8(b"Exp")
+    } else if (materialID == MATERIAL_ID_GOLD) {
+        utf8(b"Gold")
+    } else if (materialID == MATERIAL_ID_ESSENCE) {
+        utf8(b"Essence")
+    } else if (materialID == MATERIAL_ID_WOOD) {
+        utf8(b"Wood")
+    } else if (materialID == MATERIAL_ID_STONE) {
+        utf8(b"Stone")
+    } else if (materialID == MATERIAL_ID_SAND) {
+        utf8(b"Sand")
+    } else if (materialID == MATERIAL_ID_ORGANIC) {
+        utf8(b"Organic")
+    } else if (materialID == MATERIAL_ID_LEATHER) {
+        utf8(b"Leather")
+    } else if (materialID == MATERIAL_ID_BONES) {
+        utf8(b"Bones")
+    } else if (materialID == MATERIAL_ID_GEMDUST) {
+        utf8(b"Gemdust")
+    } else {
+        utf8(b"Unknown")
+    }
+}
+
 
     public fun convert_typeID_to_String(typeID: u8): String {
         if (typeID == 1) {
@@ -1293,6 +1352,49 @@ public fun convert_valueID_to_String(valueID: u8): String {
         while (i < len) {
             let statRange = vector::borrow(&statsRange, i);
             vector::push_back(&mut output, make_string_stat_range(statRange));
+            i = i + 1;
+        };
+        output
+    }
+
+
+    public fun extract_materials_from_materials(materials: vector<Material>): vector<MaterialString> {
+        let len = vector::length(&materials);
+        let output = vector::empty<MaterialString>();
+        let i = 0;
+        while (i < len) {
+            let material = vector::borrow(&materials, i);
+            if(get_material_ID(material) == 0 || get_material_ID(material) == 1 || get_material_ID(material) == 2 || get_material_ID(material) == 3 || get_material_ID(material) == 4 || get_material_ID(material) == 5 || get_material_ID(material) == 6 || get_material_ID(material) == 7 || get_material_ID(material) == 8) {
+                vector::push_back(&mut output, make_material_string(material));
+            };
+            i = i + 1;
+        };
+        output
+    }
+
+    public fun extract_minerals_from_materials(materials: vector<Material>): vector<MaterialString> {
+        let len = vector::length(&materials);
+        let output = vector::empty<MaterialString>();
+        let i = 0;
+        while (i < len) {
+            let material = vector::borrow(&materials, i);
+            if(get_material_ID(material) == 101 || get_material_ID(material) == 102 || get_material_ID(material) == 103 || get_material_ID(material) == 104 || get_material_ID(material) == 105 || get_material_ID(material) == 106 || get_material_ID(material) == 107 || get_material_ID(material) == 108) {
+                vector::push_back(&mut output, make_material_string(material));
+            };
+            i = i + 1;
+        };
+        output
+    }
+
+    public fun extract_bags_from_materials(materials: vector<Material>): vector<MaterialString> {
+        let len = vector::length(&materials);
+        let output = vector::empty<MaterialString>();
+        let i = 0;
+        while (i < len) {
+            let material = vector::borrow(&materials, i);
+            if(get_material_ID(material) == 201 || get_material_ID(material) == 202 || get_material_ID(material) == 203 || get_material_ID(material) == 204 || get_material_ID(material) == 205 || get_material_ID(material) == 206 || get_material_ID(material) == 207) {
+                vector::push_back(&mut output, make_material_string(material));
+            };
             i = i + 1;
         };
         output
