@@ -10,7 +10,7 @@ module deployer::testChancesV3{
     use deployer::testCore45::{Self as Core, Material, Item, ItemString, MaterialString };
     use deployer::randomv1::{Self as Random};
     use deployer::testConstantV4::{Self as Constant};
-    use deployer::testItemsV5::{Self as Items};
+    use deployer::testItemsV6::{Self as Items};
 
     struct TreasureChance has copy,drop,store,key {rounds: u8, types: vector<u8>, items: vector<Item>, materials: vector<Material>}
     struct TreasureChanceString has copy,drop,store,key {rounds: u8, types: vector<String>, items: vector<ItemString>, materials: vector<MaterialString>}
