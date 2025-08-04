@@ -1124,6 +1124,38 @@ public fun convert_valueID_to_String(valueID: u8): String {
         }
     }
 
+
+    public fun convert_treasureType_to_String(rarityID: u8): String {
+        if (rarityID == 0) {
+            utf8(b"Nothing")
+        } else if (rarityID == 1) {
+            utf8(b"Materials")
+        } else if (rarityID == 2) {
+            utf8(b"Cosmetics")
+        } else if (rarityID == 3) {
+            utf8(b"Supra Token")
+        } else if (rarityID == 4) {
+            utf8(b"Aexis Battle Pass XP")
+        } else if (rarityID == 5) {
+            utf8(b"Item (organic)")
+        } else if (rarityID == 6) {
+            utf8(b"Item (basalt)")
+        } else if (rarityID == 7) {
+            utf8(b"Item (copper)")
+        } else if (rarityID == 8) {
+           utf8(b"Item (iron)")
+        } else if (rarityID == 9) {
+            utf8(b"Item (diamond)")
+        } else if (rarityID == 10) {
+            utf8(b"Item (obsidian)")
+        } else if (rarityID == 11) {
+            utf8(b"Item (shungite)")
+        } 
+        else {
+            utf8(b"Unknown")
+        }
+    }
+
     public fun convert_expeditionID_to_String(expeditionID: u8): String {
         if (expeditionID == 1) {
             utf8(b"Valley")
@@ -1285,6 +1317,18 @@ public fun convert_valueID_to_String(valueID: u8): String {
         while (i < len) {
             let material = vector::borrow(&materialIDs, i);
             vector::push_back(&mut output, convert_materialID_to_String(*material));
+            i = i + 1;
+        };
+        output
+    }
+
+    public fun build_treasureChance_with_strings_from_Ids(materialIDs: vector<u8>): vector<String> {
+        let len = vector::length(&materialIDs);
+        let output = vector::empty<String>();
+        let i = 0;
+        while (i < len) {
+            let material = vector::borrow(&materialIDs, i);
+            vector::push_back(&mut output, convert_treasureType_to_String(*material));
             i = i + 1;
         };
         output
