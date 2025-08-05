@@ -38,29 +38,22 @@ module deployer::testChancesV4{
     public fun buildTreasureRandom(chance: u64, _hash: u128, level: u8): vector<Material> {
         let original_rounds = chanceTreasure_rounds(chance);
         let rounds = original_rounds;
-        // Mix initial hash with time and chance, make mutable
+
         let hash = (((_hash as u64) % 351487) + (timestamp::now_seconds() % 2574)) * chance;
         let vect = vector::empty<Material>();
         let rounds_u64 = (rounds as u64); 
         while (rounds > 0) {
-            let array = Random::generateRangeArray(vector[
-                9u32, 21u32, 22u32, 1u32, 7u32, 3u32, 11u32, 15u32, 5u32, 7u32, 
-                8u32, 13u32, 4u32, 3u32, 2u32, 1u32, 16u32, 33u32, 6u32, 18u32
-            ], 1, 10001, 17);
+            let array = Random::generateRangeArray(vector[9u32, 21u32, 22u32, 1u32, 7u32, 3u32, 11u32, 15u32, 5u32, 7u32, 8u32, 33u32, 6u32, 18u32], 1, 10001, 12);
 
-            // Use more complex index calculation with hash and rounds
             let index = (hash ^ rounds_u64) % vector::length(&array);
             let random_value = *vector::borrow(&array, index);
 
             // Update hash with bitwise mixing and larger modulus
-            hash = (((hash ^ (random_value as u64)) << 5) | ((hash ^ (random_value as u64)) >> 27)) % 1_989_247_113;
-
-            // Slightly randomize with chance and rounds again
-            hash = (hash + (chance + rounds_u64 + (random_value as u64))) % 100_002;
+            hash = (((hash ^ (random_value as u64)) << 5) | ((hash ^ (random_value as u64)) >> 27)) % 100_002;
 
             let treasure_type = chanceTreasure_type(hash);
             if(treasure_type != 0){
-                let material = Core::make_material(1, (treasure_type as u32));
+                let material = Core::make_material((treasure_type as u8), 1);
                 vector::push_back(&mut vect, material);
             };
             rounds = rounds - 1;
