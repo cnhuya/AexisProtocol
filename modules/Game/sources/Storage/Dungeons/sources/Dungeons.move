@@ -1,4 +1,4 @@
-module deployer::testDungeonsV4{
+module deployer::testDungeonsV5{
 
     use std::debug::print;
     use std::string::{String,utf8};
@@ -8,12 +8,14 @@ module deployer::testDungeonsV4{
     use std::vector;
     use supra_framework::event;
     use deployer::testCore45::{Self as Core, Dungeon,DungeonString, Material, MaterialString };
-    use deployer::testEntitiesV5::{Self as Entities};
+    use deployer::testEntitiesV6::{Self as Entities};
+    use deployer::testConstantV4::{Self as Constant};
 
-    struct DungeonString_Config has copy, drop, store,key {period: u64, cost: vector<MaterialString>}
-    struct Dungeon_Config has copy, drop, store,key {period: u64, cost: vector<Material>}
     struct DungeonString_Database has copy, drop {database: vector<DungeonString>}
     struct Dungeon_Database has copy, drop, store, key {database: vector<Dungeon>}
+
+    #[event]
+    struct DungeonChange has drop, store {address: address, old_dungeon: DungeonString, new_dungeon: DungeonString}
 
 
     const ERROR_NOT_OWNER: u64 = 1;
@@ -21,8 +23,6 @@ module deployer::testDungeonsV4{
 
     const OWNER: address = @0x281d0fce12a353b1f6e8bb6d1ae040a6deba248484cf8e9173a5b428a6fb74e7;
 
-    #[event]
-    struct DungeonConfigChange has drop, store {address: address,  isBuff: bool, old_Config: Dungeon_Config, new_config: Dungeon_Config}
 
 
    fun init_module(address: &signer) {
@@ -32,51 +32,52 @@ module deployer::testDungeonsV4{
         if (!exists<Dungeon_Database>(deploy_addr)) {
           move_to(address, Dungeon_Database { database: vector::empty()});
         };
-        if (!exists<Dungeon_Config>(deploy_addr)) {
-          move_to(address, Dungeon_Config { period: 0, cost: vector::empty()});
-        };
 
-    }
-
-    public entry fun testFun(address: &signer, dungeonID: u8, bossID: u8, numbs: vector<u32>, materialAmount: u32 ) {
     }
 
     public entry fun registerDungeon(address: &signer, dungeonID: u8, bossID: u8, entitiesID: vector<u8>, materialID: vector<u8>, materialAmount: vector<u32> ) acquires Dungeon_Database {
         let addr = signer::address_of(address);
         assert!(addr == OWNER, ERROR_NOT_OWNER);
-        assert!(dungeon_exists(dungeonID) == false, ERROR_DUNGEON_ALREADY_EXISTS);
         let dungeon_db = borrow_global_mut<Dungeon_Database>(OWNER);
-        let materials = Core::make_multiple_materials(materialID,materialAmount);
-        let dungeon = Core::make_dungeon(dungeonID, bossID, entitiesID,materials);
-        vector::push_back(&mut dungeon_db.database, dungeon);
-    }
+        let len = vector::length(&dungeon_db.database);
 
-    public entry fun change_dungeon_config(address: &signer, period: u64, materialIDs: vector<u8>, materialAmounts: vector<u32>, isbuff: bool) acquires Dungeon_Config{
-        let addr = signer::address_of(address);
-        assert!(addr == OWNER, ERROR_NOT_OWNER);
-        let config = borrow_global_mut<Dungeon_Config>(OWNER);
-        let old_config = *config;
-        config.period = period;
-        let materials = Core::make_multiple_materials(materialIDs, materialAmounts);
-        config.cost = materials;
-        event::emit(DungeonConfigChange {
-            address: signer::address_of(address),
-            isBuff: isbuff,
-            old_Config: old_config,
-            new_config: *config,
-        });
+        let materials = Core::make_multiple_materials(materialID, materialAmount);
+        let new_dungeon = Core::make_dungeon(dungeonID, bossID, entitiesID, materials);
+
+        let updated = false;
+
+        while (len > 0) {
+            let dungeon = vector::borrow_mut(&mut dungeon_db.database, len - 1);
+            if (Core::get_dungeon_ID(dungeon) == dungeonID) {
+                let old_dungeon = *dungeon;
+                *dungeon = new_dungeon;
+
+                event::emit(DungeonChange {
+                    address: signer::address_of(address),
+                    old_dungeon: Core::make_string_dungeon(old_dungeon,Entities::getEntityByID(Core::get_dungeon_boss(&old_dungeon)),Entities::getMultipleEntitiesByIDs(Core::get_dungeon_entities(&old_dungeon))),
+                    new_dungeon: Core::make_string_dungeon(new_dungeon,Entities::getEntityByID(Core::get_dungeon_boss(&new_dungeon)),Entities::getMultipleEntitiesByIDs(Core::get_dungeon_entities(&new_dungeon))),
+                });
+
+                updated = true;
+                break;
+            };
+            len = len - 1;
+        };
+
+        if (!updated) {
+            vector::push_back(&mut dungeon_db.database, new_dungeon);
+        };
     }
 
 
 
 #[view]
-public fun viewDungeonsConfig(): DungeonString_Config acquires Dungeon_Config {
-    let dungeon_config = borrow_global_mut<Dungeon_Config>(OWNER);
-    let dung_confing = DungeonString_Config{
-        period: dungeon_config.period,
-        cost: Core::build_materials_with_strings(dungeon_config.cost),
-    };
-    dung_confing
+public fun viewDungeonsConfig(): (u64, MaterialString) {
+    let free_entry_period = Constant::get_constant_value(&Constant::viewConstant(utf8(b"Entities"),utf8(b"base_hp")));
+    let cost_material = Constant::get_constant_value(&Constant::viewConstant(utf8(b"Entities"),utf8(b"base_hp")));
+    let mat = Core::make_material(2, (cost_material as u32));
+    let string_mat = Core::make_material_string(&mat);
+    ((free_entry_period as u64),string_mat)
 }
 
 #[view]
