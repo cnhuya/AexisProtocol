@@ -1,4 +1,4 @@
-module deployer::testEntitiesV5{
+module deployer::testEntitiesV6{
 
     use std::debug::print;
     use std::string::{String,utf8};
@@ -13,7 +13,6 @@ module deployer::testEntitiesV5{
     struct FullEntity has copy, drop {entity: Entity, stats: vector<StatString>}
     struct Entity_Database has copy,drop,store,key {database: vector<Entity>}
                            
-
 
     const ERROR_NOT_OWNER: u64 = 1;
     const ERROR_ENTITY_TYPE_DOESNT_EXISTS: u64 = 2;
