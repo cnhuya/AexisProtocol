@@ -1,5 +1,5 @@
 [package]
-name = "dungeonsPkg3"
+name = "dungeonsPkg5"
 version = "1.0.0"
 authors = []
 
@@ -21,10 +21,13 @@ rev = 'main'
 subdir = 'modules/Game/sources/Core'
 
 
-[dependencies.entitiesPkg4]
+[dependencies.entitiesPkg6]
 git = 'https://github.com/cnhuya/test.git'
 rev = 'main'
 subdir = 'modules/Game/sources/Storage/Entities'
 
-
+[dependencies.constantPkg4]
+git = 'https://github.com/cnhuya/test.git'
+rev = 'main'
+subdir = 'modules/Game/sources/Storage/Constant'
 [dev-dependencies]
