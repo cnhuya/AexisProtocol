@@ -1,4 +1,4 @@
-module deployer::testRacesV4{
+module deployer::testRacesV5{
 
     use std::debug::print;
     use std::string::{String,utf8};
@@ -18,6 +18,9 @@ module deployer::testRacesV4{
 
     const OWNER: address = @0x281d0fce12a353b1f6e8bb6d1ae040a6deba248484cf8e9173a5b428a6fb74e7;
 
+    #[event]
+    struct RaceChange has drop, store {address: address, old_race: RaceString, new_race: RaceString}
+
    fun init_module(address: &signer) {
 
         let deploy_addr = signer::address_of(address);
@@ -28,26 +31,50 @@ module deployer::testRacesV4{
 
     }
 
-
 public entry fun addRace(address: &signer, raceID: u8, valueIDs: vector<u8>, valueIsEnemies: vector<bool>, valueValues: vector<u16>) acquires Race_Database, {
     let addr = signer::address_of(address);
     assert!(addr == OWNER, ERROR_NOT_OWNER);
-    assertRaceDoesntExists(raceID);
     let race_db = borrow_global_mut<Race_Database>(OWNER);
-    let _race = Core::make_race(raceID, Core::make_multiple_values(valueIDs, valueIsEnemies, valueValues));
-    vector::push_back(&mut race_db.database, _race);
+    let len = vector::length(&race_db.database);
+
+    let new_race = Core::make_race(raceID, Core::make_multiple_values(valueIDs, valueIsEnemies, valueValues));
+
+    let updated = false;
+
+    while (len > 0) {
+        let race = vector::borrow_mut(&mut race_db.database, len - 1);
+        if (Core::get_race_id(race) == raceID) {
+            let old_race = *race;
+            *race = new_race;
+
+            event::emit(RaceChange {
+                address: signer::address_of(address),
+                old_race: Core::make_string_race(&old_race),
+                new_race: Core::make_string_race(&new_race),
+            });
+
+            updated = true;
+            break;
+        };
+        len = len - 1;
+    };
+
+    if (!updated) {
+        vector::push_back(&mut race_db.database, new_race);
+    };
 }
 
-fun assertRaceDoesntExists(raceID: u8) acquires Race_Database{
+fun does_race_exists(raceID: u8): bool acquires Race_Database{
     let race_db = borrow_global_mut<Race_Database>(OWNER);
     let len = vector::length(&race_db.database);
     while(len>0){
         let race = vector::borrow(&race_db.database, len-1);
         if(Core::get_race_id(race) == raceID){
-            abort(5)
+            return true
         };
         len=len-1;
     };
+    return false
 }
 
 #[view]
