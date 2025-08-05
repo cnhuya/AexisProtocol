@@ -1,4 +1,4 @@
-module deployer::testExpeditionsV6{
+module deployer::testExpeditionsV9{
 
     use std::debug::print;
     use std::string::{String,utf8};
@@ -14,6 +14,9 @@ module deployer::testExpeditionsV6{
     struct ExpeditionString_Database has copy, drop, store, key {database: vector<ExpeditionString>}
     struct Expedition_Database has copy, drop, store, key {database: vector<Expedition>}
     struct UserExpedition has copy,drop,store,key {entry_time: u64, expeditionID: u8}
+
+    #[event]
+    struct ExpeditionChange has drop, store {address: address, old_expediiton: ExpeditionString, new_expedition: ExpeditionString}
 
 // Const
     const OWNER: address = @0x281d0fce12a353b1f6e8bb6d1ae040a6deba248484cf8e9173a5b428a6fb74e7;
@@ -40,12 +43,36 @@ module deployer::testExpeditionsV6{
       public entry fun registerExpedition(address: &signer, expeditionID: u8, required_level: u8, costMaterialIDs: vector<u8>, costMaterialAmount: vector<u32>,costMaterialPeriod: vector<u64>, rewardMaterialIDs: vector<u8>, rewardMaterialAmounts: vector<u32>, rewardMaterialPeriod: vector<u64>) acquires Expedition_Database {
         let addr = signer::address_of(address);
         assert!(addr == OWNER, ERROR_NOT_OWNER);
-        assert!(expedition_exists(expeditionID) == false,5);
-        let expedition_db = borrow_global_mut<Expedition_Database>(OWNER);
-        let expedition = Core::make_expedition(expeditionID, required_level, Core::make_multiple_rewards(costMaterialIDs, costMaterialAmount,costMaterialPeriod), Core::make_multiple_rewards(rewardMaterialIDs, rewardMaterialAmounts,rewardMaterialPeriod));
-        vector::push_back(&mut expedition_db.database, expedition);
-    }
 
+        let expedition_db = borrow_global_mut<Expedition_Database>(OWNER);
+        let len = vector::length(&expedition_db.database);
+
+        let new_expedition = Core::make_expedition(expeditionID,required_level, Core::make_multiple_rewards(costMaterialIDs, costMaterialAmount, costMaterialPeriod),Core::make_multiple_rewards(rewardMaterialIDs, rewardMaterialAmounts, rewardMaterialPeriod));
+
+        let updated = false;
+
+        while (len > 0) {
+            let expedition = vector::borrow_mut(&mut expedition_db.database, len - 1);
+            if (Core::get_expedition_ID(expedition) == expeditionID) {
+                let old_expedition = *expedition;
+                *expedition = new_expedition;
+
+                event::emit(ExpeditionChange {
+                    address: signer::address_of(address),
+                    old_expediiton: Core::make_string_expedition(&old_expedition),
+                    new_expedition: Core::make_string_expedition(&new_expedition),
+                });
+
+                updated = true;
+                break; // Stop after updating
+            };
+            len = len - 1;
+        };
+
+        if (!updated) {
+            vector::push_back(&mut expedition_db.database, new_expedition);
+        };
+    }
 
 // View Functions
 
@@ -111,20 +138,6 @@ module deployer::testExpeditionsV6{
         abort(1)
     }
 
-// Util Functions
-    public fun expedition_exists(id: u8): bool acquires Expedition_Database{
-        let expedition_db = borrow_global_mut<Expedition_Database>(OWNER);
-        let len = vector::length(&expedition_db.database);
-        let exists:bool = false;
-        while (len>0){
-            let expedition = vector::borrow(&expedition_db.database, len-1);
-            if(Core::get_expedition_ID(expedition) == id){
-                exists = true;
-            };
-            len=len-1;
-        };
-        exists
-    }
     #[view]
     public fun distribute_exped_rewards(id: u8,time_on_exped: u64): vector<Material> acquires Expedition_Database{
         let exped = viewExpeditionByID_raw(id);
