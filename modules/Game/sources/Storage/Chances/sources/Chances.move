@@ -34,37 +34,63 @@ module deployer::testChancesV4{
     }
 
 
-    #[view]
-    public fun buildTreasureRandom(chance: u64, _hash: u128, level: u8): vector<Material> {
-        let original_rounds = chanceTreasure_rounds(chance);
-        let rounds = original_rounds;
+#[view]
+public fun buildTreasureRandom(chance: u64, _hash: u128, level: u8): vector<Material> {
+    let original_rounds = chanceTreasure_rounds(chance);
+    let rounds = original_rounds;
 
-        let hash = (((_hash as u64) % 351487) + (timestamp::now_seconds() % 2574)) * chance;
-        let vect = vector::empty<Material>();
-        let rounds_u64 = (rounds as u64); 
-        while (rounds > 0) {
-            let array = Random::generateRangeArray(vector[9u32, 21u32, 22u32, 1u32, 7u32, 3u32, 11u32, 15u32, 5u32, 7u32, 8u32, 33u32, 6u32, 18u32], 1, 10001, 12);
+    let hash = (((_hash as u64) % 351487) + (timestamp::now_seconds() % 2574)) * chance;
+    let vect = vector::empty<Material>();
+    let rounds_u64 = (rounds as u64); 
 
-            let index = (hash ^ rounds_u64) % vector::length(&array);
-            let random_value = *vector::borrow(&array, index);
+    while (rounds > 0) {
+        let array = Random::generateRangeArray(
+            vector[9u32, 21u32, 22u32, 1u32, 7u32, 3u32, 11u32, 15u32, 5u32, 7u32, 8u32, 33u32, 6u32, 18u32],
+            1,
+            10001,
+            12
+        );
 
-            // Update hash with bitwise mixing and larger modulus
-            hash = (((hash ^ (random_value as u64)) << 5) | ((hash ^ (random_value as u64)) >> 27)) % 100_002;
+        let index = (hash ^ rounds_u64) % vector::length(&array);
+        let random_value = *vector::borrow(&array, index);
 
-            let treasure_type = chanceTreasure_type(hash);
-            if(treasure_type != 0){
-                let material = Core::make_material((treasure_type as u8), 1);
+        // Update hash with bitwise mixing and larger modulus
+        hash = (((hash ^ (random_value as u64)) << 5) | ((hash ^ (random_value as u64)) >> 27)) % 100_002;
+
+        let treasure_type = chanceTreasure_type(hash);
+        if (treasure_type != 0) {
+            let material = Core::make_material((treasure_type as u8), 1);
+
+            // Check if material already exists in vect
+            let found = false;
+            let len = vector::length(&vect);
+            let i = 0;
+            while (i < len) {
+                let existing_material = vector::borrow_mut(&mut vect, i);
+                if (Core::get_material_ID(existing_material) == Core::get_material_ID(&material)) {
+                    let value = Core::get_material_amount(existing_material);
+                    Core::change_material_amount(existing_material, value+1);
+                    found = true;
+                    break;
+                };
+                i = i + 1;
+            };
+
+            // If not found, add as new
+            if (!found) {
                 vector::push_back(&mut vect, material);
             };
-            rounds = rounds - 1;
         };
-        vect
-    }
+        rounds = rounds - 1;
+    };
+    vect
+}
+
 
     #[view]
     public fun buildTreasureRandom_items(chance: u64, _hash: u128, level: u8): vector<Item> {
         let original_rounds = chanceTreasure_rounds(chance);
-        let rounds = original_rounds;
+        let rounds = original_rounds-3;
 
         let hash = (((_hash as u64) % 351487) + (timestamp::now_seconds() % 2574)) * chance;
         let items = vector::empty<Item>();
@@ -72,14 +98,13 @@ module deployer::testChancesV4{
         while (rounds > 0) {
             let array = Random::generateRangeArray(vector[
                 9u32, 21u32, 22u32, 1u32, 7u32, 3u32, 11u32, 15u32, 5u32, 7u32, 
-                8u32, 13u32, 4u32, 3u32, 2u32, 1u32, 16u32, 33u32, 6u32, 18u32
-            ], 1, 10001, 17);
+                33u32, 6u32, 18u32
+            ], 1, 10001, 11);
 
 
             let index = (hash ^ rounds_u64) % vector::length(&array);
             let random_value = *vector::borrow(&array, index);
 
-            hash = (((hash ^ (random_value as u64)) << 5) | ((hash ^ (random_value as u64)) >> 27)) % 1_989_247_113;
 
             hash = (hash + (chance + rounds_u64 + (random_value as u64))) % 90_002;
 
