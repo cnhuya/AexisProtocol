@@ -8,30 +8,11 @@ module deployer::testEntitiesV5{
     use std::vector;
     use supra_framework::event;
     use deployer::testCore45::{Self as Core, Entity, Type, Stat, StatString, Location, Material, MaterialString };
-
+    use deployer::testConstantV4::{Self as Constant};
 
     struct FullEntity has copy, drop {entity: Entity, stats: vector<StatString>}
-    struct Entity_Database_With_String has copy {stats_config: vector<StatString>, database: vector<StatString>}
-    struct Entity_Database has copy,drop,store,key {stats_config: vector<Stat>, database: vector<Entity>}
+    struct Entity_Database has copy,drop,store,key {database: vector<Entity>}
                            
-    // expedition = 1x
-    // dungeon = 1,5x
-    struct Location_Database has copy,drop,store,key {database: vector<Location>}
-
-    // mob = 1x
-    // titan = 3x
-    // god = 10x
-    struct Type_Database has copy,drop,store,key {database: vector<Type>}
-
-
-    #[event]
-    struct LocationMultiChange has drop, store {address: address, locationName: String, isBuff: bool, from: u16, to: u16}
-
-    #[event]
-    struct EntityTypeMultiChange has drop, store {address: address, typeName: String, isBuff: bool, from: u16, to: u16}
-
-    #[event]
-    struct EntityStatsConfigChange has drop, store {address: address, isBuff: bool, old_config: vector<StatString>, new_config: vector<StatString>}
 
 
     const ERROR_NOT_OWNER: u64 = 1;
@@ -42,126 +23,20 @@ module deployer::testEntitiesV5{
 
     const OWNER: address = @0x281d0fce12a353b1f6e8bb6d1ae040a6deba248484cf8e9173a5b428a6fb74e7;
 
-   fun init_module(address: &signer) acquires Entity_Database, Location_Database, Type_Database{
+   fun init_module(address: &signer) {
 
         let deploy_addr = signer::address_of(address);
 
-        if (!exists<Type_Database>(deploy_addr)) {
-          move_to(address, Type_Database { database: vector::empty()});
-        };
-
-        if (!exists<Location_Database>(deploy_addr)) {
-          move_to(address, Location_Database { database: vector::empty()});
-        };
 
         if (!exists<Entity_Database>(deploy_addr)) {
-          move_to(address, Entity_Database { stats_config: vector::empty(), database: vector::empty()});
+          move_to(address, Entity_Database {database: vector::empty()});
         };
-
-        registerEntityDatabase(address,(vector[1u8, 2u8, 3u8]: vector<u8>),(vector[200u64, 5u64, 1u64]: vector<u64>));
-        addType(address, utf8(b"Mob"),1);
-        addType(address, utf8(b"Titan"),2);
-        addType(address, utf8(b"God"),5);
-
-        addLocation(address, utf8(b"Expedition"),1);
-        addLocation(address, utf8(b"Dungeon"),3);
 
     }
 
-public entry fun changeEntityStatsConfig(address: &signer, isbuff: bool, stat_ids: vector<u8>, stat_values: vector<u64>) acquires Entity_Database {
+public entry fun addEntity(address: &signer, entityID: u8, entityName: String, type: String, location: String) acquires Entity_Database {
     let addr = signer::address_of(address);
     assert!(addr == OWNER, ERROR_NOT_OWNER);
-    let entity_db = borrow_global_mut<Entity_Database>(OWNER);
-    let old_config = entity_db.stats_config;
-    entity_db.stats_config = Core::make_multiple_stats(stat_ids,stat_values);
-    event::emit(EntityStatsConfigChange {
-        address: signer::address_of(address),
-        isBuff: isbuff,
-        old_config: Core::build_stats_with_strings(old_config),
-        new_config: Core::build_stats_with_strings(entity_db.stats_config),
-    });
-}
-public entry fun changeEntityTypeMulti(address: &signer, typeName: String, new_multi: u16) acquires Type_Database {
-    let addr = signer::address_of(address);
-    assert!(addr == OWNER, ERROR_NOT_OWNER);
-    let isBuff = false;
-    let type_db = borrow_global_mut<Type_Database>(OWNER);
-    let len = vector::length(&type_db.database);
-    while(len > 0){
-        let type = vector::borrow_mut(&mut type_db.database, len-1);
-        if(Core::get_type_name(type) == typeName){
-            let from = Core::get_type_multi(type);
-            Core::change_type_multi(type,new_multi);
-
-            if(new_multi > from){
-                isBuff = true
-            };
-
-                event::emit(EntityTypeMultiChange {
-                    address: signer::address_of(address),
-                    typeName: typeName,
-                    isBuff: isBuff,
-                    from: from,
-                    to: new_multi,
-                });
-
-            len=len-1;
-        };
-    };
-}
-public entry fun changeLocationMulti(address: &signer, locationName: String, new_multi: u16) acquires Location_Database {
-    let addr = signer::address_of(address);
-    assert!(addr == OWNER, ERROR_NOT_OWNER);
-    let isBuff = false;
-    let location_db = borrow_global_mut<Location_Database>(OWNER);
-    let len = vector::length(&location_db.database);
-    while(len > 0){
-        let location = vector::borrow_mut(&mut location_db.database, len-1);
-        if(Core::get_location_name(location) == locationName){
-            let from = Core::get_location_multi(location);
-            Core::changes_location_multi(location,new_multi);
-
-            if(new_multi > from){
-                isBuff = true
-            };
-
-                event::emit(LocationMultiChange {
-                    address: signer::address_of(address),
-                    locationName: locationName,
-                    isBuff: isBuff,
-                    from: from,
-                    to: new_multi,
-                });
-
-            len=len-1;
-        };
-    };
-}
-
-public entry fun addType(address: &signer, name: String, stat_multi: u16) acquires Type_Database {
-    let addr = signer::address_of(address);
-    assert!(addr == OWNER, ERROR_NOT_OWNER);
-    assert!(entity_type_exists(name) == false, 1);
-    let type_db = borrow_global_mut<Type_Database>(OWNER);
-
-    let type = Core::make_type(name, stat_multi);
-    vector::push_back(&mut type_db.database, type);
-}
-
-public entry fun addLocation(address: &signer, name: String, stat_multi: u16) acquires Location_Database, {
-    let addr = signer::address_of(address);
-    assert!(addr == OWNER, ERROR_NOT_OWNER);
-    assert!(location_exists(name) == false, 1);
-    let location_db = borrow_global_mut<Location_Database>(OWNER);
-
-    let type = Core::make_location(name, stat_multi);
-    vector::push_back(&mut location_db.database, type);
-}
-public entry fun addEntity(address: &signer, entityID: u8, entityName: String, type: String, location: String) acquires Entity_Database, Type_Database, Location_Database {
-    let addr = signer::address_of(address);
-    assert!(addr == OWNER, ERROR_NOT_OWNER);
-    assert!(entity_type_exists(type) == true, ERROR_ENTITY_TYPE_DOESNT_EXISTS);
-    assert!(location_exists(location) == true, ERROR_LOCATION_DOESNT_EXISTS);
 
     assert!(entity_exists_by_ID(entityID) == false, ERROR_ENTITY_WITH_ID_ALREADY_EXISTS);
     assert!(entity_exists_by_name(entityName) == false, ERROR_ENTITY_WITH_NAME_ALREADY_EXISTS);
@@ -171,32 +46,32 @@ public entry fun addEntity(address: &signer, entityID: u8, entityName: String, t
     vector::push_back(&mut entity_db.database, entity);
 }
 
-public entry fun registerEntityDatabase(address: &signer, stat_ids: vector<u8>, stat_values: vector<u64>) acquires Entity_Database {
-    let addr = signer::address_of(address);
-    assert!(addr == OWNER, ERROR_NOT_OWNER);
-    let entity_db = borrow_global_mut<Entity_Database>(OWNER);
-
-    let len = vector::length(&entity_db.stats_config);
-
-    assert!(len == 0, 999);
-
-    entity_db.stats_config = Core::make_multiple_stats(stat_ids,stat_values);
-    }
-
 
 #[view]
-public fun viewEntityTypes(): vector<Type> acquires Type_Database {
-    let type_db = borrow_global<Type_Database>(OWNER);
-    type_db.database
-}
+public fun viewEntityBaseStats(): vector<Stat>  {
 
+    let hp = Constant::get_constant_value(&Constant::viewConstant(utf8(b"Entities"),utf8(b"base_hp")));
+    let damage = Constant::get_constant_value(&Constant::viewConstant(utf8(b"Entities"),utf8(b"base_dmg")));
+    let armor = Constant::get_constant_value(&Constant::viewConstant(utf8(b"Entities"),utf8(b"base_armor")));
+
+    let vect = vector[Core::make_stat(1, (hp as u64)),Core::make_stat(3, (damage as u64)),Core::make_stat(2, (armor as u64))];
+    vect
+}
 
 #[view]
-public fun viewLocations(): vector<Location> acquires Location_Database {
-    let type_db = borrow_global<Location_Database>(OWNER);
-    type_db.database
-}
+public fun viewEntityTypeMulti(type: String): u64  {
 
+    let multi = 0;
+    if(type == utf8(b"mob")){
+        multi = Constant::get_constant_value(&Constant::viewConstant(utf8(b"Entities"),utf8(b"mob_multi")));
+    } else if(type == utf8(b"titan")){
+        multi = Constant::get_constant_value(&Constant::viewConstant(utf8(b"Entities"),utf8(b"titan_multi")));
+    }  else if(type == utf8(b"god")){
+        multi = Constant::get_constant_value(&Constant::viewConstant(utf8(b"Entities"),utf8(b"god_multi")));
+    } ;
+
+    (multi as u64)
+}
 
 #[view]
 public fun viewEntities(): vector<Entity> acquires Entity_Database {
@@ -236,8 +111,6 @@ public fun getMultipleEntitiesByIDs(ids: vector<u8>): vector<String> acquires En
     move vect
 }
 
-
-
 #[view]
 public fun viewEntityByName(name: String): Entity acquires Entity_Database {
     let entity_db = borrow_global<Entity_Database>(OWNER);
@@ -254,16 +127,6 @@ public fun viewEntityByName(name: String): Entity acquires Entity_Database {
     };
     abort(1)
 }
-
-
-
-#[view]
-public fun viewEntityConfig(): vector<StatString> acquires Entity_Database {
-    let entity_db = borrow_global<Entity_Database>(OWNER);
-    let vec = Core::build_stats_with_strings(entity_db.stats_config);
-    move vec
-}
-
 
 #[view]
 public fun viewEntityByID(id: u8): Entity acquires Entity_Database {
@@ -282,10 +145,8 @@ public fun viewEntityByID(id: u8): Entity acquires Entity_Database {
     abort(1)
 }
 
-
-//    struct Simulated_Stat_With_String has copy, key, store, drop {statID: u8, statName: String, value: u32}
 #[view]
-public fun viewEntityStatsByName(name: u8): FullEntity acquires Entity_Database,Location_Database,Type_Database {
+public fun viewEntityStatsByName(name: u8): FullEntity acquires Entity_Database {
     let entity_db = viewEntities();
 
     let len = vector::length(&entity_db);
@@ -307,7 +168,7 @@ public fun viewEntityStatsByName(name: u8): FullEntity acquires Entity_Database,
 }
 
 #[view]
-public fun viewEntitiesStats(): vector<FullEntity> acquires Entity_Database,Location_Database,Type_Database {
+public fun viewEntitiesStats(): vector<FullEntity> acquires Entity_Database{
     let entity_db = viewEntities();
 
     let len = vector::length(&entity_db);
@@ -320,7 +181,7 @@ public fun viewEntitiesStats(): vector<FullEntity> acquires Entity_Database,Loca
     move vect
 }
 
-fun get_entityloc(entity: Entity): Location acquires Location_Database{
+/*fun get_entityloc(entity: Entity): Location acquires Location_Database{
     let location_db = borrow_global<Location_Database>(OWNER);
     let len = vector::length(&location_db.database);
     while(len>0){
@@ -344,21 +205,18 @@ fun get_entitytype(entity: Entity): Type acquires Type_Database{
         len = len-1;
     };
     abort(1)
-}
+}*/
 
-
-
-fun simulate_entity_stat(entityName: u8): vector<StatString> acquires Entity_Database, Type_Database, Location_Database {
+fun simulate_entity_stat(entityName: u8): vector<StatString> acquires Entity_Database{
     let entity = viewEntityByID(entityName);
-    let location_multi = Core::get_location_multi(&get_entityloc(entity));
-    let entity_type_multi = Core::get_type_multi(&get_entitytype(entity));
+    let entity_type_multi = viewEntityTypeMulti(Core::get_entity_type(&entity));
     let entityID = Core::get_entity_ID(&entity);
-    let config = borrow_global<Entity_Database>(OWNER); // Immutable borrow now
-    let len = vector::length(&config.stats_config);
+    let stats = viewEntityBaseStats(); // Immutable borrow now
+    let len = vector::length(&stats);
     let vec = vector::empty<StatString>();
     let i = 0;
     while (i < len) {
-        let stat = vector::borrow(&config.stats_config, i); // Immutable reference
+        let stat = vector::borrow(&stats, i); // Immutable reference
         let stat_id = Core::get_stat_ID(stat);
         let stat_name = Core::convert_statID_to_String(stat_id); // Assuming this function exists
         let stat_val = Core::get_stat_value(stat);
@@ -369,7 +227,7 @@ fun simulate_entity_stat(entityName: u8): vector<StatString> acquires Entity_Dat
         } else {
             let entityID_val = (entityID as u64);
             let growth_factor = ((entityID_val * entityID_val)) * 65 + 1000;
-            new_val = stat_val * ((location_multi as u64) * (entity_type_multi as u64) * growth_factor) / 1500;
+            new_val = stat_val + ((entity_type_multi as u64) * growth_factor) / 1500;
         };
 
         let _stat = Core::make_stat(stat_id, new_val); // Custom constructor
@@ -418,39 +276,6 @@ fun entity_exists_by_ID(entityID: u8): bool acquires Entity_Database {
     move exists
 }
 
-fun location_exists(locationName: String): bool acquires Location_Database {
-    let type_db = viewLocations();
-    let len = vector::length(&type_db);
-    let exists = false;
-    while(len > 0){
-        let location = vector::borrow(&type_db, len-1);
-
-        if(Core::get_location_name(location) == locationName){
-            exists = true;
-        };
-
-        len=len-1;
-    };
-
-    move exists
-}
-
-fun entity_type_exists(entityName: String): bool acquires Type_Database {
-    let type_db = viewEntityTypes();
-    let len = vector::length(&type_db);
-    let exists = false;
-    while(len > 0){
-        let type = vector::borrow(&type_db, len-1);
-
-        if(Core::get_type_name(type) == entityName){
-            exists = true;
-        };
-
-        len=len-1;
-    };
-
-    move exists
-}
 
 
 fun convert_entityID_to_string(id: u8): String acquires Entity_Database{
@@ -468,7 +293,7 @@ fun convert_entityID_to_string(id: u8): String acquires Entity_Database{
 
 
  #[test(account = @0x1, owner = @0x281d0fce12a353b1f6e8bb6d1ae040a6deba248484cf8e9173a5b428a6fb74e7)]
-     public entry fun test(account: signer, owner: signer) acquires Type_Database,Location_Database,Entity_Database{
+     public entry fun test(account: signer, owner: signer) acquires Entity_Database{
         print(&utf8(b" ACCOUNT ADDRESS "));
         print(&account);
 
