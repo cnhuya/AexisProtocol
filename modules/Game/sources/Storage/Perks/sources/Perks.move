@@ -1,4 +1,4 @@
-module deployer::testPerksV12{
+module deployer::testPerksV13{
 
     use std::debug::print;
     use std::string::{String,utf8};
@@ -9,11 +9,12 @@ module deployer::testPerksV12{
     use supra_framework::event;
     use deployer::testCore45::{Self as Core, Value, ValueString, Perk, PerkString };
     use deployer::testPlayerCore11::{Self as PlayerCore , PerksUsage };
-
+    use deployer::testConstantV4::{Self as Constant};
 
     struct Perk_Database has copy, drop, key, store {database: vector<Perk>}
 
-
+    #[event]
+    struct PerkChange has drop, store {address: address, old_perk: PerkString, new_perk: PerkString}
 
     const ERROR_NOT_OWNER: u64 = 1;
     const ERROR_VAR_NOT_INNITIALIZED: u64 = 2;
@@ -31,14 +32,46 @@ module deployer::testPerksV12{
 
     }
 
-public entry fun addPerk(address: &signer, perkID: u8, typeID: u8,name: String, cost: u8, cooldown: u8, valueIDs: vector<u8>, valueIsEnemy: vector<bool>, valueAmount: vector<u16>) acquires Perk_Database {
-    let addr = signer::address_of(address);
-    assert!(addr == OWNER, ERROR_NOT_OWNER);
-    does_perk_exists(perkID);
-    let perk_db = borrow_global_mut<Perk_Database>(OWNER);
-    let perk = Core::make_perk(perkID, name, typeID, cost, cooldown, Core::make_multiple_values(valueIDs, valueIsEnemy, valueAmount));
-    vector::push_back(&mut perk_db.database, perk);
-}
+    public entry fun addPerk(address: &signer, perkID: u8, typeID: u8,name: String, cost: u8, cooldown: u8, valueIDs: vector<u8>, valueIsEnemy: vector<bool>, valueAmount: vector<u16>) acquires Perk_Database {
+        let addr = signer::address_of(address);
+        assert!(addr == OWNER, ERROR_NOT_OWNER);
+
+        let perk_db = borrow_global_mut<Perk_Database>(OWNER);
+        let len = vector::length(&perk_db.database);
+
+        let new_perk = Core::make_perk(
+            perkID,
+            name,
+            typeID,
+            cost,
+            cooldown,
+            Core::make_multiple_values(valueIDs, valueIsEnemy, valueAmount)
+        );
+
+        let updated = false;
+
+        while (len > 0) {
+            let perk = vector::borrow_mut(&mut perk_db.database, len - 1);
+            if (Core::get_perk_id(perk) == perkID) {
+                let old_perk = *perk;
+                *perk = new_perk;
+
+                event::emit(PerkChange {
+                    address: signer::address_of(address),
+                    old_perk: Core::make_string_perk(&old_perk,calculate_required_perk(&old_perk)),
+                    new_perk: Core::make_string_perk(&new_perk,calculate_required_perk(&new_perk)),
+                });
+
+                updated = true;
+                break;
+            };
+            len = len - 1;
+        };
+
+        if (!updated) {
+            vector::push_back(&mut perk_db.database, new_perk);
+        };
+    }
 
     #[view]
     public fun viewPerks(): vector<PerkString> acquires Perk_Database {
@@ -124,24 +157,30 @@ public entry fun addPerk(address: &signer, perkID: u8, typeID: u8,name: String, 
             len = len-1;
         };
     }
+fun calculate_required_perk(perk: &Perk): u8 {
+    let total = Core::get_perk_stamina(perk) + Core::get_perk_cooldown(perk);
 
-    fun calculate_required_perk(perk: &Perk): u8 {
-        let total = Core::get_perk_stamina(perk) + Core::get_perk_cooldown(perk);
+    let required_1 = (Constant::get_constant_value(&Constant::viewConstant(utf8(b"Perks"), utf8(b"required_1"))) as u8);
+    let required_2 = (Constant::get_constant_value(&Constant::viewConstant(utf8(b"Perks"), utf8(b"required_2"))) as u8);
+    let required_3 = (Constant::get_constant_value(&Constant::viewConstant(utf8(b"Perks"), utf8(b"required_3"))) as u8);
+    let required_4 = (Constant::get_constant_value(&Constant::viewConstant(utf8(b"Perks"), utf8(b"required_4"))) as u8);
+    let required_5 = (Constant::get_constant_value(&Constant::viewConstant(utf8(b"Perks"), utf8(b"required_5"))) as u8);
 
-        if (total < 10) {
-            1
-        } else if (total < 25) {
-            2
-        } else if (total < 50) {
-            3
-        } else if (total < 100) {
-            4
-        } else if (total < 200) {
-            5
-        } else {
-            6 // default for very high values
-        }
+    if (total < required_1) {
+        1
+    } else if (total < required_2) {
+        2
+    } else if (total < required_3) {
+        3
+    } else if (total < required_4) {
+        4
+    } else if (total < required_5) {
+        5
+    } else {
+        6 // default for very high values
     }
+}
+
 
     
 public fun calculate_perk_usage(perksID: vector<u16>, level: u8): PerksUsage acquires Perk_Database {
