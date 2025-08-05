@@ -1,5 +1,5 @@
 [package]
-name = "perksPkg12"
+name = "perksPkg13"
 version = "1.0.0"
 authors = []
 
@@ -20,6 +20,9 @@ git = 'https://github.com/cnhuya/test.git'
 rev = 'main'
 subdir = 'modules/Game/sources/Core'
 
-
+[dependencies.constantPkg4]
+git = 'https://github.com/cnhuya/test.git'
+rev = 'main'
+subdir = 'modules/Game/sources/Storage/Constant'
 
 [dev-dependencies]
