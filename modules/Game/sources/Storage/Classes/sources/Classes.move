@@ -1,4 +1,4 @@
-module deployer::testClassV10{
+module deployer::testClassV11{
 
     use std::debug::print;
     use std::string::{String,utf8};
@@ -18,6 +18,10 @@ module deployer::testClassV10{
     const ERROR_VAR_NOT_INNITIALIZED: u64 = 2;
     const ERROR_TX_DOESNT_EXISTS: u64 = 3;
 
+
+    #[event]
+    struct AbilityChange has drop, store {address: address, old_ability: AbilityString, new_ability: AbilityString}
+
     const OWNER: address = @0x281d0fce12a353b1f6e8bb6d1ae040a6deba248484cf8e9173a5b428a6fb74e7;
 
    fun init_module(address: &signer) {
@@ -32,19 +36,49 @@ module deployer::testClassV10{
     public entry fun createAbilitiesForClass(address: &signer, abilityids: vector<u8> ,classID: u8, passive_Name: vector<String>, required_chakra: vector<u32>, passive_valueIDs: vector<vector<u8>>, passive_valueIsEnemies: vector<vector<bool>>, passive_valueValues: vector<vector<u16>>) acquires Ability_Database {
         let spell_db = borrow_global_mut<Ability_Database>(OWNER);
        
-        let addr = signer::address_of(address);
-        assert!(addr == OWNER, ERROR_NOT_OWNER);
-        let len = vector::length(&passive_valueIDs);
+     let spell_db = borrow_global_mut<Ability_Database>(OWNER);
 
-        let abilities = Core::make_multiple_Abilities(abilityids,classID, passive_Name, required_chakra, passive_valueIDs, passive_valueIsEnemies, passive_valueValues);
-        let len = vector::length(&abilities);
+    let abilities = Core::make_multiple_Abilities(
+        abilityids,
+        classID,
+        passive_Name,
+        required_chakra,
+        passive_valueIDs,
+        passive_valueIsEnemies,
+        passive_valueValues
+    );
 
-        while(len>0){
-            let ability = vector::borrow(&abilities, len-1);
-            vector::push_back(&mut spell_db.database, *ability);
-            len=len-1;
+    let idx = vector::length(&abilities);
+    while (idx > 0) {
+        let new_ability = *vector::borrow(&abilities, idx - 1);
+        let len_db = vector::length(&spell_db.database);
+        let updated = false;
+
+        while (len_db > 0) {
+            let ability = vector::borrow_mut(&mut spell_db.database, len_db - 1);
+            if (Core::get_Ability_abilityID(ability) == Core::get_Ability_abilityID(&new_ability)) {
+                let old_ability = *ability;
+                *ability = new_ability;
+
+                event::emit(AbilityChange {
+                    address: signer::address_of(address),
+                    old_ability: Core::make_string_Ability(&old_ability),
+                    new_ability: Core::make_string_Ability(&new_ability),
+                });
+
+                updated = true;
+                break;
+            };
+            len_db = len_db - 1;
         };
-    }
+
+        if (!updated) {
+            vector::push_back(&mut spell_db.database, new_ability);
+        };
+
+        idx = idx - 1;
+    };
+}
 
 
 
