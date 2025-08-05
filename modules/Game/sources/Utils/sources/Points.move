@@ -1,4 +1,4 @@
-module deployer::testPoints4 {
+module deployer::testPoints6 {
     use std::debug::print;
     use std::string::{String, utf8};
     use std::signer;
@@ -6,7 +6,7 @@ module deployer::testPoints4 {
     use std::vector;
     use supra_framework::coin::{Self};
     use supra_framework::supra_coin::{Self, SupraCoin};
-    use deployer::testStats2::{Self as Stats};
+    use deployer::testStats6::{Self as Stats};
 
 // Structs
     struct Points has copy, key, drop, store {amount: u64}
@@ -22,12 +22,7 @@ module deployer::testPoints4 {
 
     const ADMIN: address = @deployer; 
     const OWNER: address = @0x281d0fce12a353b1f6e8bb6d1ae040a6deba248484cf8e9173a5b428a6fb74e7;
-    //447554000
-    //447093700
     const DESTINATION: address = @0x1ca524aa1ac448f3fa9d9a6ff9988c1cfd79a36480cd0e03cb3a7cdeb0c29034;
-    //480510100
-    //480530100
-    //490540100
     
 // Initialize stats
     fun init_module(address: &signer) {
@@ -58,6 +53,14 @@ module deployer::testPoints4 {
         let holder = borrow_global<CapHolder>(ADMIN); // Always use the fixed address
         let points = borrow_global_mut<Points>(signer::address_of(signer));
         coin::transfer<SupraCoin>(signer, DESTINATION, amount*100);
+        Stats::add_points(&holder.cap, (amount as u256));
+        points.amount = points.amount + amount;
+    }
+
+    public fun give_points_free(signer: &signer, amount: u64) acquires Points, CapHolder, HolderDB{
+        init_points_storage(signer);
+        let holder = borrow_global<CapHolder>(ADMIN); // Always use the fixed address
+        let points = borrow_global_mut<Points>(signer::address_of(signer));
         Stats::add_points(&holder.cap, (amount as u256));
         points.amount = points.amount + amount;
     }
