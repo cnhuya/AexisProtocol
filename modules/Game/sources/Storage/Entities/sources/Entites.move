@@ -61,11 +61,11 @@ public fun viewEntityBaseStats(): vector<Stat>  {
 public fun viewEntityTypeMulti(type: String): u64  {
 
     let multi = 0;
-    if(type == utf8(b"mob")){
+    if(type == utf8(b"Mob")){
         multi = Constant::get_constant_value(&Constant::viewConstant(utf8(b"Entities"),utf8(b"mob_multi")));
-    } else if(type == utf8(b"titan")){
+    } else if(type == utf8(b"Titan")){
         multi = Constant::get_constant_value(&Constant::viewConstant(utf8(b"Entities"),utf8(b"titan_multi")));
-    }  else if(type == utf8(b"god")){
+    }  else if(type == utf8(b"God")){
         multi = Constant::get_constant_value(&Constant::viewConstant(utf8(b"Entities"),utf8(b"god_multi")));
     } ;
 
