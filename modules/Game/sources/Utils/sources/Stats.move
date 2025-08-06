@@ -1,4 +1,4 @@
-module deployer::testStats8 {
+module deployer::testStats9 {
     use std::debug::print;
     use std::string::{String, utf8};
     use std::signer;
@@ -52,29 +52,27 @@ module deployer::testStats8 {
     public fun add_unique_player_count(_cap: &AccessCap) acquires Stats{
         let stats = borrow_global_mut<Stats>(OWNER);
         stats.unique_players = stats.unique_players + 1;
+        stats.total_txs = stats.total_txs + 1;
         emitEvent();
     }
 
     public fun add_total_hero_count(_cap: &AccessCap) acquires Stats{
         let stats = borrow_global_mut<Stats>(OWNER);
         stats.total_heroes = stats.total_heroes + 1;
-        emitEvent();
-    }
-
-    public fun add_tx_count(_cap: &AccessCap) acquires Stats{
-        let stats = borrow_global_mut<Stats>(OWNER);
         stats.total_txs = stats.total_txs + 1;
         emitEvent();
     }
 
     public fun add_chest_opened_count(_cap: &AccessCap) acquires Stats{
         let stats = borrow_global_mut<Stats>(OWNER);
+        stats.total_chest_open = stats.total_chest_open + 1;
         stats.total_txs = stats.total_txs + 1;
         emitEvent();
     }
 
     public fun add_items_count(_cap: &AccessCap) acquires Stats{
         let stats = borrow_global_mut<Stats>(OWNER);
+        stats.total_items = stats.total_items + 1;
         stats.total_txs = stats.total_txs + 1;
         emitEvent();
     }
@@ -82,7 +80,7 @@ module deployer::testStats8 {
     public fun add_points(_cap: &AccessCap, points: u256) acquires Stats{
         let stats = borrow_global_mut<Stats>(OWNER);
         stats.points_given = stats.points_given + points;
-        emitEvent();        
+        //emitEvent();        
     }
     
 
