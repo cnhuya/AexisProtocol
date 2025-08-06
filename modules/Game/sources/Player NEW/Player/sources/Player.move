@@ -1,4 +1,4 @@
-module new_dev::testPlayerV27{
+module new_dev::testPlayerV28{
 
     use std::debug::print;
     use std::string::{Self as Str,String,utf8};
@@ -930,4 +930,5 @@ public entry fun test(account: signer, owner: signer) acquires PlayerDatabase {
     print(&viewHeroes(source_addr));
     entryExpedition(&owner, player.name, 1);
 }}
+
 
