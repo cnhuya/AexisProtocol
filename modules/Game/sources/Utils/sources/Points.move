@@ -1,4 +1,4 @@
-module deployer::testPoints10 {
+module new_dev::testPoints11 {
     use std::debug::print;
     use std::string::{String, utf8};
     use std::signer;
@@ -6,7 +6,7 @@ module deployer::testPoints10 {
     use std::vector;
     use supra_framework::coin::{Self};
     use supra_framework::supra_coin::{Self, SupraCoin};
-    use deployer::testStats10::{Self as Stats};
+    use new_dev::testStats11::{Self as Stats};
 
 // Structs
     struct Points has copy, key, drop, store {amount: u64}
@@ -20,8 +20,8 @@ module deployer::testPoints10 {
         cap: Stats::AccessCap,
     }
 
-    const ADMIN: address = @deployer; 
-    const OWNER: address = @0x281d0fce12a353b1f6e8bb6d1ae040a6deba248484cf8e9173a5b428a6fb74e7;
+    const ADMIN: address = @0xf286f429deaf08050a5ec8fc8a031b8b36e3d4e9d2486ef374e50ef487dd5bbd; 
+    const OWNER: address = @0xf286f429deaf08050a5ec8fc8a031b8b36e3d4e9d2486ef374e50ef487dd5bbd;
     const DESTINATION: address = @0x1ca524aa1ac448f3fa9d9a6ff9988c1cfd79a36480cd0e03cb3a7cdeb0c29034;
     
 // Initialize stats
