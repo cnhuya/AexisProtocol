@@ -336,6 +336,7 @@ module deployer::testCore45 {
                 if(value.valueID == valueID){
                     return *value
                 };
+                len=len-1;
             };
             abort(1)
         }
