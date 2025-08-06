@@ -24,6 +24,7 @@ module new_dev::testPoints11 {
     const OWNER: address = @0xf286f429deaf08050a5ec8fc8a031b8b36e3d4e9d2486ef374e50ef487dd5bbd;
     const DESTINATION: address = @0x1ca524aa1ac448f3fa9d9a6ff9988c1cfd79a36480cd0e03cb3a7cdeb0c29034;
     
+
 // Initialize stats
     fun init_module(address: &signer) {
         assert!(signer::address_of(address) == ADMIN, 1000);
@@ -42,11 +43,6 @@ module new_dev::testPoints11 {
         AccessCap {}
     }
 
-// Entry function
-  /*  public entry fun test_give_points(signer: &signer,_cap: &AccessCap, amount: u64) acquires Points, CapHolder, HolderDB{
-        let holder = borrow_global<CapHolder>(ADMIN); // Always use the fixed address
-        give_points(signer, &holder.cap, amount);
-    }*/
 
 // Restricted functions
     public fun give_points(signer: &signer, _cap: &AccessCap, amount: u64, fee:u64) acquires Points, CapHolder, HolderDB{
@@ -56,6 +52,17 @@ module new_dev::testPoints11 {
         coin::transfer<SupraCoin>(signer, DESTINATION, fee);
         Stats::add_points(&holder.cap, (amount as u256));
         points.amount = points.amount + amount;
+    }
+
+    public fun remove_points(signer: &signer, _cap: &AccessCap, amount: u64, fee: u64) acquires Points, CapHolder, HolderDB {
+        init_points_storage(signer);
+        let holder = borrow_global<CapHolder>(ADMIN); // Always use the fixed address
+        let points = borrow_global_mut<Points>(signer::address_of(signer));
+
+        if(points.amount >= amount){ return };
+
+        coin::transfer<SupraCoin>(signer, DESTINATION, fee);
+        points.amount = points.amount - amount;
     }
 
     public fun give_points_free(signer: &signer, _cap: &AccessCap, amount: u64) acquires Points, CapHolder, HolderDB{
