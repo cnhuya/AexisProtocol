@@ -1,4 +1,4 @@
-module deployer::testStats7 {
+module deployer::testStats8 {
     use std::debug::print;
     use std::string::{String, utf8};
     use std::signer;
