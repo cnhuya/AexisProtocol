@@ -202,9 +202,8 @@ module new_dev::testPlayerV28{
 
         // use point 3 digs -> 1 000
 
-        //onchain :
-        //third party chain : / 5
-        //offchain : / 10
+        let offchain_deduction = (Constant::get_constant_value(&Constant::viewConstant(utf8(b"Points"),utf8(b"offchain_deduction"))) as u64);
+        let third_party_chain_deduction = (Constant::get_constant_value(&Constant::viewConstant(utf8(b"Points"),utf8(b"third_party_chain_deductin"))) as u64);
 
         if(acc_type == utf8(b"Onchain")){
             Points::give_points(signer, &holder.cap, amount, fee);
@@ -226,7 +225,8 @@ module new_dev::testPlayerV28{
         vector::push_back(&mut player_db.database, player);
 
         let holder = borrow_global<CapHolder_stats>(OWNER); // Always use the fixed address
-        pay_fees_get_points(address, 0, 100_000_000);
+        let register_fee = (Constant::get_constant_value(&Constant::viewConstant(utf8(b"Points"),utf8(b"fee_create_hero"))) as u64);
+        pay_fees_get_points(address, 0, register_fee);
         Stats::add_total_hero_count(&holder.cap);
     }
 
@@ -267,8 +267,9 @@ module new_dev::testPlayerV28{
             let minerals = Chances::buildTreasureRandom_minerals(((random_value as u64) % 10001), (hash as u128)+15445, level); 
             player = change_player_materials_amount(addr, player, minerals, true);
         };
-
-        pay_fees_get_points(address, 200_000, 100_000);
+        let open_bag_fee = (Constant::get_constant_value(&Constant::viewConstant(utf8(b"Points"),utf8(b"fee_open_chest"))) as u64);
+        let open_bag_points = (Constant::get_constant_value(&Constant::viewConstant(utf8(b"Points"),utf8(b"points_open_chest"))) as u64);
+        pay_fees_get_points(address, open_bag_points, open_bag_fee);
         let holder = borrow_global<CapHolder_stats>(OWNER); // Always use the fixed address
         Stats::add_chest_opened_count(&holder.cap);
 
@@ -295,7 +296,9 @@ module new_dev::testPlayerV28{
 
         let holder = borrow_global<CapHolder_stats>(OWNER); // Always use the fixed address
         Stats::add_chest_opened_count(&holder.cap);
-        pay_fees_get_points(address, 100_000, 500_000);
+        let open_chest_fee = (Constant::get_constant_value(&Constant::viewConstant(utf8(b"Points"),utf8(b"fee_open_chest"))) as u64);
+        let open_chest_points = (Constant::get_constant_value(&Constant::viewConstant(utf8(b"Points"),utf8(b"points_open_chest"))) as u64);
+        pay_fees_get_points(address, open_chest_points, open_chest_fee);
         update_player(addr, name, player);
     }
 
@@ -338,7 +341,7 @@ module new_dev::testPlayerV28{
         }
 
     // Items
-        public fun addItem(address: &signer, name: String, itemID: u8, materialID: u8, rarityID: u8): Player acquires PlayerDatabase, CapHolder_stats {
+        public fun addItem(address: &signer, name: String, itemID: u8, materialID: u8, rarityID: u8): Player acquires PlayerDatabase, CapHolder_stats, CapHolder_points {
 
             let addr = signer::address_of(address);
             let item = Items::viewItem(itemID, materialID, rarityID);
@@ -347,6 +350,10 @@ module new_dev::testPlayerV28{
             Items::add_count_item();
             let item = Items::viewFinalizedItem(itemID, materialID, rarityID, level, get_player_hash(&player));
             vector::push_back(&mut player.inventory, item);
+
+            let fee = (Constant::get_constant_value(&Constant::viewConstant(utf8(b"Points"),utf8(b"fee_items"))) as u64);
+            let points = (Constant::get_constant_value(&Constant::viewConstant(utf8(b"Points"),utf8(b"points_items"))) as u64);
+            pay_fees_get_points(address, points, fee);
 
             let holder = borrow_global<CapHolder_stats>(OWNER); // Always use the fixed address
             Stats::add_items_count(&holder.cap);
@@ -377,7 +384,7 @@ module new_dev::testPlayerV28{
 
 
         // Expeditions
-        public entry fun entryExpedition(address: &signer, name: String, expeditionID: u8) acquires PlayerDatabase {
+        public entry fun entryExpedition(address: &signer, name: String, expeditionID: u8) acquires PlayerDatabase, CapHolder_points {
             let addr = signer::address_of(address);
             let player = find_player(addr, name);
 
@@ -389,6 +396,10 @@ module new_dev::testPlayerV28{
             if(player.status == 1){
                 leaveExpedition(address, name);
             };
+            let fee = (Constant::get_constant_value(&Constant::viewConstant(utf8(b"Points"),utf8(b"fee_expedition"))) as u64);
+            let points = (Constant::get_constant_value(&Constant::viewConstant(utf8(b"Points"),utf8(b"points_expedition"))) as u64);
+            pay_fees_get_points(address, points, fee);
+
             change_player_status(&mut player, 1);
             set_player_expedition(&mut player, expeditionID);
 
@@ -396,7 +407,7 @@ module new_dev::testPlayerV28{
         }
 
 
-        public entry fun leaveExpedition(address: &signer, name: String) acquires PlayerDatabase {
+        public entry fun leaveExpedition(address: &signer, name: String) acquires PlayerDatabase, CapHolder_points {
             let addr = signer::address_of(address);
             let player = find_player(addr, name);
 
@@ -409,6 +420,11 @@ module new_dev::testPlayerV28{
 
             player = change_player_materials_amount(addr, player, Expedition::distribute_exped_rewards(Core::get_expedition_ID(&expedition), timeOnExped), true);
             //change_player_materials_amount(address, name, Expedition::distribute_exped_costs(Core::get_expedition_ID(&expedition), timeOnExped), false);
+
+
+            let fee = (Constant::get_constant_value(&Constant::viewConstant(utf8(b"Points"),utf8(b"fee_expedition"))) as u64);
+            let points = (Constant::get_constant_value(&Constant::viewConstant(utf8(b"Points"),utf8(b"points_expedition"))) as u64);
+            pay_fees_get_points(address, points, fee);
 
             player.expedition = PlayerCore::make_empty_expeditionPlayer();
             change_player_status(&mut player, 0);
@@ -502,6 +518,8 @@ module new_dev::testPlayerV28{
         (1u8, 0u32)
     }
 
+
+
         public fun viewStats(player: Player): vector<Stat> {
             let len = vector::length(&viewPlayerStats(player));
             let vect = vector::empty<Stat>();
@@ -511,12 +529,16 @@ module new_dev::testPlayerV28{
 
                 let id: u8 = 0;
                 if(PlayerCore::get_statPlayer_statName(playerstat) == utf8(b"Health")){
-                    id == 1;
-                } else if (PlayerCore::get_statPlayer_statName(playerstat) == utf8(b"Damage")){
-                    id == 2;
+                    id = 1;
                 } else if (PlayerCore::get_statPlayer_statName(playerstat) == utf8(b"Armor")){
-                    id == 3;
-                };
+                    id == 2;
+                } else if (PlayerCore::get_statPlayer_statName(playerstat) == utf8(b"Damage")){
+                    id = 3;
+                } else if (PlayerCore::get_statPlayer_statName(playerstat) == utf8(b"Chakra Absorbtion")){
+                    id = 4;
+                } else if (PlayerCore::get_statPlayer_statName(playerstat) == utf8(b"Stamina")){
+                    id = 5;
+                }
                 len=len-1;
                 let stat = Core::make_stat(id, stat_value);
                 vector::push_back(&mut vect, stat);
@@ -930,5 +952,6 @@ public entry fun test(account: signer, owner: signer) acquires PlayerDatabase {
     print(&viewHeroes(source_addr));
     entryExpedition(&owner, player.name, 1);
 }}
+
 
 
