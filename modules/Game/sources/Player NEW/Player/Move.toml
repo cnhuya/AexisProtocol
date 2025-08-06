@@ -1,5 +1,5 @@
 [package]
-name = "aexistest1"
+name = "testPlayer27"
 version = "2.1.1"
 authors = []
 
@@ -11,10 +11,60 @@ new_dev = "0xf286f429deaf08050a5ec8fc8a031b8b36e3d4e9d2486ef374e50ef487dd5bbd"
 supra_framework = "0x1"
 [dev-addresses]
 
+[dependencies.SupraFramework]
+git = "https://github.com/Entropy-Foundation/aptos-core.git"
+rev = "dev"
+subdir = "aptos-move/framework/supra-framework"
+
 [dependencies.testCore45]
 git = 'https://github.com/cnhuya/test.git'
 rev = 'main'
 subdir = 'modules/Game/sources/Core'
+
+[dependencies.itemsPkg5]
+git = 'https://github.com/cnhuya/test.git'
+rev = 'main'
+subdir = 'modules/Game/sources/Storage/Items'
+
+[dependencies.perksPkg13]
+git = 'https://github.com/cnhuya/test.git'
+rev = 'main'
+subdir = 'modules/Game/sources/Storage/Perks'
+
+[dependencies.expeditionsPkg9]
+git = 'https://github.com/cnhuya/test.git'
+rev = 'main'
+subdir = 'modules/Game/sources/Storage/Expeditions'
+
+[dependencies.classesPkg11]
+git = 'https://github.com/cnhuya/test.git'
+rev = 'main'
+subdir = 'modules/Game/sources/Storage/Classes'
+
+[dependencies.constantPkg4]
+git = 'https://github.com/cnhuya/test.git'
+rev = 'main'
+subdir = 'modules/Game/sources/Storage/Constant'
+
+[dependencies.chancesPkg4]
+git = 'https://github.com/cnhuya/test.git'
+rev = 'main'
+subdir = 'modules/Game/sources/Storage/Chances'
+
+[dependencies.accountsPkg5]
+git = 'https://github.com/cnhuya/test.git'
+rev = 'main'
+subdir = 'modules/Game/sources/Storage/Accounts'
+
+[dependencies.testUtils11]
+git = 'https://github.com/cnhuya/test.git'
+rev = 'main'
+subdir = 'modules/Game/sources/Utils'
+
+[dependencies.randomv1]
+git = 'https://github.com/cnhuya/test.git'
+rev = 'main'
+subdir = 'modules/Random'
 
 
 [dev-dependencies]
