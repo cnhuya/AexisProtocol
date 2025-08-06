@@ -538,7 +538,7 @@ module new_dev::testPlayerV28{
                     id = 4;
                 } else if (PlayerCore::get_statPlayer_statName(playerstat) == utf8(b"Stamina")){
                     id = 5;
-                }
+                };
                 len=len-1;
                 let stat = Core::make_stat(id, stat_value);
                 vector::push_back(&mut vect, stat);
