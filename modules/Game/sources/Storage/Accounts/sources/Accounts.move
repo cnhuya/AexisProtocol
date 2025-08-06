@@ -47,7 +47,7 @@ module deployer::testAccountsV5 {
     #[view]
     public fun view_acc_type(addr: address): String acquires AccountRegistry {
         if (!exists<AccountRegistry>(OWNER)) {
-            return utf8(b"On-chain");
+            return utf8(b"Onchain");
         };
 
         let registry = borrow_global<AccountRegistry>(OWNER);
@@ -55,7 +55,7 @@ module deployer::testAccountsV5 {
             let t = *Table::borrow<address, u8>(&registry.accounts, addr);
             return convert_acc_type(t);
         };
-        utf8(b"On-chain")
+        utf8(b"Onchain")
     }
 
     /// Convert account type to string
@@ -63,7 +63,7 @@ module deployer::testAccountsV5 {
         if (acc_type == 1) {
             utf8(b"Third-Party Chain")
         } else if (acc_type == 2) {
-            utf8(b"Off-chain")
+            utf8(b"Offchain")
         } else {
             utf8(b"On-chain")
         }
