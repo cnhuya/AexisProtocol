@@ -348,6 +348,7 @@ module deployer::testCore45 {
                 if(value.name == valueName){
                     return *value
                 };
+                len=len-1;
             };
             abort(1)
         }
