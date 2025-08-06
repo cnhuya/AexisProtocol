@@ -1,4 +1,4 @@
-module deployer::testStats9 {
+module deployer::testStats10 {
     use std::debug::print;
     use std::string::{String, utf8};
     use std::signer;
@@ -8,7 +8,6 @@ module deployer::testStats9 {
     use supra_framework::timestamp; 
 // Structs
 
-    //struct Snapshot has copy, drop, store, key {lasttime: u64, database: vector<Stats>}
 
     #[event]
     struct StatsChange has drop, store {stats: Stats, time: u64}
