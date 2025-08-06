@@ -519,28 +519,6 @@ module new_dev::testPlayerV28{
     }
 
 
-
-    public fun convert_statID_to_String(statID: u8): String {
-        if (statID == STAT_ID_HEALTH) {
-            utf8(b"Health")
-        } else if (statID == STAT_ID_DAMAGE) {
-            utf8(b"Damage")
-        } else if (statID == STAT_ID_ARMOR) {
-            utf8(b"Armor")
-        } else if (statID == STAT_ID_ATTACK_SPEED) {
-            utf8(b"Chakra Absorbtion")
-        }  else if (statID == STAT_ID_STAMINA) {
-            utf8(b"Stamina")
-        } else {
-            abort(UNKNOWN_STAT)
-        }
-    }
-    const STAT_ID_HEALTH: u8 = 1;
-    const STAT_ID_ARMOR: u8 = 2;
-    const STAT_ID_DAMAGE: u8 = 3;
-    const STAT_ID_ATTACK_SPEED: u8 = 4;
-    const STAT_ID_STAMINA: u8 = 5;
-
         #[view]
         public fun viewStats_view (address: address, name: String): vector<Stat> acquires PlayerDatabase {
             let player = find_player(address, name);
