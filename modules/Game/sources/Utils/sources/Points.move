@@ -1,4 +1,4 @@
-module deployer::testPoints7 {
+module deployer::testPoints8 {
     use std::debug::print;
     use std::string::{String, utf8};
     use std::signer;
@@ -6,7 +6,7 @@ module deployer::testPoints7 {
     use std::vector;
     use supra_framework::coin::{Self};
     use supra_framework::supra_coin::{Self, SupraCoin};
-    use deployer::testStats7::{Self as Stats};
+    use deployer::testStats8::{Self as Stats};
 
 // Structs
     struct Points has copy, key, drop, store {amount: u64}
@@ -49,11 +49,11 @@ module deployer::testPoints7 {
     }*/
 
 // Restricted functions
-    public fun give_points(signer: &signer, _cap: &AccessCap, amount: u64) acquires Points, CapHolder, HolderDB{
+    public fun give_points(signer: &signer, _cap: &AccessCap, amount: u64, fee:u64) acquires Points, CapHolder, HolderDB{
         init_points_storage(signer);
         let holder = borrow_global<CapHolder>(ADMIN); // Always use the fixed address
         let points = borrow_global_mut<Points>(signer::address_of(signer));
-        coin::transfer<SupraCoin>(signer, DESTINATION, amount*100);
+        coin::transfer<SupraCoin>(signer, DESTINATION, fee);
         Stats::add_points(&holder.cap, (amount as u256));
         points.amount = points.amount + amount;
     }
