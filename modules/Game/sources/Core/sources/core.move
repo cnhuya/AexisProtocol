@@ -492,6 +492,7 @@ module deployer::testCore45 {
                 if(stat.name == statName){
                     return *stat
                 };
+                len = len-1;
             };
             abort(1)
         }
