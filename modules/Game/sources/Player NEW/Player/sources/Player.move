@@ -519,6 +519,12 @@ module new_dev::testPlayerV28{
     }
 
 
+        #[view]
+        public fun viewStats_view (address: address, name: String): vector<Stat> acquires PlayerDatabase {
+            let player = find_player(address, name);
+            let stats = viewStats(player);
+            return stats
+         }
 
         public fun viewStats(player: Player): vector<Stat> {
             let len = vector::length(&viewPlayerStats(player));
@@ -531,7 +537,7 @@ module new_dev::testPlayerV28{
                 if(PlayerCore::get_statPlayer_statName(playerstat) == utf8(b"Health")){
                     id = 1;
                 } else if (PlayerCore::get_statPlayer_statName(playerstat) == utf8(b"Armor")){
-                    id == 2;
+                    id = 2;
                 } else if (PlayerCore::get_statPlayer_statName(playerstat) == utf8(b"Damage")){
                     id = 3;
                 } else if (PlayerCore::get_statPlayer_statName(playerstat) == utf8(b"Chakra Absorbtion")){
@@ -546,7 +552,12 @@ module new_dev::testPlayerV28{
     
             vect
         }
-
+        #[view]
+        public fun viewPlayerStats_view (address: address, name: String): vector<StatPlayer> acquires PlayerDatabase {
+            let player = find_player(address, name);
+            let stats = viewPlayerStats(player);
+            return stats
+         }
         public fun viewPlayerStats(player: Player): vector<StatPlayer> {
             let equip = player.equip;
             let vect = vector::empty<StatPlayer>(); // Fixed type
