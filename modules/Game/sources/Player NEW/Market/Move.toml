@@ -33,7 +33,7 @@ git = 'https://github.com/cnhuya/test.git'
 rev = 'main'
 subdir = 'modules/Game/sources/Storage/Constant'
 
-[dependencies.testUtils10]
+[dependencies.testUtils11]
 git = 'https://github.com/cnhuya/test.git'
 rev = 'main'
 subdir = 'modules/Game/sources/Utils'
