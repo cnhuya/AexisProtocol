@@ -14,10 +14,10 @@ module new_dev::testPlayerV28{
     use deployer::testPlayerCore11::{Self as PlayerCore,DungeonPlayer,Crafting,CraftingString,StatPlayer, ExamineString, Examine, Oponent, ExpeditionPlayer, ExpeditionPlayerString, PerksUsage};
 
     //storage
-    use deployer::testItemsV6::{Self as Items};
+    use new_dev::testItemsV7::{Self as Items};
     use deployer::testPerksV13::{Self as Perks};
     use deployer::testConstantV4::{Self as Constant};
-    use deployer::testChancesV4::{Self as Chances};
+    use new_dev::testChancesV4::{Self as Chances};
     use deployer::testExpeditionsV9::{Self as Expedition};
 
     use deployer::randomv1::{Self as Random};
@@ -57,6 +57,7 @@ module new_dev::testPlayerV28{
     const ERROR_PLAYER_DOES_NOT_HAVE_ENOUGH_UNUSED_LEVELS: u64 = 9;
     const ERROR_YOU_CAN_OPEN_ONLY_FULL_CHEST: u64 = 10;
     const ERROR_MINIMUM_CHEST_OPEN_VALUE_IS_10: u64 = 11;
+    const ERROR_PLAYER_DOES_NOT_HAVE_THIS_ITEM: u64 = 12;
 
 // On Deploy Event
     fun init_module(address: &signer) {
@@ -670,7 +671,7 @@ module new_dev::testPlayerV28{
                 };
                 len=len-1;
             };
-            abort 497
+            abort (ERROR_PLAYER_DOES_NOT_HAVE_THIS_ITEM)
         }
 
        /* public fun find_mutable_player(address: address, name: String): &mut Player acquires PlayerDatabase {
