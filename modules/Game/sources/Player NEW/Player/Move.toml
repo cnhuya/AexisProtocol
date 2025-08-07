@@ -21,7 +21,7 @@ git = 'https://github.com/cnhuya/test.git'
 rev = 'main'
 subdir = 'modules/Game/sources/Core'
 
-[dependencies.itemsPkg5]
+[dependencies.itemsPkg6]
 git = 'https://github.com/cnhuya/test.git'
 rev = 'main'
 subdir = 'modules/Game/sources/Storage/Items'
