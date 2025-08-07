@@ -1,5 +1,5 @@
 [package]
-name = "testGemsV20"
+name = "testMarketV20"
 version = "2.1.1"
 authors = []
 
@@ -21,20 +21,22 @@ git = 'https://github.com/cnhuya/test.git'
 rev = 'main'
 subdir = 'modules/Game/sources/Core'
 
-[dependencies.constantPkg4]
-git = 'https://github.com/cnhuya/test.git'
-rev = 'main'
-subdir = 'modules/Game/sources/Storage/Constant'
-
-[dependencies.chancesPkg4]
-git = 'https://github.com/cnhuya/test.git'
-rev = 'main'
-subdir = 'modules/Game/sources/Storage/Chances'
 
 [dependencies.testPlayer28]
 git = 'https://github.com/cnhuya/test.git'
 rev = 'main'
 subdir = 'modules/Game/sources/Player NEW/Player'
+
+
+[dependencies.constantPkg4]
+git = 'https://github.com/cnhuya/test.git'
+rev = 'main'
+subdir = 'modules/Game/sources/Storage/Constant'
+
+[dependencies.testUtils10]
+git = 'https://github.com/cnhuya/test.git'
+rev = 'main'
+subdir = 'modules/Game/sources/Utils'
 
 [dependencies.randomv1]
 git = 'https://github.com/cnhuya/test.git'
