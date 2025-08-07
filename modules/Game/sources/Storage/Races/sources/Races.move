@@ -15,6 +15,7 @@ module deployer::testRacesV5{
     const ERROR_NOT_OWNER: u64 = 1;
     const ERROR_VAR_NOT_INNITIALIZED: u64 = 2;
     const ERROR_TX_DOESNT_EXISTS: u64 = 3;
+    const ERROR_INVALID_RACE_ID: u64 = 4;
 
     const OWNER: address = @0x281d0fce12a353b1f6e8bb6d1ae040a6deba248484cf8e9173a5b428a6fb74e7;
 
@@ -93,6 +94,22 @@ public fun viewRaces(): vector<RaceString> acquires Race_Database {
 }
 
 #[view]
+public fun extract_race_elements(raceid: u8): vector<Value> acquires Race_Database {
+    let race_db = borrow_global<Race_Database>(OWNER);
+    let length = vector::length(&race_db.database);
+    let i = 0;
+    let vect = vector::empty<Value>();
+    while (i < length) {
+        let race = vector::borrow(&race_db.database, i);
+        if (Core::get_race_id(race) == raceid) {
+            return Core::get_race_values(race)
+        };
+        i = i + 1;
+    };
+    abort(ERROR_INVALID_RACE_ID)
+}
+
+#[view]
 public fun viewRace(raceName: String): RaceString acquires Race_Database {
     let race_db = borrow_global<Race_Database>(OWNER);
     let length = vector::length(&race_db.database);
@@ -101,6 +118,22 @@ public fun viewRace(raceName: String): RaceString acquires Race_Database {
     while (i < length) {
         let race = vector::borrow(&race_db.database, i);
         if (Core::get_race_name(race) == raceName) {
+            return Core::make_string_race(race)
+        };
+        i = i + 1;
+    };
+    abort(1) 
+}
+
+#[view]
+public fun viewRaceByID(raceID: u8): RaceString acquires Race_Database {
+    let race_db = borrow_global<Race_Database>(OWNER);
+    let length = vector::length(&race_db.database);
+    let i = 0;
+  
+    while (i < length) {
+        let race = vector::borrow(&race_db.database, i);
+        if (Core::get_race_id(race) == raceID) {
             return Core::make_string_race(race)
         };
         i = i + 1;
