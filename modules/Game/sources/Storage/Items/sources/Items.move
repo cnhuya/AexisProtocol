@@ -1,4 +1,4 @@
-module deployer::testItemsV7{
+module new_dev::testItemsV7{
 
     use std::debug::print;
     use std::string::{String,utf8};
@@ -41,7 +41,7 @@ module deployer::testItemsV7{
     const ERROR_VAR_NOT_INNITIALIZED: u64 = 2;
     const ERROR_TX_DOESNT_EXISTS: u64 = 3;
 
-    const OWNER: address = @0x281d0fce12a353b1f6e8bb6d1ae040a6deba248484cf8e9173a5b428a6fb74e7;
+    const OWNER: address = @new_dev;
 
    fun init_module(address: &signer) acquires Rarity_Config {
 
@@ -402,6 +402,12 @@ public fun viewRarityStatIncrease(rarityID: u8): u16 acquires Rarity_Config {
         };
         abort(999)
     }
+    
+    #[view]
+    public fun itemstest(typeID: u8, materialID: u8, rarityID: u8, user_level: u8, hash:u64): u64  acquires Item_Counter, Item_Material_Config, Item_Type_Config, Rarity_Config{
+        let item = viewFinalizedItem(typeID, materialID, rarityID, user_level, hash);
+        return get_item_sell_amount(item)
+     }
 
     public fun get_item_sell_amount(item: Item): u64 {
         let hp = 0;
