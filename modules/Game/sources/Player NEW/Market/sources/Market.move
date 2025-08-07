@@ -1,4 +1,4 @@
-module deployer::testMarketV20{
+module new_dev::testMarketV20{
 
     use std::debug::print;
     use std::string::{String,utf8};
@@ -13,15 +13,16 @@ module deployer::testMarketV20{
     use deployer::testPlayerCore11::{Self as PlayerCore,DungeonPlayer,Crafting,CraftingString,StatPlayer, ExamineString, Examine, Oponent, ExpeditionPlayer, ExpeditionPlayerString};
 
     use deployer::testConstantV4::{Self as Constant};
-    use deployer::testPlayerV27::{Self as Player};
+    use new_dev::testPlayerV28::{Self as Player};
 
 // Structs
 
 // Const
-    const OWNER: address = @0x281d0fce12a353b1f6e8bb6d1ae040a6deba248484cf8e9173a5b428a6fb74e7;
+    const OWNER: address = @new_dev;
 
 // Errors
-    const ERROR_EXAMINE_AMOUNT_TOO_LOW: u64 = 1;
+    const ERROR_CANT_BUY_THIS_MATERIAL: u64 = 1;
+    const ERROR_CANT_SELL_THIS_MATERIAL: u64 = 1;
 
 // On Deploy Event
    fun init_module(address: &signer) {
@@ -35,7 +36,7 @@ module deployer::testMarketV20{
 // Entry Functions
 
     public entry fun Buy(address: &signer, name: String, materialID: u8, amount:u32) {
-        assert!(amount > 5,ERROR_EXAMINE_AMOUNT_TOO_LOW);
+        assert!(materialID == 3 || materialID == 4 || materialID == 5 || materialID == 6 || materialID == 7 || materialID == 8, ERROR_CANT_BUY_THIS_MATERIAL);
         let player = Player::find_player(signer::address_of(address), name);
         let vect_cost = (vector[Core::make_material(1, amount*2)]: vector<Material>);
         let vect_receive = (vector[Core::make_material(materialID, amount)]: vector<Material>);
@@ -44,11 +45,10 @@ module deployer::testMarketV20{
         player = Player::change_player_materials_amount(signer::address_of(address), player,vect_cost, false);
 
         Player::update_player(signer::address_of(address), name, player);
-
     }
 
     public entry fun Sell(address: &signer, name: String, materialID: u8, amount:u32) {
-        assert!(amount > 5,ERROR_EXAMINE_AMOUNT_TOO_LOW);
+        assert!(materialID == 3 || materialID == 4 || materialID == 5 || materialID == 6 || materialID == 7 || materialID == 8, ERROR_CANT_SELL_THIS_MATERIAL);
         let player = Player::find_player(signer::address_of(address), name);
 
         let vect_receive = (vector[Core::make_material(1, amount*2)]: vector<Material>);
