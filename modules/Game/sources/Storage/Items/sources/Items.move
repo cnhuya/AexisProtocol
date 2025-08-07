@@ -9,6 +9,7 @@ module deployer::testItemsV6{
     use supra_framework::event;
     use dev::randomv1;
     use deployer::testCore45::{Self as Core, Material, MaterialString, Stat, StatString, StatRange, StatRangeString, Rarity, RarityString, Item, ItemString };
+    use deployer::testConstantV4::{Self as Constant};
 
     struct Simulated_Item has copy, drop{itemID: u64, typeID: u8, typeName: String, crafting_multi: u8, materialID: u8, materialName: String, rarityID: u8, rarityName: String, rarity_bonus_stats: vector<StatString>, stats: vector<StatString>}
     struct FullItem has copy, drop {itemID: u64, typeID: u8, typeName: String, crafting_multi: u8, materialID: u8, materialName: String, rarityID: u8, rarityName: String,  stats: vector<StatRangeString>, crafting: vector<MaterialString>}
@@ -401,7 +402,40 @@ public fun viewRarityStatIncrease(rarityID: u8): u16 acquires Rarity_Config {
         };
         abort(999)
     }
-    
+
+    public fun get_item_sell_amount(item: Item): u64 {
+        let hp = 0;
+        let dmg = 0;
+        let armor = 0;
+        let chakra = 0;
+
+        let _return = 0;
+        let len = vector::length(&Core::get_Item_stats(&item));
+        while(len>0){
+            let stat = vector::borrow(&Core::get_Item_stats(&item), len-1);
+            let value = Core::get_stat_value(stat);
+            if(Core::get_stat_ID(stat) == 1){   
+                hp = hp + value;
+            } else if(Core::get_stat_ID(stat) == 2){
+                dmg = dmg + value;
+            } else if(Core::get_stat_ID(stat) == 3){
+                armor = armor + value;
+            } else if(Core::get_stat_ID(stat) == 4){
+                chakra = chakra + value;
+            };
+            len=len-1;
+        };
+
+
+        hp = ((hp * (Constant::get_constant_value(&Constant::viewConstant(utf8(b"Items"), utf8(b"hp_to_gold_value"))) as u64)))/100; // e.g., 98)
+        dmg = ((hp * (Constant::get_constant_value(&Constant::viewConstant(utf8(b"Items"), utf8(b"dmg_to_gold_value"))) as u64)))/100; // e.g., 98)
+        armor = ((hp * (Constant::get_constant_value(&Constant::viewConstant(utf8(b"Items"), utf8(b"armor_to_gold_value"))) as u64)))/100; // e.g., 98)
+        chakra = ((hp * (Constant::get_constant_value(&Constant::viewConstant(utf8(b"Items"), utf8(b"chakra_to_gold_value"))) as u64)))/100; // e.g., 98)
+
+        _return = hp+dmg+armor+chakra;
+        _return
+
+    }
 
     public fun generateRandomRarity(hash: u64): u8 acquires Rarity_Config {
         let rarity_config = borrow_global<Rarity_Config>(OWNER);
