@@ -1,5 +1,5 @@
 [package]
-name = "testPlayer27"
+name = "testPVPV21"
 version = "2.1.1"
 authors = []
 
@@ -8,6 +8,7 @@ deployer = "0x281d0fce12a353b1f6e8bb6d1ae040a6deba248484cf8e9173a5b428a6fb74e7"
 dev = "0x281d0fce12a353b1f6e8bb6d1ae040a6deba248484cf8e9173a5b428a6fb74e7"
 developer ="0x281d0fce12a353b1f6e8bb6d1ae040a6deba248484cf8e9173a5b428a6fb74e7"
 supra_framework = "0x1"
+new_dev = "0xf286f429deaf08050a5ec8fc8a031b8b36e3d4e9d2486ef374e50ef487dd5bbd"
 [dev-addresses]
 
 [dependencies.SupraFramework]
@@ -20,25 +21,25 @@ git = 'https://github.com/cnhuya/test.git'
 rev = 'main'
 subdir = 'modules/Game/sources/Core'
 
-[dependencies.itemsPkg5]
-git = 'https://github.com/cnhuya/test.git'
-rev = 'main'
-subdir = 'modules/Game/sources/Storage/Items'
-
 [dependencies.perksPkg13]
 git = 'https://github.com/cnhuya/test.git'
 rev = 'main'
 subdir = 'modules/Game/sources/Storage/Perks'
 
-[dependencies.expeditionsPkg9]
+[dependencies.testPlayer28]
 git = 'https://github.com/cnhuya/test.git'
 rev = 'main'
-subdir = 'modules/Game/sources/Storage/Expeditions'
+subdir = 'modules/Game/sources/Player NEW/Player'
 
 [dependencies.classesPkg11]
 git = 'https://github.com/cnhuya/test.git'
 rev = 'main'
 subdir = 'modules/Game/sources/Storage/Classes'
+
+[dependencies.racesPkg5]
+git = 'https://github.com/cnhuya/test.git'
+rev = 'main'
+subdir = 'modules/Game/sources/Storage/Races'
 
 [dependencies.constantPkg4]
 git = 'https://github.com/cnhuya/test.git'
@@ -50,15 +51,6 @@ git = 'https://github.com/cnhuya/test.git'
 rev = 'main'
 subdir = 'modules/Game/sources/Storage/Chances'
 
-[dependencies.accountsPkg5]
-git = 'https://github.com/cnhuya/test.git'
-rev = 'main'
-subdir = 'modules/Game/sources/Storage/Accounts'
-
-[dependencies.testUtils10]
-git = 'https://github.com/cnhuya/test.git'
-rev = 'main'
-subdir = 'modules/Game/sources/Utils'
 
 [dependencies.randomv1]
 git = 'https://github.com/cnhuya/test.git'
