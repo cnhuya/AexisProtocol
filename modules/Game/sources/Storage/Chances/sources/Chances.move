@@ -1,4 +1,4 @@
-module deployer::testChancesV4{
+module new_dev::testChancesV4{
 
     use std::debug::print;
     use std::string::{String,utf8};
@@ -10,7 +10,7 @@ module deployer::testChancesV4{
     use deployer::testCore45::{Self as Core, Material, Item, ItemString, MaterialString };
     use deployer::randomv1::{Self as Random};
     use deployer::testConstantV4::{Self as Constant};
-    use deployer::testItemsV6::{Self as Items};
+    use new_dev::testItemsV7::{Self as Items};
 
     //struct TreasureChance has copy,drop,store,key {rounds: u8, types: vector<u8>, items: vector<Item>, materials: vector<Material>}
     //struct TreasureChanceString has copy,drop,store,key {rounds: u8, types: vector<String>, items: vector<ItemString>, materials: vector<MaterialString>}
