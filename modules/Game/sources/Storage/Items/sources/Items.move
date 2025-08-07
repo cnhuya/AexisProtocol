@@ -1,4 +1,4 @@
-module deployer::testItemsV6{
+module deployer::testItemsV7{
 
     use std::debug::print;
     use std::string::{String,utf8};
