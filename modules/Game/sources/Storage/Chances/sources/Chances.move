@@ -88,6 +88,36 @@ public fun buildTreasureRandom(chance: u64, _hash: u128, level: u8): vector<Mate
 
 
     #[view]
+    public fun buildTreasureRandom_tokens(chance: u64, _hash: u128, level: u8): vector<u64> {
+        let original_rounds = chanceTreasure_rounds(chance);
+        let rounds = original_rounds-3;
+
+        let hash = (((_hash as u64) % 351487) + (timestamp::now_seconds() % 2574)) * chance;
+        let items = vector::empty<u64>();
+        let rounds_u64 = (rounds as u64); 
+        while (rounds > 0) {
+            let array = Random::generateRangeArray(vector[
+                9u32, 21u32, 22u32, 1u32, 7u32, 3u32, 11u32, 15u32, 5u32, 7u32, 
+                33u32, 6u32, 18u32
+            ], 1, 10001, 11);
+
+
+            let index = (hash ^ rounds_u64) % vector::length(&array);
+            let random_value = *vector::borrow(&array, index);
+
+
+            hash = (hash + (chance + rounds_u64 + (random_value as u64))) % 90_002;
+
+            let token_amount = chanceTreasure_tokens((hash * (hash as u64)) % 99999);
+            vector::push_back(&mut items, token_amount);
+            hash = hash + token_amount*3;
+            rounds = rounds - 1;
+        };
+        items
+    }
+
+
+    #[view]
     public fun buildTreasureRandom_items(chance: u64, _hash: u128, level: u8): vector<Item> {
         let original_rounds = chanceTreasure_rounds(chance);
         let rounds = original_rounds-3;
@@ -181,6 +211,20 @@ public fun buildTreasureRandom(chance: u64, _hash: u128, level: u8): vector<Mate
             rounds = rounds - 1;
         };
         materials
+    }
+
+    fun chanceTreasure_tokens(chance: u64): u64 {
+        if (chance <= (Constant::get_constant_value(&Constant::viewConstant(utf8(b"Treasure"), utf8(b"min_win_chance"))) as u64)) {
+            return (Constant::get_constant_value(&Constant::viewConstant(utf8(b"Treasure"), utf8(b"min_token_win"))) as u64) //70000
+        } else if (chance <= (Constant::get_constant_value(&Constant::viewConstant(utf8(b"Treasure"), utf8(b"small_win_chance"))) as u64)) {
+            return (Constant::get_constant_value(&Constant::viewConstant(utf8(b"Treasure"), utf8(b"small_token_win"))) as u64) //22750
+        } else if (chance <= (Constant::get_constant_value(&Constant::viewConstant(utf8(b"Treasure"), utf8(b"medium_win_chance"))) as u64)) {
+            return (Constant::get_constant_value(&Constant::viewConstant(utf8(b"Treasure"), utf8(b"medium_token_win"))) as u64) //5750
+        } else if (chance <= (Constant::get_constant_value(&Constant::viewConstant(utf8(b"Player"), utf8(b"big_win_chance"))) as u64)) {
+            return (Constant::get_constant_value(&Constant::viewConstant(utf8(b"Treasure"), utf8(b"big_token_win"))) as u64) //1250
+        } else {
+            return (Constant::get_constant_value(&Constant::viewConstant(utf8(b"Treasure"), utf8(b"max_token_win"))) as u64) //250
+        }
     }
 
     fun chanceMaterials(chance: u64, _level: u8, hash: u64): Material {
