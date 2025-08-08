@@ -1,4 +1,4 @@
-module new_dev::testPoints11 {
+module new_dev::testPoints12 {
     use std::debug::print;
     use std::string::{String, utf8};
     use std::signer;
@@ -6,7 +6,8 @@ module new_dev::testPoints11 {
     use std::vector;
     use supra_framework::coin::{Self};
     use supra_framework::supra_coin::{Self, SupraCoin};
-    use new_dev::testStats11::{Self as Stats};
+    use new_dev::testStats12::{Self as Stats};
+    use new_dev::testVaultV2::{Self as Vault};
 
 // Structs
     struct Points has copy, key, drop, store {amount: u64}
@@ -21,8 +22,6 @@ module new_dev::testPoints11 {
     }
 
     const ADMIN: address = @0xf286f429deaf08050a5ec8fc8a031b8b36e3d4e9d2486ef374e50ef487dd5bbd; 
-    const OWNER: address = @0xf286f429deaf08050a5ec8fc8a031b8b36e3d4e9d2486ef374e50ef487dd5bbd;
-    const DESTINATION: address = @0x1ca524aa1ac448f3fa9d9a6ff9988c1cfd79a36480cd0e03cb3a7cdeb0c29034;
     
 
 // Initialize stats
@@ -39,7 +38,7 @@ module new_dev::testPoints11 {
 // Grant capability to trusted modules
     public fun grant_cap(caller: &signer): AccessCap {
         let addr = signer::address_of(caller);
-        assert!(addr == OWNER, 999);
+        assert!(addr == ADMIN, 999);
         AccessCap {}
     }
 
@@ -49,7 +48,7 @@ module new_dev::testPoints11 {
         init_points_storage(signer);
         let holder = borrow_global<CapHolder>(ADMIN); // Always use the fixed address
         let points = borrow_global_mut<Points>(signer::address_of(signer));
-        coin::transfer<SupraCoin>(signer, DESTINATION, fee);
+        Vault::deposit(signer, fee);
         Stats::add_points(&holder.cap, (amount as u256));
         points.amount = points.amount + amount;
     }
@@ -61,7 +60,7 @@ module new_dev::testPoints11 {
 
         if(points.amount >= amount){ return };
 
-        coin::transfer<SupraCoin>(signer, DESTINATION, fee);
+        Vault::deposit(signer, fee);
         points.amount = points.amount - amount;
     }
 
