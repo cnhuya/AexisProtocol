@@ -52,7 +52,6 @@ module deployer::testCore45 {
     const ABILITY_TYPE_PASSIVE: u8 = 1;
     const ABILITY_TYPE_ACTIVE: u8 = 2;
     const ABILITY_TYPE_TOGGLE: u8 = 3;
-
     const MATERIAL_ID_EXP: u8 = 0;
     const MATERIAL_ID_GOLD: u8 = 1;
     const MATERIAL_ID_ESSENCE: u8 = 2;
@@ -486,6 +485,18 @@ module deployer::testCore45 {
             statRange.max
         }
 
+
+        public fun get_stat_by_id(vect: vector<Stat>, id: u8): Stat {
+            let len = vector::length(&vect);
+            while(len > 0){
+                let stat = vector::borrow(&mut vect, len-1);
+                if(stat.statID == id){
+                    return *stat
+                };
+                len = len-1;
+            };
+            abort(1)
+        }
 
         public fun get_stat_by_name(vect: vector<StatString>, statName: String): StatString {
             let len = vector::length(&vect);
@@ -949,6 +960,9 @@ module deployer::testCore45 {
 // ===  ===  ===  ===  === 
 // ===     CONVERTS    ===
 // ===  ===  ===  ===  ===
+
+
+
 public fun convert_valueID_to_String(valueID: u8): String {
     if (valueID == VALUE_ID_RAGE) {
         utf8(b"rage")
