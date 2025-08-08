@@ -21,7 +21,7 @@ module new_dev::testVaultV2 {
 
     /// Capability/resource that allows calling `send_win`
     /// Stored at the grantee's account if granted.
-    struct Access has key, drop {}
+    struct Access has store, key,drop {}
 
     /// Deposit event
     #[event]
