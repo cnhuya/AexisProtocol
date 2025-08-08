@@ -77,14 +77,8 @@ module new_dev::testPlayerV28{
     fun make_player(name: String, classID: u8, raceID: u8): Player  {
         assert!(Str::length(&name) <= 16, ERROR_NAME_TOO_LONG);
         //assert!(player_exists(name) == false, ERROR_PLAYER_NAME_ALREADY_EXISTS);
-        Player { id:0, name: name, classID: classID, raceID: raceID, hash: 1, stats: vector::empty<Stat>(), elements: vector::empty<Value>(), materials: vector::empty<Material>(), perksID: vector::empty<u16>(), inventory: vector::empty<Item>(), equip: vector::empty<Item>(),crafting: vector::empty<Crafting>(), examinations: vector::empty<Examine>(), dungeon: PlayerCore::make_dungeonPlayer(1,0), expedition: PlayerCore::make_empty_expeditionPlayer(), oponent: PlayerCore::make_empty_oponent(), status: 0}
+        Player { id:0, name: name, classID: classID, raceID: raceID, hash: 1, stats: vector::empty<Stat>(), elements: vector::empty<Value>(), materials: vector::empty<Material>(), perksID: vector::empty<u16>(), inventory: vector::empty<Item>(), equip: vector::empty<Item>(),crafting: vector::empty<Crafting>(), examinations: vector::empty<Examine>(), dungeon: PlayerCore::make_dungeonPlayer(19,0), expedition: PlayerCore::make_empty_expeditionPlayer(), oponent: PlayerCore::make_empty_oponent(), status: 0}
     }
-
-   /* fun make_mut_player(name: String, classID: u8, raceID: u8): &mut Player  {
-        assert!(Str::length(&name) >= 16, ERROR_NAME_TOO_LONG);
-        //assert!(player_exists(name) == false, ERROR_PLAYER_NAME_ALREADY_EXISTS);
-        &mut Player { id: 0, name: name, classID: classID, raceID: raceID, hash: 1, stats: vector::empty<Stat>(), elements: vector::empty<Value>(), materials: vector::empty<Material>(), perksID: vector::empty<u16>(), inventory: vector::empty<Item>(), equip: vector::empty<Item>(),crafting: vector::empty<Crafting>(), examinations: vector::empty<Examine>(), dungeon: PlayerCore::make_dungeonPlayer(1,0), expedition: PlayerCore::make_empty_expeditionPlayer(), oponent: PlayerCore::make_empty_oponent(), status: 0 }
-    }*/
 
     fun make_playerString(player: &Player, level: u8, xp: u32, required_xp: u32, stats: vector<StatPlayer>, crafting: vector<CraftingString>, power: u32, exams: vector<ExamineString>): PlayerString  {
         PlayerString { id: player.id, name: player.name, className: Core::convert_classID_to_String(player.classID), raceName: Core::convert_raceID_to_String(player.raceID), level: level,xp: xp, required_xp: required_xp, hash: 1, stats: stats, elements: Core::build_values_with_strings(player.elements),materials: Core::extract_materials_from_materials(player.materials), minerals: Core::extract_minerals_from_materials(player.materials), bags: Core::extract_bags_from_materials(player.materials), perksID: player.perksID, perk_usage: Perks::calculate_perk_usage(player.perksID,level), inventory: Core::make_multiple_string_items(player.inventory), crafting: crafting, examinations: exams, equip:  Core::make_multiple_string_items(player.equip), dungeon: player.dungeon, expedition: PlayerCore::make_expeditionPlayerString(&player.expedition), power: power, oponent: player.oponent, status: convert_playerStatus_to_String(player.status)}
@@ -189,6 +183,11 @@ module new_dev::testPlayerV28{
         let (isb, index) = vector::index_of(&player.examinations, &examine);
         vector::remove(&mut player.examinations, index);
         player
+    }
+
+
+    public fun set_player_dungeon(player: &mut Player, entityID: u8, health: u64){
+        player.dungeon = PlayerCore::make_dungeonPlayer(entityID, health)
     }
 
     public fun set_player_expedition(player: &mut Player, expeditionID: u8){
