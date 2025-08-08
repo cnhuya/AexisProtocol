@@ -1,4 +1,4 @@
-module new_dev::testPlayerV28{
+module new_dev::testPlayerV29{
 
     use std::debug::print;
     use std::string::{Self as Str,String,utf8};
@@ -186,8 +186,9 @@ module new_dev::testPlayerV28{
     }
 
 
-    public fun set_player_dungeon(player: &mut Player, entityID: u8, health: u64){
-        player.dungeon = PlayerCore::make_dungeonPlayer(entityID, health)
+    public fun set_player_dungeon(player: Player, entityID: u8, health: u64): Player{
+        player.dungeon = PlayerCore::make_dungeonPlayer(entityID, health);
+        player
     }
 
     public fun set_player_expedition(player: &mut Player, expeditionID: u8){
