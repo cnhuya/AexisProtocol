@@ -1,5 +1,5 @@
 [package]
-name = "testUtils11"
+name = "testUtils12"
 version = "2.1.1"
 authors = []
 
@@ -20,6 +20,11 @@ subdir = "aptos-move/framework/supra-framework"
 git = 'https://github.com/cnhuya/test.git'
 rev = 'main'
 subdir = 'modules/Random'
+
+[dependencies.testVaultV2]
+git = 'https://github.com/cnhuya/test.git'
+rev = 'main'
+subdir = 'modules/Game/sources/Storage/Vault'
 
 
 [dev-dependencies]
