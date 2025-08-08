@@ -150,6 +150,10 @@ public fun get_entity_stats(id: u8): vector<StatString> acquires Entity_Database
     return entity.stats
 }
 
+public fun get_entity_stats_raw(id: u8): vector<Stat> acquires Entity_Database{
+    simulate_entity_stat(id)
+}
+
 #[view]
 public fun viewEntityStatsByName(name: u8): FullEntity acquires Entity_Database {
     let entity_db = viewEntities();
@@ -163,7 +167,7 @@ public fun viewEntityStatsByName(name: u8): FullEntity acquires Entity_Database 
 
             let _entity = FullEntity {
                 entity: *entity,
-                stats: simulate_entity_stat(name),
+                stats: Core::build_stats_with_strings(simulate_entity_stat(name)),
             };
             return _entity
         };
@@ -186,39 +190,13 @@ public fun viewEntitiesStats(): vector<FullEntity> acquires Entity_Database{
     move vect
 }
 
-/*fun get_entityloc(entity: Entity): Location acquires Location_Database{
-    let location_db = borrow_global<Location_Database>(OWNER);
-    let len = vector::length(&location_db.database);
-    while(len>0){
-        let location = vector::borrow(&location_db.database, len-1);
-        if(Core::get_location_name(location) == Core::get_entity_location(&entity)){
-            return *location
-        };
-        len = len-1;
-    };
-    abort(1)
-}
-
-fun get_entitytype(entity: Entity): Type acquires Type_Database{
-    let type_db = borrow_global<Type_Database>(OWNER);
-    let len = vector::length(&type_db.database);
-    while(len>0){
-        let type = vector::borrow(&type_db.database, len-1);
-        if(Core::get_type_name(type) == Core::get_entity_type(&entity)){
-            return *type
-        };
-        len = len-1;
-    };
-    abort(1)
-}*/
-
-fun simulate_entity_stat(entityName: u8): vector<StatString> acquires Entity_Database{
+fun simulate_entity_stat(entityName: u8): vector<Stat> acquires Entity_Database{
     let entity = viewEntityByID(entityName);
     let entity_type_multi = viewEntityTypeMulti(Core::get_entity_type(&entity));
     let entityID = Core::get_entity_ID(&entity);
     let stats = viewEntityBaseStats(); // Immutable borrow now
     let len = vector::length(&stats);
-    let vec = vector::empty<StatString>();
+    let vec = vector::empty<Stat>();
     let i = 0;
     while (i < len) {
         let stat = vector::borrow(&stats, i); // Immutable reference
@@ -237,8 +215,7 @@ fun simulate_entity_stat(entityName: u8): vector<StatString> acquires Entity_Dat
         };
 
         let _stat = Core::make_stat(stat_id, new_val); // Custom constructor
-        let _stat_ = Core::make_string_stat(&_stat);
-        vector::push_back(&mut vec, _stat_);
+        vector::push_back(&mut vec, _stat);
         i = i + 1;
     };
 
