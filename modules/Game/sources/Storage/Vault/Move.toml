@@ -22,9 +22,5 @@ git = 'https://github.com/cnhuya/test.git'
 rev = 'main'
 subdir = 'modules/Game/sources/Storage/ConstantAdress'
 
-[dependencies.testUtils11]
-git = 'https://github.com/cnhuya/test.git'
-rev = 'main'
-subdir = 'modules/Game/sources/Utils'
 
 [dev-dependencies]
