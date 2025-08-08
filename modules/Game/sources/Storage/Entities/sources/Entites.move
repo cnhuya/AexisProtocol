@@ -46,6 +46,7 @@ public entry fun addEntity(address: &signer, entityID: u8, entityName: String, t
 }
 
 
+
 #[view]
 public fun viewEntityBaseStats(): vector<Stat>  {
 
@@ -144,6 +145,11 @@ public fun viewEntityByID(id: u8): Entity acquires Entity_Database {
     abort(1)
 }
 
+public fun get_entity_stats(id: u8): vector<StatString> acquires Entity_Database{
+    let entity = viewEntityStatsByName(id);
+    return entity.stats
+}
+
 #[view]
 public fun viewEntityStatsByName(name: u8): FullEntity acquires Entity_Database {
     let entity_db = viewEntities();
@@ -225,8 +231,9 @@ fun simulate_entity_stat(entityName: u8): vector<StatString> acquires Entity_Dat
             new_val = 1;
         } else {
             let entityID_val = (entityID as u64);
-            let growth_factor = ((entityID_val * entityID_val)) * 65 + 1000;
-            new_val = stat_val + ((entity_type_multi as u64) * growth_factor) / 1500;
+            let grow_multi = (Constant::get_constant_value(&Constant::viewConstant(utf8(b"Entities"),utf8(b"id_grow_multi"))) as u64);
+            let growth_factor = ((entityID_val * entityID_val)) * grow_multi;
+            new_val = (stat_val * ((entity_type_multi as u64) * growth_factor)) / 10001;
         };
 
         let _stat = Core::make_stat(stat_id, new_val); // Custom constructor
