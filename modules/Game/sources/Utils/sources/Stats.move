@@ -1,4 +1,4 @@
-module new_dev::testStats11 {
+module new_dev::testStats12 {
     use std::debug::print;
     use std::string::{String, utf8};
     use std::signer;
