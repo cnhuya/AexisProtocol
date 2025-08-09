@@ -33,7 +33,7 @@ module new_dev::testPlayerV30{
 // Structs
 
 
-    struct CapHolder_vault has key, drp{
+    struct CapHolder_vault has key, drop{
         cap: Vault::Access,
     }
 
