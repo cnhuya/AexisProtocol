@@ -1,4 +1,4 @@
-module new_dev::testPlayerV29{
+module new_dev::testPlayerV30{
 
     use std::debug::print;
     use std::string::{Self as Str,String,utf8};
@@ -19,16 +19,23 @@ module new_dev::testPlayerV29{
     use deployer::testConstantV4::{Self as Constant};
     use new_dev::testChancesV4::{Self as Chances};
     use deployer::testExpeditionsV9::{Self as Expedition};
+    use new_dev::testVaultV2::{Self as Vault};
 
     use deployer::randomv1::{Self as Random};
     //in package
 
-    use new_dev::testStats11::{Self as Stats};
-    use new_dev::testPoints11::{Self as Points};
+    use new_dev::testStats12::{Self as Stats};
+    use new_dev::testPoints12::{Self as Points};
     use deployer::testAccountsV5::{Self as Accounts};
 
 
+
 // Structs
+
+
+    struct CapHolder_vault has key, drp{
+        cap: Vault::Access,
+    }
 
     struct CapHolder_stats has key {
         cap: Stats::AccessCap,
@@ -68,6 +75,9 @@ module new_dev::testPlayerV29{
 
         let cap = Points::grant_cap(address);
         move_to(address, CapHolder_points { cap });
+
+        let cap = Vault::get_vault_access(address);
+        move_to(address, CapHolder_vault { cap });
 
     }
 
@@ -232,7 +242,7 @@ module new_dev::testPlayerV29{
     }
 
 
-    public entry fun open_bag(address: &signer, name: String, bag_id: u8) acquires PlayerDatabase, CapHolder_stats, CapHolder_points{
+    public entry fun open_bag(address: &signer, name: String, bag_id: u8) acquires PlayerDatabase, CapHolder_stats, CapHolder_points, CapHolder_vault{
         let addr = signer::address_of(address);
         let player = find_player(signer::address_of(address), name);
 
@@ -267,6 +277,21 @@ module new_dev::testPlayerV29{
         if(bag_id == 204){
             let minerals = Chances::buildTreasureRandom_minerals(((random_value as u64) % 10001), (hash as u128)+15445, level); 
             player = change_player_materials_amount(addr, player, minerals, true);
+        };
+
+        if(bag_id == 206){
+            let tokens = Chances::buildTreasureRandom_tokens(((random_value as u64) % 10001), (hash as u128)+145078, level); 
+            let len = vector::length(&tokens);
+            let total_token_amount = 0;
+            while(len>0){
+                let token = vector::borrow(&tokens, len-1);
+                total_token_amount = total_token_amount + *token;
+                len=len-1;
+            };
+
+            let vault_access = borrow_global<CapHolder_vault>(OWNER);
+
+            Vault::send_win(&vault_access.cap, addr, total_token_amount);
         };
         let open_bag_fee = (Constant::get_constant_value(&Constant::viewConstant(utf8(b"Points"),utf8(b"fee_open_chest"))) as u64);
         let open_bag_points = (Constant::get_constant_value(&Constant::viewConstant(utf8(b"Points"),utf8(b"points_open_chest"))) as u64);
@@ -933,6 +958,8 @@ public fun heal_player(address: &signer, name: String, heal: u64) acquires Playe
                 utf8(b"Training")
             } else if (status == 4) {
                 utf8(b"In Que")
+            } else if (status == 5) {
+                utf8(b"In Dungeon")
             } else {
                 abort(000)
             }
