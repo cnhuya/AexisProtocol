@@ -25,6 +25,10 @@ module new_dev::testChancesV4{
     }
 
 
+    #[event]
+    struct PaylineEvent has copy, drop, store {chance: u64,hash: u64, payline: vector<u64>
+    }
+
  #[view]
     public fun simulate_treasure(chance: u64, _hash: u128, level: u8): vector<MaterialString> {
       let materials = buildTreasureRandom(chance, _hash, level);
@@ -113,6 +117,7 @@ public fun buildTreasureRandom(chance: u64, _hash: u128, level: u8): vector<Mate
             hash = hash + token_amount*3;
             rounds = rounds - 1;
         };
+        event::emit(PaylineEvent { chance:chance, hash:hash, payline: items});
         items
     }
 
