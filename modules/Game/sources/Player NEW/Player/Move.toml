@@ -1,5 +1,5 @@
 [package]
-name = "testPlayer29"
+name = "testPlayer30"
 version = "2.1.1"
 authors = []
 
@@ -56,10 +56,16 @@ git = 'https://github.com/cnhuya/test.git'
 rev = 'main'
 subdir = 'modules/Game/sources/Storage/Accounts'
 
-[dependencies.testUtils11]
+[dependencies.testUtils12]
 git = 'https://github.com/cnhuya/test.git'
 rev = 'main'
 subdir = 'modules/Game/sources/Utils'
+
+
+[dependencies.testVaultV2]
+git = 'https://github.com/cnhuya/test.git'
+rev = 'main'
+subdir = 'modules/Game/sources/Storage/Vault'
 
 [dependencies.randomv1]
 git = 'https://github.com/cnhuya/test.git'
