@@ -220,7 +220,7 @@ public fun buildTreasureRandom(chance: u64, _hash: u128, level: u8): vector<Mate
             return (Constant::get_constant_value(&Constant::viewConstant(utf8(b"Treasure"), utf8(b"small_token_win"))) as u64) //22750
         } else if (chance <= (Constant::get_constant_value(&Constant::viewConstant(utf8(b"Treasure"), utf8(b"medium_win_chance"))) as u64)) {
             return (Constant::get_constant_value(&Constant::viewConstant(utf8(b"Treasure"), utf8(b"medium_token_win"))) as u64) //5750
-        } else if (chance <= (Constant::get_constant_value(&Constant::viewConstant(utf8(b"Player"), utf8(b"big_win_chance"))) as u64)) {
+        } else if (chance <= (Constant::get_constant_value(&Constant::viewConstant(utf8(b"Treasure"), utf8(b"big_win_chance"))) as u64)) {
             return (Constant::get_constant_value(&Constant::viewConstant(utf8(b"Treasure"), utf8(b"big_token_win"))) as u64) //1250
         } else {
             return (Constant::get_constant_value(&Constant::viewConstant(utf8(b"Treasure"), utf8(b"max_token_win"))) as u64) //250
