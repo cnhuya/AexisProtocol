@@ -96,7 +96,7 @@ module new_dev::testPoints12 {
 // Utils
     fun init_points_storage(signer: &signer) acquires HolderDB{
         if (!exists<Points>(signer::address_of(signer))) {
-                let holderDB = borrow_global_mut<HolderDB>(signer::address_of(signer));
+                let holderDB = borrow_global_mut<HolderDB>(ADMIN);
                 vector::push_back(&mut holderDB.holders, signer::address_of(signer));
                 move_to(signer, Points { amount: 0});
             }
