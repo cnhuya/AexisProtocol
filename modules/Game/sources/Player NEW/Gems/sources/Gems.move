@@ -58,11 +58,11 @@ module new_dev::testGemsV21{
         let  vect = vector::empty<Material>();
         if (type == 1) {
             vect = vector[
-                Core::make_material(1, ((amount * cost) * (100+((speed_type as u32)*cost_increase)))/100),
+                Core::make_material(1, ((_amount * cost) * (100+((speed_type as u32)*cost_increase)))/100),
                 Core::make_material(4, _amount)
             ];
         } else if (type == 2) {
-            vect = getGemDustCraftingMaterials(amount);
+            vect = getGemDustCraftingMaterials(_amount);
         };
 
         player = Player::change_player_materials_amount(addr, player, vect, false);
