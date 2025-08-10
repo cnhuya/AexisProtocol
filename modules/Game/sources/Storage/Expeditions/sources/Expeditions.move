@@ -164,6 +164,12 @@ module deployer::testExpeditionsV9{
     }
 
     #[view]
+    public fun simulate_exped_rewardsNAME(name: String,time_on_exped: u64): vector<MaterialString> acquires Expedition_Database{
+       let rewards = distribute_exped_rewards(convert_name_to_expedition_ID(name), time_on_exped);
+       Core::build_materials_with_strings(rewards)
+    }
+
+    #[view]
     public fun distribute_exped_costs(id: u8,time_on_exped: u64): vector<Material> acquires Expedition_Database{
         let exped = viewExpeditionByID_raw(id);
         let len = vector::length(&Core::get_expedition_costs(&exped));
@@ -178,6 +184,26 @@ module deployer::testExpeditionsV9{
         };
         move vect
     }
+
+
+
+public fun convert_name_to_expedition_ID(name: String): u8 {
+    if (name == utf8(b"Valley")) {
+        return 1
+    } else if (name == utf8(b"Desert")) {
+        return 2
+    } else if (name == utf8(b"Frostland")) {
+        return 3
+    } else if (name == utf8(b"Graveyard")) {
+        return 4
+    } else if (name == utf8(b"Sea")) {
+        return 5
+    } else if (name == utf8(b"Underground")) {
+        return 6
+    } else {
+        return 0  // Unknown
+    }
+}
 
 
 #[test(account = @0x1, owner = @0x281d0fce12a353b1f6e8bb6d1ae040a6deba248484cf8e9173a5b428a6fb74e7)]
