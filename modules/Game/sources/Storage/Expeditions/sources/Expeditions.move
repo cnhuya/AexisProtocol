@@ -7,7 +7,7 @@ module deployer::testExpeditionsV9{
     use std::signer;
     use std::vector;
     use supra_framework::event;
-    use deployer::testCore45::{Self as Core, Stat, Material, Item,Expedition, ExpeditionString};
+    use deployer::testCore45::{Self as Core, Stat, Material, MaterialString, Item,Expedition, ExpeditionString};
 
 // Structs
 
@@ -153,6 +153,14 @@ module deployer::testExpeditionsV9{
         };
         move vect
 
+    }
+
+
+    
+    #[view]
+    public fun simulate_exped_rewards(id: u8,time_on_exped: u64): vector<MaterialString> acquires Expedition_Database{
+       let rewards = distribute_exped_rewards(id, time_on_exped);
+       Core::build_materials_with_strings(rewards)
     }
 
     #[view]
