@@ -416,7 +416,9 @@ module new_dev::testPlayerV30{
 
             let expedition = Expedition::viewExpeditionByID_raw(expeditionID);
             let (level, xp) = viewHeroLevel(player);
-
+            if(PlayerCore::get_expeditionPlayer_entry_time(&player.expedition) != 0){
+                leaveExpedition(address, name);
+            };
             assert!(level >= Core::get_expedition_required_level(&expedition), ERROR_EXPEDITION_REQUIRES_HIGHER_LEVEL);
             assert!(player.status == 0, ERROR_NOT_INACTIVE);
             if(player.status == 1){
