@@ -19,7 +19,7 @@ module new_dev::testExpeditionsV9{
     struct ExpeditionChange has drop, store {address: address, old_expediiton: ExpeditionString, new_expedition: ExpeditionString}
 
 // Const
-    const OWNER: address = @0x281d0fce12a353b1f6e8bb6d1ae040a6deba248484cf8e9173a5b428a6fb74e7;
+    const OWNER: address = @new_dev;
 
 // Errors
     const ERROR_NOT_OWNER: u64 = 1;
