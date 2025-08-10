@@ -1,4 +1,4 @@
-module deployer::testCraftingV20{
+module new_dev::testCraftingV21{
 
     use std::debug::print;
     use std::string::{String,utf8};
@@ -13,12 +13,12 @@ module deployer::testCraftingV20{
     use deployer::testPlayerCore11::{Self as PlayerCore,DungeonPlayer,Crafting,CraftingString,StatPlayer, ExamineString, Examine, Oponent, ExpeditionPlayer, ExpeditionPlayerString};
 
 
-    use deployer::testItemsV6::{Self as Items};
+     use new_dev::testItemsV7::{Self as Items};
     use deployer::testConstantV4::{Self as Constant};
 
     use deployer::randomv1::{Self as Random};
 
-    use deployer::testPlayerV27::{Self as Player};
+    use new_dev::testPlayerV30::{Self as Player};
 
 // Structs
 
@@ -198,112 +198,5 @@ public entry fun test(account: signer, owner: signer) acquires Class_Database {
 
     print(&utf8(b" USER STATS "));
 
-    // Sample passive data
-    let passive_name = vector[utf8(b"passive1"), utf8(b"passive2")];
-    let passive_valueIDs = vector[vector[1u8], vector[2u8]];
-    let passive_valueIsEnemies = vector[vector[true], vector[false]];
-    let passive_valueValues = vector[vector[10u8], vector[20u8]];
-    let passive_valueTimes = vector[vector[100u64], vector[200u64]];
-
-    // Sample active data
-    let active_name = vector[utf8(b"active1"), utf8(b"active2")];
-    let active_cooldown = vector[5u8, 6u8];
-    let active_stamina = vector[10u8, 20u8];
-    let active_damage = vector[50u16, 100u16];
-    let active_valueIDs = vector[vector[3u8], vector[4u8]];
-    let active_valueIsEnemies = vector[vector[true], vector[false]];
-    let active_valueValues = vector[vector[7u8], vector[8u8]];
-
-    createClass(
-        &owner,
-        1, // classID
-        passive_name,
-        passive_valueIDs,
-        passive_valueIsEnemies,
-        passive_valueValues,
-        passive_valueTimes,
-        active_name,
-        active_cooldown,
-        active_stamina,
-        active_damage,
-        active_valueIDs,
-        active_valueIsEnemies,
-        active_valueValues
-    );
-
-        createClass(
-        &owner,
-        2, // classID
-        passive_name,
-        passive_valueIDs,
-        passive_valueIsEnemies,
-        passive_valueValues,
-        passive_valueTimes,
-        active_name,
-        active_cooldown,
-        active_stamina,
-        active_damage,
-        active_valueIDs,
-        active_valueIsEnemies,
-        active_valueValues
-    );
-
-        createClass(
-        &owner,
-        3, // classID
-        passive_name,
-        passive_valueIDs,
-        passive_valueIsEnemies,
-        passive_valueValues,
-        passive_valueTimes,
-        active_name,
-        active_cooldown,
-        active_stamina,
-        active_damage,
-        active_valueIDs,
-        active_valueIsEnemies,
-        active_valueValues
-    );
-
-        createClass(
-        &owner,
-        4, // classID
-        passive_name,
-        passive_valueIDs,
-        passive_valueIsEnemies,
-        passive_valueValues,
-        passive_valueTimes,
-        active_name,
-        active_cooldown,
-        active_stamina,
-        active_damage,
-        active_valueIDs,
-        active_valueIsEnemies,
-        active_valueValues
-    );
-
-        createClass(
-        &owner,
-        5, // classID
-        passive_name,
-        passive_valueIDs,
-        passive_valueIsEnemies,
-        passive_valueValues,
-        passive_valueTimes,
-        active_name,
-        active_cooldown,
-        active_stamina,
-        active_damage,
-        active_valueIDs,
-        active_valueIsEnemies,
-        active_valueValues
-    );
-
-    print(&viewClass(1));
-    print(&viewClass(2));
-    print(&viewClass(3));
-    print(&viewClass(4));
-    print(&viewClass(5));
-    print(&viewClasses());
 }}
 
