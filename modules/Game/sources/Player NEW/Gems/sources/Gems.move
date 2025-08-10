@@ -1,4 +1,4 @@
-module new_dev::testGemsV20{
+module new_dev::testGemsV21{
 
     use std::debug::print;
     use std::string::{String,utf8};
@@ -16,7 +16,7 @@ module new_dev::testGemsV20{
 
     use deployer::randomv1::{Self as Random};
 
-    use new_dev::testPlayerV28::{Self as Player};
+    use new_dev::testPlayerV30::{Self as Player};
 
 // Structs
 
@@ -44,10 +44,13 @@ module new_dev::testGemsV20{
     public entry fun Gems(address: &signer, name: String, _amount: u32, type: u8, speed_type: u8){
         let addr = signer::address_of(address);
         assert!(_amount >= 50, ERROR_EXAMINE_AMOUNT_TOO_LOW);
-        assert!(speed_type <= 5, ERROR_SPEED_TYPE_TOO_HIGH);
+        assert!(speed_type <= 3, ERROR_SPEED_TYPE_TOO_HIGH);
         assert!(type <= 3, ERROR_INVALID_EXAMINATION_TYPE);
         assert!((_amount % 10) == 0, ERROR_AMOUNT_MUST_BE_MODULABLE_BY_10);
-
+        let time_reduction = (Constant::get_constant_value(&Constant::viewConstant(utf8(b"Gems"),utf8(b"speed_type_time_reduction"))) as u64); // 5
+        let cost_increase =  (Constant::get_constant_value(&Constant::viewConstant(utf8(b"Gems"),utf8(b"speed_type_cost_increase"))) as u32); // 4
+        let cost =  (Constant::get_constant_value(&Constant::viewConstant(utf8(b"Gems"),utf8(b"base_cost"))) as u32); // 1
+        let time_per_amount =  (Constant::get_constant_value(&Constant::viewConstant(utf8(b"Gems"),utf8(b"base_time"))) as u64); // 1
         let player = Player::find_player(signer::address_of(address), name);
 
         let amount = _amount / 10;
@@ -55,7 +58,7 @@ module new_dev::testGemsV20{
         let  vect = vector::empty<Material>();
         if (type == 1) {
             vect = vector[
-                Core::make_material(1, amount * 12),
+                Core::make_material(1, ((amount * cost) * (100+((speed_type as u32)*cost_increase)))/100),
                 Core::make_material(4, _amount)
             ];
         } else if (type == 2) {
@@ -64,7 +67,7 @@ module new_dev::testGemsV20{
 
         player = Player::change_player_materials_amount(addr, player, vect, false);
 
-        let time = timestamp::now_seconds() + ((amount as u64) / (speed_type as u64));
+        let time = (timestamp::now_seconds() + ((time_per_amount*(amount as u64)) * (100-((speed_type as u64)*time_reduction)))/100);
         let examine = PlayerCore::make_examine(time, (amount as u64), type, speed_type);
         player = Player::add_player_exam(player, examine);
 
@@ -193,9 +196,13 @@ fun chanceMaterials(chance: u64): u8 {
 
     fun getGemDustCraftingMaterials(amount: u32): vector<Material> {
 
-        let sand = Core::make_material(5, amount*2);
-        let gold = Core::make_material(1, amount*5);
-        let stone  = Core::make_material(4, amount);
+        let sand_increase =  (Constant::get_constant_value(&Constant::viewConstant(utf8(b"Gems"),utf8(b"gemdust_sand_increase"))) as u32);
+        let gold_increase =  (Constant::get_constant_value(&Constant::viewConstant(utf8(b"Gems"),utf8(b"gemdust_gold_increase"))) as u32);
+        let stone_increase =  (Constant::get_constant_value(&Constant::viewConstant(utf8(b"Gems"),utf8(b"gemdust_stone_increase"))) as u32);
+
+        let sand = Core::make_material(5, (amount*sand_increase)/100);
+        let gold = Core::make_material(1, (amount*gold_increase)/100);
+        let stone  = Core::make_material(4, (amount*stone_increase)/100);
 
         vector[sand, gold, stone]
     }
@@ -213,115 +220,5 @@ public entry fun test(account: signer, owner: signer) acquires Class_Database {
     let source_addr = signer::address_of(&account);
     init_module(&owner);
     account::create_account_for_test(source_addr);
-
-    print(&utf8(b" USER STATS "));
-
-    // Sample passive data
-    let passive_name = vector[utf8(b"passive1"), utf8(b"passive2")];
-    let passive_valueIDs = vector[vector[1u8], vector[2u8]];
-    let passive_valueIsEnemies = vector[vector[true], vector[false]];
-    let passive_valueValues = vector[vector[10u8], vector[20u8]];
-    let passive_valueTimes = vector[vector[100u64], vector[200u64]];
-
-    // Sample active data
-    let active_name = vector[utf8(b"active1"), utf8(b"active2")];
-    let active_cooldown = vector[5u8, 6u8];
-    let active_stamina = vector[10u8, 20u8];
-    let active_damage = vector[50u16, 100u16];
-    let active_valueIDs = vector[vector[3u8], vector[4u8]];
-    let active_valueIsEnemies = vector[vector[true], vector[false]];
-    let active_valueValues = vector[vector[7u8], vector[8u8]];
-
-    createClass(
-        &owner,
-        1, // classID
-        passive_name,
-        passive_valueIDs,
-        passive_valueIsEnemies,
-        passive_valueValues,
-        passive_valueTimes,
-        active_name,
-        active_cooldown,
-        active_stamina,
-        active_damage,
-        active_valueIDs,
-        active_valueIsEnemies,
-        active_valueValues
-    );
-
-        createClass(
-        &owner,
-        2, // classID
-        passive_name,
-        passive_valueIDs,
-        passive_valueIsEnemies,
-        passive_valueValues,
-        passive_valueTimes,
-        active_name,
-        active_cooldown,
-        active_stamina,
-        active_damage,
-        active_valueIDs,
-        active_valueIsEnemies,
-        active_valueValues
-    );
-
-        createClass(
-        &owner,
-        3, // classID
-        passive_name,
-        passive_valueIDs,
-        passive_valueIsEnemies,
-        passive_valueValues,
-        passive_valueTimes,
-        active_name,
-        active_cooldown,
-        active_stamina,
-        active_damage,
-        active_valueIDs,
-        active_valueIsEnemies,
-        active_valueValues
-    );
-
-        createClass(
-        &owner,
-        4, // classID
-        passive_name,
-        passive_valueIDs,
-        passive_valueIsEnemies,
-        passive_valueValues,
-        passive_valueTimes,
-        active_name,
-        active_cooldown,
-        active_stamina,
-        active_damage,
-        active_valueIDs,
-        active_valueIsEnemies,
-        active_valueValues
-    );
-
-        createClass(
-        &owner,
-        5, // classID
-        passive_name,
-        passive_valueIDs,
-        passive_valueIsEnemies,
-        passive_valueValues,
-        passive_valueTimes,
-        active_name,
-        active_cooldown,
-        active_stamina,
-        active_damage,
-        active_valueIDs,
-        active_valueIsEnemies,
-        active_valueValues
-    );
-
-    print(&viewClass(1));
-    print(&viewClass(2));
-    print(&viewClass(3));
-    print(&viewClass(4));
-    print(&viewClass(5));
-    print(&viewClasses());
 }}
 
