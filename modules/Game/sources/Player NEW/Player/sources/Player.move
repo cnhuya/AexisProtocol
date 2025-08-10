@@ -18,7 +18,7 @@ module new_dev::testPlayerV30{
     use deployer::testPerksV13::{Self as Perks};
     use deployer::testConstantV4::{Self as Constant};
     use new_dev::testChancesV4::{Self as Chances};
-    use deployer::testExpeditionsV9::{Self as Expedition};
+    use new_dev::testExpeditionsV9::{Self as Expedition};
     use new_dev::testVaultV2::{Self as Vault};
 
     use deployer::randomv1::{Self as Random};
