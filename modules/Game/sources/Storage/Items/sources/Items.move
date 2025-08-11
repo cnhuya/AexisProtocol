@@ -1,4 +1,4 @@
-module new_dev::testItemsV7{
+module new_dev::testItemsV8{
 
     use std::debug::print;
     use std::string::{String,utf8};
@@ -12,9 +12,9 @@ module new_dev::testItemsV7{
     use deployer::testConstantV4::{Self as Constant};
 
     struct Simulated_Item has copy, drop{itemID: u64, typeID: u8, typeName: String, crafting_multi: u8, materialID: u8, materialName: String, rarityID: u8, rarityName: String, rarity_bonus_stats: vector<StatString>, stats: vector<StatString>}
-    struct FullItem has copy, drop {itemID: u64, typeID: u8, typeName: String, crafting_multi: u8, materialID: u8, materialName: String, rarityID: u8, rarityName: String,  stats: vector<StatRangeString>, crafting: vector<MaterialString>}
+    struct FullItem has copy, drop {itemID: u64, typeID: u8, typeName: String, crafting_multi: u8, materialID: u8, materialName: String, rarityID: u8, rarityName: String,  stats: vector<StatRangeString>, crafting: vector<MaterialString>, crafting_time:u64}
 
-    struct DisplayItem has copy, drop {itemID: u64, typeName: String, materialName: String, stats: vector<StatRangeString>, crafting: vector<MaterialString>}
+    struct DisplayItem has copy, drop {itemID: u64, typeName: String, materialName: String, stats: vector<StatRangeString>, crafting: vector<MaterialString>, crafting_time:u64}
 
     // 1 = 0,01%
     // 10000 = 100%
@@ -289,6 +289,7 @@ public fun viewRarityStatIncrease(rarityID: u8): u16 acquires Rarity_Config {
             rarityName: Core::convert_rarityID_to_String(rarityID),
             stats: multiply_stats(crafting.bonus_stats, stats.stats),
             crafting: multiply_crafting_costs(stats.crafting_multi,crafting.crafting),
+            crafting_time: calculate_crafting_time(materialID),
         };
 
         move _item
@@ -319,6 +320,7 @@ public fun viewRarityStatIncrease(rarityID: u8): u16 acquires Rarity_Config {
                 materialName: Core::convert_materialID_to_String(materialID),
                 stats: fake_item.stats,
                 crafting: fake_item.crafting,
+                crafting_time: calculate_crafting_time(materialID),
             };
             vector::push_back(&mut vect, item);
             item_count=item_count-1;
@@ -518,6 +520,33 @@ public fun viewRarityStatIncrease(rarityID: u8): u16 acquires Rarity_Config {
 
         };
         move vec
+    }
+
+    public fun calculate_crafting_time(material: u8): u64 {
+
+        let time = timestamp::now_seconds();
+
+        let base_time = (Constant::get_constant_value(&Constant::viewConstant(utf8(b"Items"),utf8(b"base_crafting_duration"))) as u64); // 30
+        let mat_duration = 1;
+
+        if (material == 6) {
+            mat_duration = (Constant::get_constant_value(&Constant::viewConstant(utf8(b"Items"), utf8(b"organic_duration_time"))) as u64);
+        } else if (material == 101) {
+            mat_duration = (Constant::get_constant_value(&Constant::viewConstant(utf8(b"Items"), utf8(b"flint_duration_time"))) as u64);
+        } else if (material == 8) {
+            mat_duration = (Constant::get_constant_value(&Constant::viewConstant(utf8(b"Items"), utf8(b"bones_duration_time"))) as u64);
+        } else if (material == 102) {
+            mat_duration = (Constant::get_constant_value(&Constant::viewConstant(utf8(b"Items"), utf8(b"copper_duration_time"))) as u64);
+        } else if (material == 103) {
+            mat_duration = (Constant::get_constant_value(&Constant::viewConstant(utf8(b"Items"), utf8(b"iron_duration_time"))) as u64);
+        } else if (material == 104) {
+            mat_duration = (Constant::get_constant_value(&Constant::viewConstant(utf8(b"Items"), utf8(b"diamond_duration_time"))) as u64);
+        } else if (material == 105) {
+            mat_duration = (Constant::get_constant_value(&Constant::viewConstant(utf8(b"Items"), utf8(b"obsidian_duration_time"))) as u64);
+        } else if (material == 106) {
+            mat_duration =  (Constant::get_constant_value(&Constant::viewConstant(utf8(b"Items"), utf8(b"shungite_duration_time"))) as u64);
+        };
+        return ((time + base_time) * mat_duration) / 100
     }
 
 // Test
