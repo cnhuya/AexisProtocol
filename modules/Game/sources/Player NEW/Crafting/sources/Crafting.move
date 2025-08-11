@@ -1,4 +1,4 @@
-module new_dev::testCraftingV21{
+module new_dev::testCraftingV22{
 
     use std::debug::print;
     use std::string::{String,utf8};
@@ -55,7 +55,7 @@ module new_dev::testCraftingV21{
         let item = Items::viewItem(typeID, materialID, 0);
         player = Player::change_player_materials_amount(addr, player, Core::degrade_multiple_materialsString(Items::get_item_crafting(&item)), false);
 
-        let time = ((timestamp::now_seconds() + base_time) * mat_duration)/100;
+        let time = Items::calculate_crafting_time(materialID);
         let crafting = PlayerCore::make_crafting(time, typeID, materialID);
         player = Player::add_player_crafting(player, crafting);
 
