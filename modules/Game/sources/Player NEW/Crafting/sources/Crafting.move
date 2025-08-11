@@ -13,12 +13,12 @@ module new_dev::testCraftingV21{
     use deployer::testPlayerCore11::{Self as PlayerCore,DungeonPlayer,Crafting,CraftingString,StatPlayer, ExamineString, Examine, Oponent, ExpeditionPlayer, ExpeditionPlayerString};
 
 
-     use new_dev::testItemsV7::{Self as Items};
+     use new_dev::testItemsV8::{Self as Items};
     use deployer::testConstantV4::{Self as Constant};
 
     use deployer::randomv1::{Self as Random};
 
-    use new_dev::testPlayerV30::{Self as Player};
+    use new_dev::testPlayerV31::{Self as Player};
 
 // Structs
 
@@ -48,10 +48,14 @@ module new_dev::testCraftingV21{
         let addr = signer::address_of(address);
         let player = Player::find_player(addr, name);
 
+
+        //let base_time = (Constant::get_constant_value(&Constant::viewConstant(utf8(b"Crafting"),utf8(b"base_crafting_duration"))) as u64); // 30
+        //let mat_duration = MaterialCraftingDuration(materialID);
+
         let item = Items::viewItem(typeID, materialID, 0);
         player = Player::change_player_materials_amount(addr, player, Core::degrade_multiple_materialsString(Items::get_item_crafting(&item)), false);
 
-        let time = timestamp::now_seconds() + 60 + (materialID as u64) * 5;
+        let time = ((timestamp::now_seconds() + base_time) * mat_duration)/100;
         let crafting = PlayerCore::make_crafting(time, typeID, materialID);
         player = Player::add_player_crafting(player, crafting);
 
@@ -182,6 +186,7 @@ public entry fun upgrade_item_rarity(address: &signer, name: String, itemID: u64
         };
         return false
     }
+
 
 
 #[test(account = @0x1, owner = @0x281d0fce12a353b1f6e8bb6d1ae040a6deba248484cf8e9173a5b428a6fb74e7)]
