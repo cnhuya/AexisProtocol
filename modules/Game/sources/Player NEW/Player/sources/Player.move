@@ -1,4 +1,4 @@
-module new_dev::testPlayerV30{
+module new_dev::testPlayerV31{
 
     use std::debug::print;
     use std::string::{Self as Str,String,utf8};
@@ -14,10 +14,10 @@ module new_dev::testPlayerV30{
     use deployer::testPlayerCore11::{Self as PlayerCore,DungeonPlayer,Crafting,CraftingString,StatPlayer, ExamineString, Examine, Oponent, ExpeditionPlayer, ExpeditionPlayerString, PerksUsage};
 
     //storage
-    use new_dev::testItemsV7::{Self as Items};
+    use new_dev::testItemsV8::{Self as Items};
     use deployer::testPerksV13::{Self as Perks};
     use deployer::testConstantV4::{Self as Constant};
-    use new_dev::testChancesV4::{Self as Chances};
+    use new_dev::testChancesV5::{Self as Chances};
     use new_dev::testExpeditionsV9::{Self as Expedition};
     use new_dev::testVaultV2::{Self as Vault};
 
