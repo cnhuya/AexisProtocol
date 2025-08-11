@@ -536,14 +536,16 @@ public fun viewRarityStatIncrease(rarityID: u8): u16 acquires Rarity_Config {
         } else if (material == 8) {
             mat_duration = (Constant::get_constant_value(&Constant::viewConstant(utf8(b"Items"), utf8(b"bones_duration_time"))) as u64);
         } else if (material == 102) {
-            mat_duration = (Constant::get_constant_value(&Constant::viewConstant(utf8(b"Items"), utf8(b"copper_duration_time"))) as u64);
+            mat_duration = (Constant::get_constant_value(&Constant::viewConstant(utf8(b"Items"), utf8(b"basalt_duration_time"))) as u64);
         } else if (material == 103) {
-            mat_duration = (Constant::get_constant_value(&Constant::viewConstant(utf8(b"Items"), utf8(b"iron_duration_time"))) as u64);
+            mat_duration = (Constant::get_constant_value(&Constant::viewConstant(utf8(b"Items"), utf8(b"copper_duration_time"))) as u64);
         } else if (material == 104) {
-            mat_duration = (Constant::get_constant_value(&Constant::viewConstant(utf8(b"Items"), utf8(b"diamond_duration_time"))) as u64);
+            mat_duration = (Constant::get_constant_value(&Constant::viewConstant(utf8(b"Items"), utf8(b"iron_duration_time"))) as u64);
         } else if (material == 105) {
-            mat_duration = (Constant::get_constant_value(&Constant::viewConstant(utf8(b"Items"), utf8(b"obsidian_duration_time"))) as u64);
+            mat_duration = (Constant::get_constant_value(&Constant::viewConstant(utf8(b"Items"), utf8(b"diamond_duration_time"))) as u64);
         } else if (material == 106) {
+            mat_duration = (Constant::get_constant_value(&Constant::viewConstant(utf8(b"Items"), utf8(b"obsidian_duration_time"))) as u64);
+        } else if (material == 107) {
             mat_duration =  (Constant::get_constant_value(&Constant::viewConstant(utf8(b"Items"), utf8(b"shungite_duration_time"))) as u64);
         };
         return (time + (base_time * mat_duration) / 100)
