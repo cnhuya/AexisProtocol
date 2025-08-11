@@ -1,4 +1,4 @@
-module new_dev::testGemsV21{
+module new_dev::testGemsV22{
 
     use std::debug::print;
     use std::string::{String,utf8};
@@ -16,7 +16,7 @@ module new_dev::testGemsV21{
 
     use deployer::randomv1::{Self as Random};
 
-    use new_dev::testPlayerV30::{Self as Player};
+    use new_dev::testPlayerV31::{Self as Player};
 
 // Structs
 
