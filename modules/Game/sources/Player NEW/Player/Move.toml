@@ -1,5 +1,5 @@
 [package]
-name = "testPlayer30"
+name = "testPlayer31"
 version = "2.1.1"
 authors = []
 
@@ -21,7 +21,7 @@ git = 'https://github.com/cnhuya/test.git'
 rev = 'main'
 subdir = 'modules/Game/sources/Core'
 
-[dependencies.itemsPkg6]
+[dependencies.itemsPkg8]
 git = 'https://github.com/cnhuya/test.git'
 rev = 'main'
 subdir = 'modules/Game/sources/Storage/Items'
@@ -46,7 +46,7 @@ git = 'https://github.com/cnhuya/test.git'
 rev = 'main'
 subdir = 'modules/Game/sources/Storage/Constant'
 
-[dependencies.chancesPkg4]
+[dependencies.chancesPkg5]
 git = 'https://github.com/cnhuya/test.git'
 rev = 'main'
 subdir = 'modules/Game/sources/Storage/Chances'
