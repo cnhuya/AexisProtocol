@@ -1,5 +1,5 @@
 [package]
-name = "testCraftingV21"
+name = "testCraftingV22"
 version = "2.1.1"
 authors = []
 
@@ -21,12 +21,12 @@ git = 'https://github.com/cnhuya/test.git'
 rev = 'main'
 subdir = 'modules/Game/sources/Core'
 
-[dependencies.itemsPkg6]
+[dependencies.itemsPkg8]
 git = 'https://github.com/cnhuya/test.git'
 rev = 'main'
 subdir = 'modules/Game/sources/Storage/Items'
 
-[dependencies.testPlayer30]
+[dependencies.testPlayer31]
 git = 'https://github.com/cnhuya/test.git'
 rev = 'main'
 subdir = 'modules/Game/sources/Player NEW/Player'
