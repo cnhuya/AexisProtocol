@@ -546,7 +546,7 @@ public fun viewRarityStatIncrease(rarityID: u8): u16 acquires Rarity_Config {
         } else if (material == 106) {
             mat_duration =  (Constant::get_constant_value(&Constant::viewConstant(utf8(b"Items"), utf8(b"shungite_duration_time"))) as u64);
         };
-        return ((time + base_time) * mat_duration) / 100
+        return (time + (base_time * mat_duration) / 100)
     }
 
 // Test
